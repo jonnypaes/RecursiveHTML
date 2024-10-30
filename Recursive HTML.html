@@ -1231,9 +1231,9 @@ a.example-link:hover, a.example-link:focus {
 <div class='vertical-inner-bottom' id='vertical-inner-bottom'></div>
 </div>
 </div>
-<div class='canvas' id='output' name='output' style='width: 100%; height: auto' title='HTML output'><div class='renderer'></div></div>
+<div class='canvas' id='output' name='output' style='width: 100%; height: auto'><div class='renderer'></div></div>
 </main>
-<label class='fab' for='data' id='fab' title='Open in new window'>
+<label class='fab' id='fab' title='Alternate / Save'>
 <!-- onClick='switchRender();return false;' onTouchEnd='saveShortcut()' -->
 <svg height='35px' style='padding:14px 0 0 0' viewBox='0 0 16 16' width='35px' xmlns='http://www.w3.org/2000/svg'>
 <path d='M14 3.414L9.414 8 14 12.586v-2.583h2V16h-6v-1.996h2.59L8 9.414l-4.59 4.59H6V16H0v-5.997h2v2.583L6.586 8 2 3.414v2.588H0V0h16v6.002h-2V3.414zm-1.415-1.413H10V0H6v2H3.415L8 6.586 12.585 2z' fill-rule='evenodd'></path>
@@ -1282,12 +1282,11 @@ a.example-link:hover, a.example-link:focus {
 </ul>
 </div>
 <footer class='footer'></footer>
-<!-- </div> -->
 <!-- IIFE | BODY INIT -->
 <script defer='defer' type='text/javascript'>
 //<![CDATA[
 if (!window.EyeDropper) {
-	console.warn('EyeDropper not compatible.')
+  console.warn('EyeDropper not compatible.')
 } else {
 	document.addEventListener('click', async (event) => {
 		// Check if Alt key is pressed during the click
@@ -2543,13 +2542,14 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
 }
 //]]>
 </script>
-<!-- NEW EVENTS -->
+<!-- MOUSE / TOUCH EVENTS -->
 <script async='async' type='text/javascript'>
 //<![CDATA[
   // initializeMouseHold(gutter, handleUp, handleDown, 1000);     
   initializeMouseHold(fab, switchRender, saveShortcut, 750);
 //]]>
 </script>
+<!-- OPTIONS -->
 <script async='async' type='text/javascript'>
 //<![CDATA[
  let touchCount = 0;
