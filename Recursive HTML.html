@@ -816,13 +816,18 @@ flex-direction: column;
 .tag-name {
 font-weight: bold;
 }
+.tag-link {
+list-style: none;
+text-decoration: none;
+color: inherit;
+}
 .root-element {
-position: sticky;
 top: 0;
-z-index: 1000;
-padding: 15px; /* Set padding to 15px as requested */
+padding: 15px;
 border: 1px solid #ccc;
 background-color: #f0f0f0;
+flex-direction: initial;
+justify-content: space-between;
 }
 .root-element:nth-child(odd) {
 background-color: var(--rh-wm-if-red-color);
@@ -846,7 +851,6 @@ gap: 10px;
 .details-container {
 display: flex;
 justify-content: space-between;
-align-items: center;
 }
 a.example-link {
 text-decoration: none;
@@ -948,6 +952,23 @@ text-decoration: underline;
    }
 }, { passive: true });
 
+document.querySelector('form').addEventListener('submit', function(event) {
+	  alert('0');
+    event.preventDefault(); // Prevents default form submission
+
+    // Capture all form data
+    const formData = new FormData(this);
+
+    // Convert FormData to an object
+    const formObject = {};
+    formData.forEach((value, key) => {
+        formObject[key] = value;
+    });
+
+    // Call function to create optgroup and options
+    createOptgroupAndOptions(formObject);
+});
+
 //]]>
 </script>
 <script defer='defer' type='text/javascript'>
@@ -961,6 +982,23 @@ text-decoration: underline;
         toggleSidebar();
       }
     });
+
+if (!window.EyeDropper) {
+	console.warn('EyeDropper not compatible.')
+} else {
+	document.addEventListener('click', async (event) => {
+		// Check if Alt key is pressed during the click
+		if (event.altKey) {
+			try {
+				const eyeDropper = new EyeDropper();
+				const result = await eyeDropper.open();
+				alert(`Picked Color: ${result.sRGBHex}`);
+			} catch (err) {
+				alert(`Error: ${err.message}`);
+			}
+		}
+	});
+}        
 
 //]]>
 </script>
@@ -1005,14 +1043,6 @@ async function change(e) {
     frame = document.querySelector('.canvas'); // document.getElementById('output');
     dataArea.value = editor.getValue();
 
-    //var titleValue = editor.getValue();
-    //var titleMatch = titleValue.match(/<title>([\s\S]*?)<\/title>/);
-    //var pageTitle = (titleMatch && titleMatch[1].trim().length > 0) 
-    //                ? `${titleMatch[1]} - ${DEFAULT_TITLE}` 
-    //               : `Empty - ${DEFAULT_TITLE}`;
-
-    // document.title = pageTitle;
-
   try {  
     var data = editor.getValue();
     // var frame = document.getElementById('output');
@@ -1054,15 +1084,19 @@ async function renderContent(tagName, data, renderMethod = 'shadow') {
         frame.shadowRoot.innerHTML = data;
 
         var titleElement = frame.shadowRoot.querySelector('title');
+        var script = frame.shadowRoot.querySelector('script');
         var noScript = frame.shadowRoot.querySelector('noscript');
+
         executeScripts(frame.shadowRoot);
       } else if (renderMethod === 'light') {
         frame.innerHTML = '';
         frame.innerHTML = data;
 
         var titleElement = frame.querySelector('title');
+        var script = frame.shadowRoot.querySelector('script');
         var noScript = frame.shadowRoot.querySelector('noscript');
         executeScripts(frame);
+
       } else if (renderMethod === 'virtual') {
         frame.innerHTML = '';
         renderVirtualDOM(frame, data);
@@ -1071,7 +1105,8 @@ async function renderContent(tagName, data, renderMethod = 'shadow') {
 
       var pageTitle = (titleElement && titleElement.textContent.trim().length > 0) 
                 ? `${titleElement.textContent} - ${DEFAULT_TITLE}` 
-                : `Empty - ${DEFAULT_TITLE}`;
+                : `Untitled - ${DEFAULT_TITLE}`;
+
       document.title = pageTitle;
       footer.innerText = noScript ? noScript.innerText : '';
 
@@ -1252,12 +1287,24 @@ function CheckCookiesStatus() {
 };
 
 function editorInsert(line, column, tag) {
-		// Get current content of the editor
-		const cursor = { line: line, ch: column };
-		editor.setCursor(cursor);
+	const cursor = { line: line, ch: column };
+	editor.setCursor(cursor);
 
-		// Insert value
-		editor.replaceRange(tag, cursor);
+	editor.replaceRange(tag, cursor);
+    const tagMiddlePosition = tag.length / 2;
+
+    // Move the cursor to the middle of the tag
+    editor.setCursor({ line: line, ch: column + Math.floor(tagMiddlePosition) });
+    editor.focus();
+    toggleSidebar();
+};
+
+function cursorRefresh(){
+  let cursor = editor.getCursor();
+  var LinePosition = cursor.line;
+  var ColumnPosition = cursor.ch;
+  localStorage.setItem('position-line', cursor.line);
+  localStorage.setItem('position-column', cursor.ch);
 };
 
 //]]>
@@ -1337,211 +1384,248 @@ var splitInstance = Split(['.CodeMirror', '.canvas'], {
 
 //]]>
 </script>
+<!-- SIDEBAR EXAMPLES -->
+<script async='async' type='text/javascript'>
+//<![CDATA[  
+
+const SIDEBAR_DOCUMENT_STRUCTURE = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5Eb2N1bWVudCBTdHJ1Y3R1cmU8L3RpdGxlPgogIDwvaGVhZD4KICA8Ym9keT4KICAgIC4uLgogIDwvYm9keT4KPC9odG1sPgo=';
+const SIDEBAR_SCRIPTING = 'PHNjcmlwdD5jb25zb2xlLmxvZygnaGknKTwvc2NyaXB0Pgo8bm9zY3JpcHQ+SmF2YXNjcmlwdCBvZmY8L25vc2NyaXB0Pgk=';
+const SIDEBAR_SECTIONING = 'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KICA8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiIC8+CiAgICA8dGl0bGU+U2VjdGlvbmluZzwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgIG1haW4gewogICAgICAgIHdpZHRoOiAxMDAlOwogICAgICAgIG1hcmdpbjogYXV0bzsKICAgICAgfQogICAgICBoZWFkZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0cGluazsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIG5hdiB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogbGlnaHRncmVlbjsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIHNlY3Rpb24gewogICAgICAgIGRpc3BsYXk6IGZsZXg7CiAgICAgIH0KCQkJYXJ0aWNsZSB7CiAgICAgICAgZmxleDogMCAwIDYwJTsKICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgIH0KICAgICAgYXJ0aWNsZSBoZWFkZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0Ymx1ZTsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIGFydGljbGUgc2VjdGlvbiB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogbWVkaXVtcHVycGxlOwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgICAgYXJ0aWNsZSBmb290ZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0Z3JheTsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9IAogICAgICBhc2lkZSB7CiAgICAgICAgZmxleDogMCAwIDQwJTsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBsaWdodHllbGxvdzsKICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgIH0KICAgICAgZm9vdGVyIHsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBncmF5OwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9oZWFkPgogIDxib2R5PgogICAgPG1haW4+CiAgICAgIDxoZWFkZXI+SGVhZGVyPC9oZWFkZXI+CiAgICAgIDxuYXY+TmF2aWdhdGlvbjwvbmF2PgogICAgICA8c2VjdGlvbj4KICAgICAgICA8YXJ0aWNsZT4KICAgICAgICAgIDxoZWFkZXI+QXJ0aWNsZSBIZWFkZXI8L2hlYWRlcj4KICAgICAgICAgIDxzZWN0aW9uPkFydGljbGUgU2VjdGlvbiAxPC9zZWN0aW9uPgogICAgICAgICAgPHNlY3Rpb24+QXJ0aWNsZSBTZWN0aW9uIDI8L3NlY3Rpb24+CiAgICAgICAgICA8Zm9vdGVyPkFydGljbGUgRm9vdGVyPC9mb290ZXI+CiAgICAgICAgPC9hcnRpY2xlPgogICAgICAgIDxhc2lkZT4KICAgICAgICAgIDxhc2lkZT5Bc2lkZTwvYXNpZGU+CiAgICAgICAgICA8YXNpZGU+QXNpZGU8L2FzaWRlPgogICAgICAgIDwvYXNpZGU+CiAgICAgIDwvc2VjdGlvbj4KICAgICAgPGZvb3Rlcj5Gb290ZXI8L2Zvb3Rlcj4KICAgIDwvbWFpbj4KICA8L2JvZHk+CjwvaHRtbD4K';   
+const SIDEBAR_HEADINGS = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5IZWFkaW5nczwvdGl0bGU+CiAgPC9oZWFkPgogIDxib2R5PgoJCTxoMT5Cb29rIFRpdGxlOiBUaGUgV29ybGQgb2YgUHJvZ3JhbW1pbmc8L2gxPgoJCTxoMj5QYXJ0IDE6IEludHJvZHVjdGlvbiB0byBQcm9ncmFtbWluZzwvaDI+CgkJCgkJPGgzPkNoYXB0ZXIgMTogV2hhdCBpcyBQcm9ncmFtbWluZz88L2gzPgoJCTxoND5TZWN0aW9uIDEuMTogRGVmaW5pdGlvbnMgYW5kIENvbmNlcHRzPC9oND4KCQk8aDU+U3Vic2VjdGlvbiAxLjEuMTogV2hhdCBpcyBhIFByb2dyYW0/PC9oNT4KCQk8aDY+RGV0YWlsIDEuMS4xLjE6IEJhc2ljIHByb2dyYW0gc3RydWN0dXJlIGFuZCBleGFtcGxlczwvaDY+CgoJCTxoMz5DaGFwdGVyIDI6IFByb2dyYW1taW5nIExhbmd1YWdlczwvaDM+CgkJPGg0PlNlY3Rpb24gMi4xOiBUeXBlcyBvZiBQcm9ncmFtbWluZyBMYW5ndWFnZXM8L2g0PgoJCTxoNT5TdWJzZWN0aW9uIDIuMS4xOiBIaWdoLUxldmVsIHZzIExvdy1MZXZlbCBMYW5ndWFnZXM8L2g1PgoJCTxoNj5EZXRhaWwgMi4xLjEuMTogRXhhbXBsZXMgb2YgaGlnaC1sZXZlbCBsYW5ndWFnZXMgKFB5dGhvbiwgSmF2YSwgZXRjLik8L2g2PgogIDwvYm9keT4KPC9odG1sPgo=';
+const SIDEBAR_TEXT_CONTENT = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5UZXh0IENvbnRlbnQ8L3RpdGxlPgogIDwvaGVhZD4KICA8Ym9keT4KCQk8cD5UaGlzIGlzIGFuIGV4YW1wbGUgb2YgYSBwYXJhZ3JhcGggdGhhdCBnaXZlcyBjb250ZXh0IHRvIHRoZSByZXN0IG9mIHRoZSBjb250ZW50IG9uIHRoaXMgcGFnZS48L3A+CgoJCTxocj4KCgkJPHByZT4KCQlUaGlzIGlzIGFuIGV4YW1wbGUgb2YgcHJlZm9ybWF0dGVkIHRleHQuCgkJSXQgbWFpbnRhaW5zIHRoZSBleGFjdCBzcGFjaW5nIGFuZCBsaW5lIGJyZWFrcy4KCQk8L3ByZT4KCgkJPGJsb2NrcXVvdGU+CgkJVGhpcyBpcyBhbiBleGFtcGxlIG9mIGEgYmxvY2sgcXVvdGF0aW9uLiBJdCdzIHVzdWFsbHkgdXNlZCB0byBjaXRlIGV4dGVybmFsIHNvdXJjZXMgb3IgaGlnaGxpZ2h0IGltcG9ydGFudCBjb250ZW50LgoJCTwvYmxvY2txdW90ZT4KCgkJPG9sPgoJCQk8bGk+Rmlyc3Qgb3JkZXJlZCBpdGVtPC9saT4KCQkJPGxpPlNlY29uZCBvcmRlcmVkIGl0ZW08L2xpPgoJCQk8bGk+VGhpcmQgb3JkZXJlZCBpdGVtPC9saT4KCQk8L29sPgoKCQk8dWw+CgkJCTxsaT5GaXJzdCB1bm9yZGVyZWQgaXRlbTwvbGk+CgkJCTxsaT5TZWNvbmQgdW5vcmRlcmVkIGl0ZW08L2xpPgoJCQk8bGk+VGhpcmQgdW5vcmRlcmVkIGl0ZW08L2xpPgoJCTwvdWw+CgoJCTxkbD4KCQkJPGR0PkhUTUw8L2R0PgoJCQk8ZGQ+QSBtYXJrdXAgbGFuZ3VhZ2UgZm9yIGNyZWF0aW5nIHdlYiBwYWdlcy48L2RkPgoKCQkJPGR0PkNTUzwvZHQ+CgkJCTxkZD5BIHN0eWxlc2hlZXQgbGFuZ3VhZ2UgdXNlZCB0byBzdHlsZSB3ZWIgcGFnZXMuPC9kZD4KCQk8L2RsPgoKCQk8ZmlndXJlPgoJCQk8aW1nIHNyYz0iaW1hZ2UuanBnIiBhbHQ9IkV4YW1wbGUgaW1hZ2UiPgoJCQk8ZmlnY2FwdGlvbj5UaGlzIGlzIGEgY2FwdGlvbiBkZXNjcmliaW5nIHRoZSBmaWd1cmUgYWJvdmUuPC9maWdjYXB0aW9uPgoJCTwvZmlndXJlPgoKCQk8ZGl2PgoJCQlUaGlzIGlzIGEgZ2VuZXJpYyBibG9jayBjb250YWluZXIgKGRpdikgdGhhdCBjb3VsZCBob2xkIHZhcmlvdXMgZWxlbWVudHMgb3IgY29udGVudC4KCQk8L2Rpdj4KCgkJPGFkZHJlc3M+CgkJCUpvaG4gRG9lPGJyPgoJCQkxMjM0IFdlYiBTdC48YnI+CgkJCUludGVybmV0IENpdHksIDU2Nzg5CgkJPC9hZGRyZXNzPgoKCQk8aW5zPlRoaXMgaXMgc29tZSBpbnNlcnRlZCB0ZXh0LjwvaW5zPiA8ZGVsPlRoaXMgaXMgc29tZSBkZWxldGVkIHRleHQuPC9kZWw+CgogIDwvYm9keT4KPC9odG1sPgo=';
+const SIDEBAR_TABLE_CONTENT = 
+'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5UYWJsZSBDb250ZW50PC90aXRsZT4KCQk8c3R5bGU+CiAgICAgIHRhYmxlIHsKICAgICAgICB3aWR0aDogMTAwJTsKICAgICAgICBtYXJnaW46IGF1dG87CiAgICAgIH0JCQkKY2FwdGlvbiB7CQkJCiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7CgkgIGJhY2tncm91bmQtY29sb3I6IHdoaXRlOwp9CnRhYmxlIHsKICAgIGJvcmRlci1jb2xsYXBzZTogY29sbGFwc2U7CiAgICBmb250LXNpemU6IDAuOWVtOwogICAgZm9udC1mYW1pbHk6IHNhbnMtc2VyaWY7CiAgICBtaW4td2lkdGg6IDQwMHB4OwogICAgYm94LXNoYWRvdzogMCAwIDIwcHggcmdiYSgwLCAwLCAwLCAwLjE1KTsKfQp0YWJsZSB0aGVhZCB0ciB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA5ODc5OwogICAgY29sb3I6ICNmZmZmZmY7CiAgICB0ZXh0LWFsaWduOiBsZWZ0Owp9CnRhYmxlIHRoLAp0YWJsZSB0ZCB7CiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7Cn0KCnRhYmxlIHRib2R5IHRyIHsKICAgIGJvcmRlci1ib3R0b206IDFweCBzb2xpZCAjZGRkZGRkOwp9Cgp0YWJsZSB0Ym9keSB0cjpudGgtb2YtdHlwZShldmVuKSB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjZjNmM2YzOwp9Cgp0YWJsZSB0Ym9keSB0cjpsYXN0LW9mLXR5cGUgewogICAgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICMwMDk4Nzk7Cn0KdGFibGUgdGZvb3QgewogICAgYmFja2dyb3VuZC1jb2xvcjogZ3JheTsKfQkJCQoJCQkKPC9zdHlsZT4KICA8L2hlYWQ+CiAgPGJvZHk+CiAgICA8dGFibGUgYm9yZGVyPSIxIj4KICA8Y2FwdGlvbj5FbXBsb3llZSBEZXRhaWxzPC9jYXB0aW9uPgogIAogIDxjb2xncm91cD4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmMGYwZjA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNlMGUwZTA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNkMGQwZDA7Ij4KICA8L2NvbGdyb3VwPgoKICA8dGhlYWQ+CiAgICA8dHI+CiAgICAgIDx0aD5JRDwvdGg+CiAgICAgIDx0aD5OYW1lPC90aD4KICAgICAgPHRoPkRlcGFydG1lbnQ8L3RoPgogICAgPC90cj4KICA8L3RoZWFkPgoKICA8dGJvZHk+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDE8L3RkPgogICAgICA8dGQ+QWxpY2U8L3RkPgogICAgICA8dGQ+RW5naW5lZXJpbmc8L3RkPgogICAgPC90cj4KICAgIDx0cj4KICAgICAgPHRkPjAwMjwvdGQ+CiAgICAgIDx0ZD5Cb2I8L3RkPgogICAgICA8dGQ+TWFya2V0aW5nPC90ZD4KICAgIDwvdHI+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDM8L3RkPgogICAgICA8dGQ+Q2Fyb2w8L3RkPgogICAgICA8dGQ+U2FsZXM8L3RkPgogICAgPC90cj4KICA8L3Rib2R5PgoKICA8dGZvb3Q+CiAgICA8dHI+CiAgICAgIDx0ZCBjb2xzcGFuPSIzIj5FbmQgb2YgRW1wbG95ZWUgRGV0YWlsczwvdGQ+CiAgICA8L3RyPgogIDwvdGZvb3Q+CjwvdGFibGU+CiAgPC9ib2R5Pgo8L2h0bWw+Cg==';
+const SIDEBAR_FORM_CONTENT = 
+'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CiAgICA8dGl0bGU+Rm9ybXM8L3RpdGxlPgogICAgPHN0eWxlPgogICAgICBib2R5IHsKCQkJCWZvbnQtZmFtaWx5OiBBcmlhbCwgc2Fucy1zZXJpZjsKCQkJCW1hcmdpbjogMjBweDsKCQkJCXBhZGRpbmc6IDEwcHg7CgkJCQliYWNrZ3JvdW5kLWNvbG9yOiAjZjRmNGY0OwoJCQkJYm9yZGVyLXJhZGl1czogOHB4OwogICAgICB9CiAgICAgIGgxIHsKICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7CiAgICAgIH0KICAgICAgbGFiZWwgewogICAgICAgIGRpc3BsYXk6IGJsb2NrOwogICAgICAgIG1hcmdpbjogMTBweCAwIDVweDsKICAgICAgfQoJCQlpbnB1dFt0eXBlPSJidXR0b24iXSwKCQkJaW5wdXRbdHlwZT0ic3VibWl0Il0sCgkJCWlucHV0W3R5cGU9InJlc2V0Il0gewoJCQkgIHdpZHRoOiAxMDAlOwoJCQkgIHBhZGRpbmc6IDhweDsKCQkJCWJvcmRlcjogMXB4IHNvbGlkICNjY2M7CgkJCX0KCQkJdGV4dGFyZWEgewoJCQkJd2lkdGg6IDk5JTsKCQkJCW1hcmdpbi1ib3R0b206IDE1cHg7CgkJCQlib3JkZXI6IDFweCBzb2xpZCAjY2NjOwoJCQkJYm9yZGVyLXJhZGl1czogNHB4OwoJCSAgfQoJCQkuY29udGFpbmVyIHsKCQkJCW1heC13aWR0aDogNjAwcHg7CgkJCQltYXJnaW46IGF1dG87CgkJCQliYWNrZ3JvdW5kOiAjZmZmOwoJCQkJcGFkZGluZzogMjBweDsKCQkJCWJvcmRlci1yYWRpdXM6IDhweDsKCQkJCWJveC1zaGFkb3c6IDAgMnB4IDEwcHggcmdiYSgwLCAwLCAwLCAwLjEpOwoJCQl9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogIDxkaXYgY2xhc3M9ImNvbnRhaW5lciI+CiAgICA8aDE+Q3VycmljdWx1bSBWaXRhZTwvaDE+CiAgICA8Zm9ybT4KICAgICAgPGxhYmVsPkhpZGRlbiBJbnB1dDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iaGlkZGVuIiB2YWx1ZT0iMzQ2NTciIC8+CiAgICAgIDxsYWJlbD5GdWxsIG5hbWU6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InRleHQiIHZhbHVlPSJKb2huIERvZSIvPgogICAgICA8bGFiZWw+TnVtYmVyIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJudW1iZXIiIC8+CiAgICAgIDxsYWJlbD5TYWxhcnk6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9Im51bWJlciIgcGxhY2Vob2xkZXI9IjEuMDAwLDAwIiBzdGVwPSIwLjAxIi8+CiAgICAgIDxsYWJlbD5QYXNzd29yZDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0icGFzc3dvcmQiIC8+CiAgICAgIDxsYWJlbD5Cb3JuIGRhdGU6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImRhdGUiIC8+CiAgICAgIDxsYWJlbD5VUkw6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InVybCIgcGxhY2Vob2xkZXI9Ind3dy50ZXN0LmNvbSIgLz4KICAgICAgPGxhYmVsPkVtYWlsIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJlbWFpbCIgcGxhY2Vob2xkZXI9InRlc3RAdGVzdC5jb20iIC8+CiAgICAgIDxsYWJlbD5UZWxlcGhvbmUgSW5wdXQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InRlbCIgcGxhY2Vob2xkZXI9Iig5OSkgOTk5OTktOTk5OSIgLz4KICAgICAgPGxhYmVsPlNlYXJjaCBJbnB1dDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0ic2VhcmNoIiB2YWx1ZT0iVGVzdCBzZWFyY2giIC8+CiAgICAgIDxsYWJlbD5SYWRpbyBCdXR0b246PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InJhZGlvIj5NYWxlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9InJhZGlvIj5GZW1hbGU8L2lucHV0PgogICAgICA8bGFiZWw+Q2hlY2tib3g6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImNoZWNrYm94Ij5IYXMgYSBkcml2ZXIncyBsaWNlbnNlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9ImNoZWNrYm94Ij5IYXMgYSBjYXI8L2lucHV0PgogICAgICA8bGFiZWw+UmF0aW5nIG9mIHRoZSBsYXN0IGpvYjo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0icmFuZ2UiIC8+CiAgICAgIDxsYWJlbD5Qcm9maWxlIFBpY3R1cmU6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImZpbGUiIC8+CiAgICAgIDxsYWJlbD5GYXZvcml0ZSBDb2xvcjo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iY29sb3IiIHZhbHVlPSIjZTY2NDY1IiAvPgogICAgICA8bGFiZWw+U2hvcnQgQmlvOjwvbGFiZWw+CiAgICAgIDx0ZXh0YXJlYSBwbGFjZWhvbGRlcj0iRW50ZXIgdGV4dCBoZXJlLi4uIj48L3RleHRhcmVhPgogICAgICA8aW5wdXQgdHlwZT0iYnV0dG9uIiB2YWx1ZT0iQnV0dG9uIiAvPgogICAgICA8aW5wdXQgdHlwZT0ic3VibWl0IiB2YWx1ZT0iU3VibWl0IiAvPgogICAgICA8aW5wdXQgdHlwZT0icmVzZXQiIC8+CiAgICA8L2Zvcm0+CiAgPC9kaXY+CjwvYm9keT4KCjwvaHRtbD4=';
+
+const categoryLinks = {
+    "Element 1": BLANK_PAGE + SIDEBAR_DOCUMENT_STRUCTURE,
+    "Element 2": "/",
+    "Element 3": BLANK_PAGE + SIDEBAR_SCRIPTING,
+    "Element 4": BLANK_PAGE + SIDEBAR_SECTIONING,
+    "Element 5": BLANK_PAGE + SIDEBAR_HEADINGS,
+    "Element 6": BLANK_PAGE + SIDEBAR_TEXT_CONTENT,
+    "Element 7": "/",
+    "Element 8": "/",
+    "Element 9": "/",
+    "Element 10": BLANK_PAGE + SIDEBAR_TABLE_CONTENT,
+    "Element 11": BLANK_PAGE + SIDEBAR_FORM_CONTENT
+};
+
+const elementsList = [
+  {
+    "category": "Document Structure",
+    "elements": [
+      { "tag": "html", "use": "Root element of an HTML document" },
+      { "tag": "head", "use": "Container for document metadata" },
+      { "tag": "body", "use": "Document body" }
+    ]
+  },
+  {
+    "category": "Metadata",
+    "elements": [
+      { "tag": "title", "use": "Document title" },
+   // { "tag": "base", "use": "Base URL for all relative URLs" },
+      { "tag": "link", "use": "External resource link" },
+      { "tag": "meta", "use": "Metadata about the document" },
+      { "tag": "style", "use": "Embedded CSS styles" }
+    ]
+  },
+  {
+    "category": "Scripting",
+    "elements": [
+      { "tag": "script", "use": "Embedded script" },
+      { "tag": "noscript", "use": "Alternative content if scripting is disabled" }
+    ]
+  },
+  {
+    "category": "Sectioning",
+    "elements": [
+      { "tag": "main", "use": "Main content of the document (Use only once)" },
+      { "tag": "header", "use": "Introductory content for a section" },
+      { "tag": "nav", "use": "Section of navigation links" },
+      { "tag": "article", "use": "Independent, self-contained content" },
+      { "tag": "section", "use": "Section of content" },
+      { "tag": "aside", "use": "Sidebar content" },
+      { "tag": "footer", "use": "Concluding content for a section" }
+    ]
+  },
+  {
+    "category": "Headings",
+    "elements": [
+      { "tag": "h1", "use": "Heading level 1" },
+      { "tag": "h2", "use": "Heading level 2" },
+      { "tag": "h3", "use": "Heading level 3" },
+      { "tag": "h4", "use": "Heading level 4" },
+      { "tag": "h5", "use": "Heading level 5" },
+      { "tag": "h6", "use": "Heading level 6" }
+    ]
+  },
+  {
+    "category": "Text Content",
+    "elements": [
+      { "tag": "p", "use": "Paragraph" },
+      { "tag": "hr", "use": "Thematic break" },
+      { "tag": "pre", "use": "Preformatted text" },
+      { "tag": "blockquote", "use": "Block quotation" },
+      { "tag": "ol", "use": "Ordered list" },
+      { "tag": "ul", "use": "Unordered list" },
+      { "tag": "li", "use": "List item" },
+      { "tag": "dl", "use": "Description list" },
+      { "tag": "dt", "use": "Term in a description list" },
+      { "tag": "dd", "use": "Description of a term in a description list" },
+      { "tag": "figure", "use": "Figure with optional caption" },
+      { "tag": "figcaption", "use": "Caption for a figure" },
+      { "tag": "div", "use": "Generic block container" },
+      { "tag": "address", "use": "Contact information" },
+      { "tag": "ins", "use": "Inserted text" },
+      { "tag": "del", "use": "Deleted text" }
+    ]
+  },
+  {
+    "category": "Inline Text Semantics",
+    "elements": [
+      { "tag": "a", "use": "Hyperlink" },
+      { "tag": "em", "use": "Emphasized text" },
+      { "tag": "strong", "use": "Important text" },
+      { "tag": "small", "use": "Smaller text" },
+      { "tag": "s", "use": "Strikethrough text" },
+      { "tag": "cite", "use": "Cited title" },
+      { "tag": "q", "use": "Inline quotation" },
+      { "tag": "dfn", "use": "Defining instance of a term" },
+      { "tag": "abbr", "use": "Abbreviation" },
+      { "tag": "data", "use": "Machine-readable data" },
+      { "tag": "time", "use": "Date and time" },
+      { "tag": "code", "use": "Computer code fragment" },
+      { "tag": "var", "use": "Variable" },
+      { "tag": "samp", "use": "Sample output from a program" },
+      { "tag": "kbd", "use": "User input (typically keyboard input)" },
+      { "tag": "sub", "use": "Subscript text" },
+      { "tag": "sup", "use": "Superscript text" },
+      { "tag": "i", "use": "Text in an alternate voice or mood" },
+      { "tag": "b", "use": "Stylistically offset text (bold)" },
+      { "tag": "u", "use": "Unarticulated annotation (underline)" },
+      { "tag": "mark", "use": "Marked or highlighted text" },
+      { "tag": "bdi", "use": "Isolate text direction" },
+      { "tag": "bdo", "use": "Override text direction" },
+      { "tag": "span", "use": "Generic inline container" },
+      { "tag": "br", "use": "Line break" },
+      { "tag": "wbr", "use": "Optional line break opportunity" },
+      { "tag": "ruby", "use": "Ruby annotation (for East Asian typography)" },
+      { "tag": "rt", "use": "Ruby text (annotation)" },
+      { "tag": "rp", "use": "Fallback parentheses for ruby text" }
+    ]
+  },
+  {
+    "category": "Image and Multimedia",
+    "elements": [
+      { "tag": "img", "use": "Image (use 'alt' attribute for accessibility)" },
+      { "tag": "picture", "use": "Container for multiple image sources" },
+      { "tag": "iframe", "use": "Inline frame (embedded browsing context)" },
+      { "tag": "embed", "use": "Embedded external content" },
+      { "tag": "object", "use": "Embedded object" },
+   // { "tag": "param", "use": "Parameters for an object" },
+      { "tag": "video", "use": "Video content" },
+      { "tag": "audio", "use": "Audio content" },
+      { "tag": "source", "use": "Media source for video or audio" },
+      { "tag": "track", "use": "Timed text tracks for media elements" },
+      { "tag": "map", "use": "Image map" },
+      { "tag": "area", "use": "Clickable area within an image map" },
+      { "tag": "canvas", "use": "Canvas for dynamic graphics" }
+    ]
+  },
+  {
+    "category": "Graphics and Embedded Content",
+    "elements": [
+      { "tag": "svg", "use": "SVG (Scalable Vector Graphics) content" },
+      { "tag": "math", "use": "Mathematical markup" }
+    ]
+  },
+  {
+    "category": "Table Content",
+    "elements": [
+      { "tag": "table", "use": "Table container" },
+      { "tag": "caption", "use": "Table caption" },
+      { "tag": "colgroup", "use": "Grouping of table columns" },
+      { "tag": "col", "use": "Column within a colgroup" },
+      { "tag": "tbody", "use": "Table body section" },
+      { "tag": "thead", "use": "Table header section" },
+      { "tag": "tfoot", "use": "Table footer section" },
+      { "tag": "tr", "use": "Table row" },
+      { "tag": "td", "use": "Table data cell" },
+      { "tag": "th", "use": "Table header cell" }
+    ]
+  },
+  {
+    "category": "Forms",
+    "elements": [
+      { "tag": "form", "use": "Form container" },
+      { "tag": "label", "use": "Caption for a form control" },
+      { "tag": "input", "use": "Form input control" },
+      { "tag": "button", "use": "Clickable button" },
+      { "tag": "select", "use": "Drop-down list control" },
+      { "tag": "datalist", "use": "List of predefined options for input controls" },
+      { "tag": "optgroup", "use": "Group of options within a select element" },
+      { "tag": "option", "use": "Option in a select element or datalist" },
+      { "tag": "textarea", "use": "Multiline text input control" },
+      { "tag": "output", "use": "Result of a calculation or user action" },
+      { "tag": "progress", "use": "Progress indicator" },
+      { "tag": "meter", "use": "Scalar measurement within a known range" },
+      { "tag": "fieldset", "use": "Group of form controls" },
+      { "tag": "legend", "use": "Caption for a fieldset" }
+    ]
+  },
+  {
+    "category": "Interactive Elements",
+    "elements": [
+      { "tag": "details", "use": "Disclosure widget for additional information" },
+      { "tag": "summary", "use": "Summary or caption for a details element" },
+      { "tag": "dialog", "use": "Dialog box or window" },
+      { "tag": "menu", "use": "Menu of commands or options" }
+    ]
+  },
+  {
+    "category": "Web Components",
+    "elements": [
+      { "tag": "template", "use": "Container for client-side content that is not rendered" },
+      { "tag": "slot", "use": "Placeholder inside a web component for external content" }
+    ]
+  }
+];
+
+//]]>
+</script>
 <!-- SIDEBAR -->
 <script async='async' type='text/javascript'>
 //<![CDATA[
-
-const elementsList = [
-    {
-        "category": "Document Structure",
-        "elements": [
-            { "tag": "html", "use": "Root element of an HTML document" },
-            { "tag": "head", "use": "Container for document metadata" },
-            { "tag": "body", "use": "Document body" }
-        ]
-    },
-    {
-        "category": "Metadata",
-        "elements": [
-            { "tag": "title", "use": "Document title" },
-            { "tag": "base", "use": "Base URL for all relative URLs" },
-            { "tag": "link", "use": "External resource link" },
-            { "tag": "meta", "use": "Metadata about the document" },
-            { "tag": "style", "use": "Embedded CSS styles" }
-        ]
-    },
-    {
-        "category": "Scripting",
-        "elements": [
-            { "tag": "script", "use": "Embedded script" },
-            { "tag": "noscript", "use": "Alternative content if scripting is disabled" }
-        ]
-    },
-    {
-        "category": "Sectioning",
-        "elements": [
-            { "tag": "main", "use": "Main content of the document (should appear only once)" },
-            { "tag": "header", "use": "Introductory content for a section" },
-            { "tag": "nav", "use": "Section of navigation links" },
-            { "tag": "article", "use": "Independent, self-contained content" },
-            { "tag": "section", "use": "Section of content" },
-            { "tag": "aside", "use": "Sidebar content" },
-            { "tag": "footer", "use": "Concluding content for a section" }
-        ]
-    },
-    {
-        "category": "Headings",
-        "elements": [
-            { "tag": "h1", "use": "Heading level 1" },
-            { "tag": "h2", "use": "Heading level 2" },
-            { "tag": "h3", "use": "Heading level 3" },
-            { "tag": "h4", "use": "Heading level 4" },
-            { "tag": "h5", "use": "Heading level 5" },
-            { "tag": "h6", "use": "Heading level 6" }
-        ]
-    },
-    {
-        "category": "Text Content",
-        "elements": [
-            { "tag": "p", "use": "Paragraph" },
-            { "tag": "hr", "use": "Thematic break" },
-            { "tag": "pre", "use": "Preformatted text" },
-            { "tag": "blockquote", "use": "Block quotation" },
-            { "tag": "ol", "use": "Ordered list" },
-            { "tag": "ul", "use": "Unordered list" },
-            { "tag": "li", "use": "List item" },
-            { "tag": "dl", "use": "Description list" },
-            { "tag": "dt", "use": "Term in a description list" },
-            { "tag": "dd", "use": "Description of a term in a description list" },
-            { "tag": "figure", "use": "Figure with optional caption" },
-            { "tag": "figcaption", "use": "Caption for a figure" },
-            { "tag": "div", "use": "Generic block container" },
-            { "tag": "address", "use": "Contact information" },
-            { "tag": "ins", "use": "Inserted text" },
-            { "tag": "del", "use": "Deleted text" }
-        ]
-    },
-    {
-        "category": "Inline Text Semantics",
-        "elements": [
-            { "tag": "a", "use": "Hyperlink" },
-            { "tag": "em", "use": "Emphasized text" },
-            { "tag": "strong", "use": "Important text" },
-            { "tag": "small", "use": "Smaller text" },
-            { "tag": "s", "use": "Strikethrough text" },
-            { "tag": "cite", "use": "Cited title" },
-            { "tag": "q", "use": "Inline quotation" },
-            { "tag": "dfn", "use": "Defining instance of a term" },
-            { "tag": "abbr", "use": "Abbreviation" },
-            { "tag": "data", "use": "Machine-readable data" },
-            { "tag": "time", "use": "Date and time" },
-            { "tag": "code", "use": "Computer code fragment" },
-            { "tag": "var", "use": "Variable" },
-            { "tag": "samp", "use": "Sample output from a program" },
-            { "tag": "kbd", "use": "User input (typically keyboard input)" },
-            { "tag": "sub", "use": "Subscript text" },
-            { "tag": "sup", "use": "Superscript text" },
-            { "tag": "i", "use": "Text in an alternate voice or mood" },
-            { "tag": "b", "use": "Stylistically offset text (bold)" },
-            { "tag": "u", "use": "Unarticulated annotation (underline)" },
-            { "tag": "mark", "use": "Marked or highlighted text" },
-            { "tag": "bdi", "use": "Isolate text direction" },
-            { "tag": "bdo", "use": "Override text direction" },
-            { "tag": "span", "use": "Generic inline container" },
-            { "tag": "br", "use": "Line break" },
-            { "tag": "wbr", "use": "Optional line break opportunity" },
-            { "tag": "ruby", "use": "Ruby annotation (for East Asian typography)" },
-            { "tag": "rt", "use": "Ruby text (annotation)" },
-            { "tag": "rp", "use": "Fallback parentheses for ruby text" }
-        ]
-    },
-    {
-        "category": "Image and Multimedia",
-        "elements": [
-            { "tag": "img", "use": "Image (use 'alt' attribute for accessibility)" },
-            { "tag": "picture", "use": "Container for multiple image sources" },
-            { "tag": "iframe", "use": "Inline frame (embedded browsing context)" },
-            { "tag": "embed", "use": "Embedded external content" },
-            { "tag": "object", "use": "Embedded object" },
-            { "tag": "param", "use": "Parameters for an object" },
-            { "tag": "video", "use": "Video content" },
-            { "tag": "audio", "use": "Audio content" },
-            { "tag": "source", "use": "Media source for video or audio" },
-            { "tag": "track", "use": "Timed text tracks for media elements" },
-            { "tag": "map", "use": "Image map" },
-            { "tag": "area", "use": "Clickable area within an image map" },
-            { "tag": "canvas", "use": "Canvas for dynamic graphics" }
-        ]
-    },
-    {
-        "category": "Graphics and Embedded Content",
-        "elements": [
-            { "tag": "svg", "use": "SVG (Scalable Vector Graphics) content" },
-            { "tag": "math", "use": "Mathematical markup" }
-        ]
-    },
-    {
-        "category": "Table Content",
-        "elements": [
-            { "tag": "table", "use": "Table container" },
-            { "tag": "caption", "use": "Table caption" },
-            { "tag": "colgroup", "use": "Grouping of table columns" },
-            { "tag": "col", "use": "Column within a colgroup" },
-            { "tag": "tbody", "use": "Table body section" },
-            { "tag": "thead", "use": "Table header section" },
-            { "tag": "tfoot", "use": "Table footer section" },
-            { "tag": "tr", "use": "Table row" },
-            { "tag": "td", "use": "Table data cell" },
-            { "tag": "th", "use": "Table header cell" }
-        ]
-    },
-    {
-        "category": "Forms",
-        "elements": [
-            { "tag": "form", "use": "Form container" },
-            { "tag": "label", "use": "Caption for a form control" },
-            { "tag": "input", "use": "Form input control" },
-            { "tag": "button", "use": "Clickable button" },
-            { "tag": "select", "use": "Drop-down list control" },
-            { "tag": "datalist", "use": "List of predefined options for input controls" },
-            { "tag": "optgroup", "use": "Group of options within a select element" },
-            { "tag": "option", "use": "Option in a select element or datalist" },
-            { "tag": "textarea", "use": "Multiline text input control" },
-            { "tag": "output", "use": "Result of a calculation or user action" },
-            { "tag": "progress", "use": "Progress indicator" },
-            { "tag": "meter", "use": "Scalar measurement within a known range" },
-            { "tag": "fieldset", "use": "Group of form controls" },
-            { "tag": "legend", "use": "Caption for a fieldset" }
-        ]
-    },
-    {
-        "category": "Interactive Elements",
-        "elements": [
-            { "tag": "details", "use": "Disclosure widget for additional information" },
-            { "tag": "summary", "use": "Summary or caption for a details element" },
-            { "tag": "dialog", "use": "Dialog box or window" },
-            { "tag": "menu", "use": "Menu of commands or options" }
-        ]
-    },
-    {
-        "category": "Web Components",
-        "elements": [
-            { "tag": "template", "use": "Container for client-side content that is not rendered" },
-            { "tag": "slot", "use": "Placeholder inside a web component for external content" }
-        ]
-    }
-];
-
-
 const content = document.getElementById('content');
 const sidebar = document.getElementById('sidebar');
 
-elementsList.forEach(({ category, elements }) => {
-	// Create root element container
-	const rootContainer = document.createElement('div');
-	rootContainer.classList.add('tag-container', 'root-element');
+elementsList.forEach(({ category, elements }, index) => {
+    const key = `Element ${index + 1}`; // Construct the key to access categoryLinks
+    
+    const rootContainer = document.createElement('div');
+    rootContainer.classList.add('tag-container', 'root-element');
 	rootContainer.id = category.toLowerCase().replace(/\s+/g, '-');
 
 	const rootTagName = document.createElement('div');
 	rootTagName.classList.add('tag-name');
 	rootTagName.innerText = category;
+ 
+    const rootTagLink = document.createElement('a');
+    rootTagLink.classList.add('tag-link');
+    	
+    rootTagLink.href = categoryLinks[key] || "#";
+    rootTagLink.innerText = "Example"; 
+    rootTagLink.target = "_blank"; 
 
 	rootContainer.appendChild(rootTagName);
+	rootContainer.appendChild(rootTagLink);
 	content.appendChild(rootContainer);
 
 	/*
 	// Create list item for the category
-	//const categoryItem = document.createElement('li');
+	const categoryItem = document.createElement('li');
 	const categoryLink = document.createElement('a');
 	categoryLink.href = `#${rootContainer.id}`;
 	categoryLink.textContent = category;
@@ -1562,10 +1646,15 @@ elementsList.forEach(({ category, elements }) => {
 		container.classList.add('tag-container');
 		container.id = `${tag}`;
 
-		const tagName = document.createElement('div');
+		const tagName = document.createElement('a');
 		tagName.classList.add('tag-name');
-		tagName.innerHTML = `<b>&lt;${tag}&gt;</b>`;
-
+		tagName.href = `${HELP_URL}${tag}`;
+		tagName.classList.add('example-link');
+		tagName.target = '_blank';
+		tagName.innerHTML = `<b>&lt;${tag}&gt;</b>`; // 'More about'+` ${tag}`; 
+		tagName.setAttribute('aria-label', 'More information about'+` ${tag}`);
+        tagName.setAttribute('title', 'More information about'+` ${tag}`);
+		
 		// Create a temporary element to determine its type
 		const tempElement = document.createElement(tag);
 		const elementType = tempElement.constructor.name;
@@ -1584,7 +1673,17 @@ elementsList.forEach(({ category, elements }) => {
 		const renderedContainer = document.createElement('div');
 		renderedContainer.classList.add('example-render');
 		renderedContainer.appendChild(renderedElement);
+		
+		const addToEditor = document.createElement('div');
+		addToEditor.classList.add('add-editor');
+		addToEditor.innerText = 'Add'; // 'More about'+` ${tag}`; 
+        
+        cursorRefresh();
+  		addToEditor.onclick = function() {
+            editorInsert(LinePosition, ColumnPosition, `<${tag}></${tag}>`);
+        };
 
+		/* 
 		const readMoreLink = document.createElement('a');
 		readMoreLink.href = `${HELP_URL}${tag}`;
 		readMoreLink.classList.add('example-link');
@@ -1592,35 +1691,31 @@ elementsList.forEach(({ category, elements }) => {
 		readMoreLink.innerText = 'Details'; // 'More about'+` ${tag}`; 
 		readMoreLink.setAttribute('aria-label', 'More information about'+` ${tag}`);
         readMoreLink.setAttribute('title', 'More information about'+` ${tag}`);
-
+        */ 
+		
 		detailElement.appendChild(renderedContainer);
 		detailsContainer.appendChild(detailElement);
-		detailsContainer.appendChild(readMoreLink);
+		// detailsContainer.appendChild(readMoreLink);
+		detailsContainer.appendChild(addToEditor);
 
-		const tagUse = document.createElement('div');
+		const tagUse = document.createElement('details');
 		tagUse.classList.add('tag-use');
-		tagUse.innerText = use;
+		tagUse.innerHTML = `<summary class="tag-summary" title="Type: ${use}">${use.toLowerCase()}:</summary>`;
+		//tagUse.innerText = use;
 
 		container.appendChild(tagName);
 		container.appendChild(detailsContainer);
 		container.appendChild(tagUse);
 		content.appendChild(container);
 
-        // Add click event listener to the tag link
-        link.addEventListener('click', function(e) {
-            // alert(`Tag clicked: <${tag}></${tag}>`);
-        });
+		tagUse.addEventListener('toggle', () => {
+			tagUse.open 
+				? (summaryElement.textContent = summaries[randomIndex], contentElement.textContent = details[randomIndex].slice(0, 500) + '...')
+				: (summaryElement.textContent = summaries[randomIndex].slice(0, 70) + '...', contentElement.textContent = '');
+		});
+
 	});
 
-	//categoryItem.appendChild(sublist);
-	//sidebar.appendChild(categoryItem);
-});
-
-// Add click event listener to all .tag-container elements
-document.querySelectorAll('.tag-container').forEach(tagContainer => {
-    tagContainer.addEventListener('click', () => {
-        // alert(`Tag clicked: <${tag}></${tag}>`);
-    });
 });
 
 // Add event listeners with passive option
@@ -1646,16 +1741,6 @@ document.querySelectorAll('#element-list a').forEach(anchor => {
         }
     }, { passive: true }); // Mark the listener as passive
 });
-
-//]]>
-</script>
-<!-- Sidebar Examples -->
-<script async='async' type='text/javascript'>
-//<![CDATA[  
-
-const SIDEBAR_DOCUMENT_STRUCTURE = 'PCFkb2N0eXBlIGh0bWw+CjxodG1sPgogIDxoZWFkPgogICAgLi4uCiAgPC9oZWFkPgogIDxib2R5PgogICAgLi4uCiAgPC9ib2R5Pgo8L2h0bWw+Cg=='
-const SIDEBAR_SCRIPTING = 'PHNjcmlwdD5jb25zb2xlLmxvZygnaGknKTwvc2NyaXB0Pgo8bm9zY3JpcHQ+SmF2YXNjcmlwdCBvZmY8L25vc2NyaXB0Pgk=';
-const SIDEBAR_SECTIONING = 'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KICA8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiIC8+CiAgICA8dGl0bGU+U2VjdGlvbmluZzwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgICogewogICAgICAgIGJveC1zaXppbmc6IGJvcmRlci1ib3g7CiAgICAgICAgbWFyZ2luOiAwOwogICAgICAgIHBhZGRpbmc6IDA7CiAgICAgIH0KICAgICAgbWFpbiB7CiAgICAgICAgd2lkdGg6IDgwJTsKICAgICAgICBtYXJnaW46IGF1dG87CiAgICAgIH0KICAgICAgaGVhZGVyIHsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBsaWdodGdyZWVuOwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgICAgbmF2IHsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBsaWdodGNvcmFsOwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgICAgc2VjdGlvbiB7CiAgICAgICAgZGlzcGxheTogZmxleDsKICAgICAgfQogICAgICBhcnRpY2xlIGhlYWRlciB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogYmlzcXVlOwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgICAgYXJ0aWNsZSB7CiAgICAgICAgZmxleDogMCAwIDcwJTsKICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgIH0KICAgICAgYXJ0aWNsZSBmb290ZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0Z3JheTsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIGFydGljbGUgc2VjdGlvbiB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogbGlnaHRibHVlOwogICAgICAgIHBhZGRpbmc6IDEwcHg7CiAgICAgIH0KICAgICAgYXNpZGUgewogICAgICAgIGZsZXg6IDAgMCAzMCU7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjoga2hha2k7CiAgICAgICAgZGlzcGxheTogZmxleDsKICAgICAgICBmbGV4LWRpcmVjdGlvbjogY29sdW1uOwogICAgICB9CiAgICAgIGZvb3RlciB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogZ3JheTsKICAgICAgICBwYWRkaW5nOiAxMHB4OwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvaGVhZD4KICA8Ym9keT4KICAgIDxtYWluPgogICAgICA8aGVhZGVyPkhlYWRlcjwvaGVhZGVyPgogICAgICA8bmF2Pk5hdmlnYXRpb248L25hdj4KICAgICAgPHNlY3Rpb24+CiAgICAgICAgPGFydGljbGU+CiAgICAgICAgICA8aGVhZGVyPkFydGljbGUgSGVhZGVyPC9oZWFkZXI+CiAgICAgICAgICA8c2VjdGlvbj5BcnRpY2xlIFNlY3Rpb24gMTwvc2VjdGlvbj4KICAgICAgICAgIDxzZWN0aW9uPkFydGljbGUgU2VjdGlvbiAyPC9zZWN0aW9uPgogICAgICAgICAgPGZvb3Rlcj5Gb290ZXI8L2Zvb3Rlcj4KICAgICAgICA8L2FydGljbGU+CiAgICAgICAgPGFzaWRlPgogICAgICAgICAgPGFzaWRlPkFzaWRlPC9hc2lkZT4KICAgICAgICAgIDxhc2lkZT5Bc2lkZTwvYXNpZGU+CiAgICAgICAgPC9hc2lkZT4KICAgICAgPC9zZWN0aW9uPgogICAgICA8Zm9vdGVyPkZvb3RlcjwvZm9vdGVyPgogICAgPC9tYWluPgogIDwvYm9keT4KPC9odG1sPgo='   
 
 //]]>
 </script>
@@ -1752,11 +1837,12 @@ editor.on("keydown", function (instance, event) {
 
 editor.on("change", change);
 editor.on("cursorActivity", function() {
+  //cursorRefresh();
   let cursor = editor.getCursor();
   var LinePosition = cursor.line;
   var ColumnPosition = cursor.ch;
   localStorage.setItem('position-line', cursor.line);
-  localStorage.setItem('position-column', cursor.ch);
+  localStorage.setItem('position-column', cursor.ch);  
   document.getElementById("positionCodemirror").innerHTML = 'Ln: ' + (LinePosition+1) + ' | Cl: ' + (ColumnPosition+1); // + ', Pos: ' + (editor.indexFromPos(cursor)+1);
   //setCookies();
 });
@@ -1768,6 +1854,7 @@ change();
 <script async='async' type='text/javascript'>
 //<![CDATA[
 function getProportions() {
+  navigator.vibrate && navigator.vibrate(200);
   var gutterPosition = splitInstance.getSizes()[0];
   localStorage.setItem('position-wrap', Math.round(gutterPosition) );
   document.getElementById('gutter').textContent = Math.round(gutterPosition) + '%' + ' ' + Math.round(100 - gutterPosition) + '%';
@@ -1838,7 +1925,6 @@ function getProportions() {
 };
 
 function toggleElement() {
-  
   if (isInteracting) {
     dimensions.style.display = 'block';
     gutter.style.backgroundSize = '0px 0px';
