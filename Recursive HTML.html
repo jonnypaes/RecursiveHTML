@@ -152,7 +152,7 @@ function getUrlParameters(parameter, staticURL, decode) {
 }
 
 const MAXIMIZED = getUrlParameters('m', '', true);
-const RENDERER = getUrlParameters('render', '', true);
+const RENDERER = getUrlParameters('RENDER', '', true);
 var PARAM_HTML = getUrlParameters('HTML', '', true); // limit: 8.192 bytes
 var dataBase64 = window.atob(PARAM_HTML);
 
@@ -171,6 +171,7 @@ const DEFAULT_THEME = 'dark-mode'; // white-mode
 const DEFAULT_PAGE = (window.location.protocol + '//' + window.location.hostname + window.location.pathname);
 const BLANK_PAGE = DEFAULT_PAGE + '?' + 'm=0' + '&' + 'HTML=';
 const HELP_URL = `https://developer.mozilla.org/${languagesMatched}/docs/Web/HTML/Element/`;
+const isDebugMode = false;
 
 // var editorBody = editor.getValue();
 editorRender = RENDERER ? RENDERER : 'shadow';
@@ -870,12 +871,203 @@ z-index: 1000;
 padding: 5px;
 border-radius: 4px;
 box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+background-color: #000000b5;
+color: white;
 }
 .floating-menu select {
 width: 100%;
 }
 
 --></style>
+<style>
+
+	/* Styles for the properties panel */
+	#properties-panel {
+        font-family: Arial, sans-serif;
+		position: fixed;
+		top: 10px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 500px; /* Default width */
+		height: 400px; /* Default height */
+		max-width: 90%;
+		max-height: 80%;
+		background: #ffffff; /* Panel background color */
+		border: 1px solid #ccc;
+		z-index: 1000;
+		box-sizing: border-box;
+		resize: both; /* Enables resizing */
+		overflow: hidden; /* Hides overflow to maintain layout */
+        margin: 0;
+		min-width: 300px;
+		min-height: 200px;
+		max-width: 800px;
+		max-height: 600px;
+		display: none; /* Hidden by default */
+		display: flex; /* Enables flex layout */
+		flex-direction: column; /* Stack children vertically */
+	}
+
+	/* Header styling */
+	#properties-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		background: #f9f9f9;
+		border-bottom: 1px solid #ccc;
+		padding: 10px;
+		flex-shrink: 0; /* Prevents shrinking when content grows */
+	}
+
+	#properties-header h3 {
+		margin: 0;
+		font-size: 18px;
+	}
+
+	/* Controls container */
+	#controls {
+		display: flex;
+		align-items: center;
+	}
+
+	/* Checkbox styling */
+	#toggle-readonly-null {
+		width: 16px;
+		height: 16px;
+		margin-right: 10px;
+		cursor: pointer;
+	}
+
+	/* Close button styling */
+	#close-panel {
+		width: 24px;
+		height: 24px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		font-size: 20px;
+		color: #333;
+		user-select: none;
+	}
+
+	#close-panel:hover {
+		color: #000;
+	}
+
+	/* Tabs styling */
+	.tab-container {
+		display: flex;
+		border-bottom: 1px solid #ccc;
+		background: #f1f1f1;
+		flex-shrink: 0;
+		z-index: 9; /* Below the header */
+	}
+
+	.tab {
+		flex: 1;
+		text-align: center;
+		padding: 10px 0;
+		cursor: pointer;
+		font-weight: bold;
+		border-right: 1px solid #ccc;
+		user-select: none;
+		background-color: #f1f1f1; /* Default background for tabs */
+		transition: background-color 0.3s, border-bottom 0.3s;
+	}
+
+	.tab:last-child {
+		border-right: none;
+	}
+
+	.tab.active {
+		background: #ffffff; /* Active tab background color */
+		border-bottom: 2px solid #000;
+	}
+
+	/* Active CSS tab background color */
+	.tab[data-category="css"].active {
+		background-color: #e0f7fa; /* Distinct background for active CSS tab */
+	}
+
+	/* Reset background color when not active */
+	.tab[data-category="css"]:not(.active) {
+		background-color: #f1f1f1; /* Default background for inactive tabs */
+	}
+
+	/* Style for the property list */
+	.property-list {
+		list-style-type: none;
+		padding: 0;
+		margin: 0;
+		overflow-y: auto; /* Enables vertical scrolling */
+		flex: 1; /* Allows the list to grow and fill available space */
+		background-color: #ffffff; /* Ensure background consistency */
+	}
+
+	.property-list li {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 8px 12px;
+		border-bottom: 1px solid #f0f0f0;
+	}
+
+	.property-name {
+		width: 45%;
+		word-break: break-word;
+	}
+
+	.property-input {
+		width: 50%;
+		box-sizing: border-box; /* Ensures padding and borders are included */
+		padding: 4px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		cursor: pointer; /* Indicate clickable inputs */
+	}
+
+	/* Styling for the property name link */
+	.property-name a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.property-name a:hover {
+		text-decoration: underline;
+	}
+
+	/* Read-only input styling */
+	.property-input[readonly] {
+		background-color: #f9f9f9;
+		color: #555;
+		cursor: not-allowed;
+	}
+
+	/* Overlay for highlighting selected element */
+	#highlight-overlay {
+		position: absolute;
+		border: 2px solid rgba(0, 255, 0, 0.8); /* 2px lime border with 80% opacity */
+		background-color: rgba(0, 255, 0, 0.3); /* Lime background with 30% opacity */
+		pointer-events: none; /* Allows clicks to pass through */
+		z-index: 999; /* Just below the properties panel */
+		display: none; /* Hidden by default */
+	}
+
+	/* Responsive adjustments */
+	@media (max-width: 600px) {
+		#properties-panel {
+			width: 95%;
+			height: 90%;
+		}
+		#properties-header h3 {
+			font-size: 16px;
+		}
+		.tab {
+			font-size: 16px;
+		}
+	}
+</style>
 <meta name='google-adsense-platform-account' content='ca-host-pub-1556223355139109'/>
 <meta name='google-adsense-platform-domain' content='blogspot.com'/>
 
@@ -940,6 +1132,35 @@ width: 100%;
 <div class='messageBox'>
 <h2 id='messageTitle'></h2>
 <div id='messageBody'></div>
+</div>
+<!-- Highlight Overlay -->
+<div id='highlight-overlay'></div>
+<!-- Properties Panel -->
+<div id='properties-panel' style='display:none;'>
+<!-- Header with title and controls -->
+<div id='properties-header'>
+<h3 id='properties-title'>Properties of element: <span id='element-tag'></span></h3>
+<div id='controls'>
+<!-- Checkbox without label text -->
+<input aria-label='Show Readonly and Null Properties' id='toggle-readonly-null' type='checkbox'/>
+<!-- Close button -->
+<div id='close-panel'>x</div>
+</div>
+</div>
+<!-- Search Bar -->
+<div id='properties-search' style='padding: 10px; border-bottom: 1px solid #ccc;'>
+<input id='search-input' placeholder='Search properties...' style='width: 100%; padding: 6px; box-sizing: border-box;' type='text'/>
+</div>
+<!-- Tabs -->
+<div class='tab-container'>
+<div class='tab active' data-category='html'>HTML</div>
+<div class='tab' data-category='javascript'>JavaScript</div>
+<div class='tab' data-category='css'>CSS</div>
+</div>
+<!-- Content -->
+<ul class='property-list'>
+<!-- Properties will be dynamically inserted here -->
+</ul>
 </div>
 <footer class='footer'></footer>
 <!-- </div> -->
@@ -1077,86 +1298,108 @@ function positionElement(element, x, y) {
   element.style.left = `${x}px`;
   element.style.top = `${y}px`;
 }
+   function handleRender(event) {
+      event.preventDefault();
 
-function handleRender(event) {
-  event.preventDefault();
+      try {
+         // Remove any existing floating menu
+         const existingMenu = document.querySelector('.floating-menu');
+         if (existingMenu) {
+            existingMenu.remove();
+         }
 
-  try {
-	// Remove any existing floating menu
-	const existingMenu = document.querySelector('.floating-menu');
-	if (existingMenu) {
-	  existingMenu.remove();
-	}
+         // Get the event coordinates (touch-based)
+         const { x, y } = getEventCoordinates(event);
 
-	// Get the event coordinates
-	 const { x, y } = getEventCoordinates(event);
+         // Create the floating menu div
+         const menu = document.createElement('div');
+         menu.classList.add('floating-menu');
+         menu.innerText = 'Renderer';
 
-	// Create the floating menu div
-	const menu = document.createElement('div');
-	menu.classList.add('floating-menu');
+         // Position the menu at the event location
+         positionElement(menu, x, y);
 
-	// Position the menu at the event location
-	positionElement(menu, x, y);
+         // Create the select element with options
+         const select = document.createElement('select');
+         select.classList.add('select-class'); 
 
-	// Create the select element with options
-	const select = document.createElement('select');
-	select.classList.add('select-class'); 
+         // Create an optgroup
+         const optGroup = document.createElement('optgroup');
+         optGroup.label = 'Render select';
 
-	// Create an optgroup
-	const optGroup = document.createElement('optgroup');
-	optGroup.label = 'Render select';
+         // Define the options
+         const options = [
+            { value: '', text: 'None' }, 
+            { value: 'shadow', text: 'Shadow DOM' },
+            { value: 'light', text: 'Light DOM' },
+            { value: 'virtual', text: 'Virtual DOM' },
+            { value: 'iframe', text: 'Iframe' },
+            { value: 'frame', text: 'Frame' },
+            { value: 'template', text: 'Template' },
+            { value: 'embed', text: 'Embed' },
+            { value: 'fragment', text: 'Fragment' },
+            { value: 'object', text: 'Object' }
+         ];
 
-	// Define the options
-    const options = [
-      { value: '', text: 'None' }, 
-      { value: 'shadow', text: 'Shadow DOM' },
-      { value: 'light', text: 'Light DOM' },
-      { value: 'virtual', text: 'Virtual DOM' },
-      { value: 'iframe', text: 'Iframe' },
-      { value: 'frame', text: 'Frame' },
-      { value: 'template', text: 'Template' },
-      { value: 'embed', text: 'Embed' },
-      { value: 'fragment', text: 'Fragment' },
-      { value: 'object', text: 'Object' }
-    ];
+         options.forEach(optionData => {
+            const option = document.createElement('option');
+            option.value = optionData.value;
+            option.textContent = optionData.text;
 
-    options.forEach(optionData => {
-      const option = document.createElement('option');
-      option.value = optionData.value;
-      option.textContent = optionData.text;
+            if (optionData.value === editorRender) {
+               option.selected = true;
+            }
 
-      if (optionData.value === editorRender) {
-        option.selected = true;
+            optGroup.appendChild(option);
+         });
+
+         select.appendChild(optGroup);
+         menu.appendChild(select);
+         document.body.appendChild(menu);
+
+         // Handle the selection
+         select.addEventListener('change', async function() {
+            const renderMethod = this.value;
+            editorRender = renderMethod;
+            renderContent(dataArea.value, renderMethod);
+            menu.remove();
+         });
+
+         // Prevent the click event from propagating to the body
+         menu.addEventListener('click', function(event) {
+            event.stopPropagation();
+         });
+      } catch (error) {
+         alert(`Error: ${error.message}`);
+      }
+   }
+
+   // Utility function to get event coordinates (adapt for touch events)
+   function getEventCoordinates(event) {
+      let x = 0, y = 0;
+
+      if (event.touches && event.touches.length > 0) {
+         x = event.touches[0].clientX;
+         y = event.touches[0].clientY;
+      } else if (event.clientX && event.clientY) {
+         x = event.clientX;
+         y = event.clientY;
       }
 
-      optGroup.appendChild(option);
-    });
+      return { x, y };
+   }
 
-	select.appendChild(optGroup);
-	menu.appendChild(select);
-	document.body.appendChild(menu);
-     
-	// Handle the selection
-	select.addEventListener('change', async function() {
-      const renderMethod = this.value;
-      editorRender = renderMethod;
-	  renderContent(dataArea.value, renderMethod);
-	  menu.remove();
-	});
-
-	// Prevent the click event from propagating to the body
-	menu.addEventListener('click', function(event) {
-	  event.stopPropagation();
-	});
-  } catch (error) {
-	alert(`Error: ${error.message}`);
-  }
-}
+   // Utility function to position the menu at the event coordinates
+   function positionElement(element, x, y) {
+      element.style.position = 'absolute';
+      element.style.left = `${x}px`;
+      element.style.top = `${y}px`;
+   }
 
 output.addEventListener('click', e => {
   if (e.ctrlKey && e.button === 0) {
     e.preventDefault();
-    handleRender(e);
+    // handleRender(e);
   }
 });
 
@@ -1166,18 +1409,21 @@ output.addEventListener('input', () => {
 
 output.addEventListener('contextmenu', function(event) {
   event.preventDefault();
-  handleRender(event);
+  //handleRender(event);
 });
 
 document.addEventListener('DOMContentLoaded', (event) => {
-   // output.addEventListener('touchstart', handleTouchStart, { passive: true });
-   // output.addEventListener('touchend', handleTouchEnd, { passive: true });
+   const output = document.querySelector('.canvas');
+
+   if (output) {
+      output.addEventListener('touchstart', handleTouchStart, { passive: true });
+      output.addEventListener('touchend', handleTouchEnd, { passive: true });
+   }
 
    function handleTouchStart(event) {
       if (event.touches.length === 3) {
-         launchToast('info', 'locked');
-         // handleRender(event); // alert('Three fingers detected!');
-         
+        // launchToast('info', 'locked');
+         handleRender(event); 
       }
    }
 
@@ -1185,6 +1431,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       // todo: render changer?
    }
 });
+
 
 //]]>
 </script>
@@ -1258,7 +1505,7 @@ async function renderContent(data, renderMethod = 'shadow') {
         shadowRoot.innerHTML = data;
 
         // Execute any scripts within the shadow DOM
-        await executeScriptsSequentially(shadowRoot); // executeScripts(shadowRoot);
+        executeScripts(shadowRoot); // await executeScriptsSequentially(shadowRoot); // 
         break;
 
       case 'iframe':
@@ -1266,6 +1513,17 @@ async function renderContent(data, renderMethod = 'shadow') {
 
         // Create and configure the iframe
         const iframe = document.createElement('iframe');
+
+        // Apply each referrer policy one by one
+      //  iframe.setAttribute('referrerpolicy', 'no-referrer');
+      //  iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+      //  iframe.setAttribute('referrerpolicy', 'origin');
+      //  iframe.setAttribute('referrerpolicy', 'origin-when-cross-origin');
+        iframe.setAttribute('referrerpolicy', 'same-origin');
+       // iframe.setAttribute('referrerpolicy', 'strict-origin');
+       // iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+       // iframe.setAttribute('referrerpolicy', 'unsafe-url');
+
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = 'none';
@@ -1743,21 +2001,24 @@ const SIDEBAR_SCRIPTING = 'PHNjcmlwdD5jb25zb2xlLmxvZygnaGknKTwvc2NyaXB0Pgo8bm9zY
 const SIDEBAR_SECTIONING = 'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KICA8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiIC8+CiAgICA8dGl0bGU+U2VjdGlvbmluZzwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgIG1haW4gewogICAgICAgIHdpZHRoOiAxMDAlOwogICAgICAgIG1hcmdpbjogYXV0bzsKICAgICAgfQogICAgICBoZWFkZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0cGluazsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIG5hdiB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogbGlnaHRncmVlbjsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIHNlY3Rpb24gewogICAgICAgIGRpc3BsYXk6IGZsZXg7CiAgICAgIH0KCQkJYXJ0aWNsZSB7CiAgICAgICAgZmxleDogMCAwIDYwJTsKICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgIH0KICAgICAgYXJ0aWNsZSBoZWFkZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0Ymx1ZTsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIGFydGljbGUgc2VjdGlvbiB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogbWVkaXVtcHVycGxlOwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgICAgYXJ0aWNsZSBmb290ZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0Z3JheTsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9IAogICAgICBhc2lkZSB7CiAgICAgICAgZmxleDogMCAwIDQwJTsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBsaWdodHllbGxvdzsKICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgIH0KICAgICAgZm9vdGVyIHsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBncmF5OwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9oZWFkPgogIDxib2R5PgogICAgPG1haW4+CiAgICAgIDxoZWFkZXI+SGVhZGVyPC9oZWFkZXI+CiAgICAgIDxuYXY+TmF2aWdhdGlvbjwvbmF2PgogICAgICA8c2VjdGlvbj4KICAgICAgICA8YXJ0aWNsZT4KICAgICAgICAgIDxoZWFkZXI+QXJ0aWNsZSBIZWFkZXI8L2hlYWRlcj4KICAgICAgICAgIDxzZWN0aW9uPkFydGljbGUgU2VjdGlvbiAxPC9zZWN0aW9uPgogICAgICAgICAgPHNlY3Rpb24+QXJ0aWNsZSBTZWN0aW9uIDI8L3NlY3Rpb24+CiAgICAgICAgICA8Zm9vdGVyPkFydGljbGUgRm9vdGVyPC9mb290ZXI+CiAgICAgICAgPC9hcnRpY2xlPgogICAgICAgIDxhc2lkZT4KICAgICAgICAgIDxhc2lkZT5Bc2lkZTwvYXNpZGU+CiAgICAgICAgICA8YXNpZGU+QXNpZGU8L2FzaWRlPgogICAgICAgIDwvYXNpZGU+CiAgICAgIDwvc2VjdGlvbj4KICAgICAgPGZvb3Rlcj5Gb290ZXI8L2Zvb3Rlcj4KICAgIDwvbWFpbj4KICA8L2JvZHk+CjwvaHRtbD4K';   
 const SIDEBAR_HEADINGS = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5IZWFkaW5nczwvdGl0bGU+CiAgPC9oZWFkPgogIDxib2R5PgoJCTxoMT5Cb29rIFRpdGxlOiBUaGUgV29ybGQgb2YgUHJvZ3JhbW1pbmc8L2gxPgoJCTxoMj5QYXJ0IDE6IEludHJvZHVjdGlvbiB0byBQcm9ncmFtbWluZzwvaDI+CgkJCgkJPGgzPkNoYXB0ZXIgMTogV2hhdCBpcyBQcm9ncmFtbWluZz88L2gzPgoJCTxoND5TZWN0aW9uIDEuMTogRGVmaW5pdGlvbnMgYW5kIENvbmNlcHRzPC9oND4KCQk8aDU+U3Vic2VjdGlvbiAxLjEuMTogV2hhdCBpcyBhIFByb2dyYW0/PC9oNT4KCQk8aDY+RGV0YWlsIDEuMS4xLjE6IEJhc2ljIHByb2dyYW0gc3RydWN0dXJlIGFuZCBleGFtcGxlczwvaDY+CgoJCTxoMz5DaGFwdGVyIDI6IFByb2dyYW1taW5nIExhbmd1YWdlczwvaDM+CgkJPGg0PlNlY3Rpb24gMi4xOiBUeXBlcyBvZiBQcm9ncmFtbWluZyBMYW5ndWFnZXM8L2g0PgoJCTxoNT5TdWJzZWN0aW9uIDIuMS4xOiBIaWdoLUxldmVsIHZzIExvdy1MZXZlbCBMYW5ndWFnZXM8L2g1PgoJCTxoNj5EZXRhaWwgMi4xLjEuMTogRXhhbXBsZXMgb2YgaGlnaC1sZXZlbCBsYW5ndWFnZXMgKFB5dGhvbiwgSmF2YSwgZXRjLik8L2g2PgogIDwvYm9keT4KPC9odG1sPgo=';
 const SIDEBAR_TEXT_CONTENT = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5UZXh0IENvbnRlbnQ8L3RpdGxlPgogIDwvaGVhZD4KICA8Ym9keT4KCQk8cD5UaGlzIGlzIGFuIGV4YW1wbGUgb2YgYSBwYXJhZ3JhcGggdGhhdCBnaXZlcyBjb250ZXh0IHRvIHRoZSByZXN0IG9mIHRoZSBjb250ZW50IG9uIHRoaXMgcGFnZS48L3A+CgoJCTxocj4KCgkJPHByZT4KCQlUaGlzIGlzIGFuIGV4YW1wbGUgb2YgcHJlZm9ybWF0dGVkIHRleHQuCgkJSXQgbWFpbnRhaW5zIHRoZSBleGFjdCBzcGFjaW5nIGFuZCBsaW5lIGJyZWFrcy4KCQk8L3ByZT4KCgkJPGJsb2NrcXVvdGU+CgkJVGhpcyBpcyBhbiBleGFtcGxlIG9mIGEgYmxvY2sgcXVvdGF0aW9uLiBJdCdzIHVzdWFsbHkgdXNlZCB0byBjaXRlIGV4dGVybmFsIHNvdXJjZXMgb3IgaGlnaGxpZ2h0IGltcG9ydGFudCBjb250ZW50LgoJCTwvYmxvY2txdW90ZT4KCgkJPG9sPgoJCQk8bGk+Rmlyc3Qgb3JkZXJlZCBpdGVtPC9saT4KCQkJPGxpPlNlY29uZCBvcmRlcmVkIGl0ZW08L2xpPgoJCQk8bGk+VGhpcmQgb3JkZXJlZCBpdGVtPC9saT4KCQk8L29sPgoKCQk8dWw+CgkJCTxsaT5GaXJzdCB1bm9yZGVyZWQgaXRlbTwvbGk+CgkJCTxsaT5TZWNvbmQgdW5vcmRlcmVkIGl0ZW08L2xpPgoJCQk8bGk+VGhpcmQgdW5vcmRlcmVkIGl0ZW08L2xpPgoJCTwvdWw+CgoJCTxkbD4KCQkJPGR0PkhUTUw8L2R0PgoJCQk8ZGQ+QSBtYXJrdXAgbGFuZ3VhZ2UgZm9yIGNyZWF0aW5nIHdlYiBwYWdlcy48L2RkPgoKCQkJPGR0PkNTUzwvZHQ+CgkJCTxkZD5BIHN0eWxlc2hlZXQgbGFuZ3VhZ2UgdXNlZCB0byBzdHlsZSB3ZWIgcGFnZXMuPC9kZD4KCQk8L2RsPgoKCQk8ZmlndXJlPgoJCQk8aW1nIHNyYz0iaW1hZ2UuanBnIiBhbHQ9IkV4YW1wbGUgaW1hZ2UiPgoJCQk8ZmlnY2FwdGlvbj5UaGlzIGlzIGEgY2FwdGlvbiBkZXNjcmliaW5nIHRoZSBmaWd1cmUgYWJvdmUuPC9maWdjYXB0aW9uPgoJCTwvZmlndXJlPgoKCQk8ZGl2PgoJCQlUaGlzIGlzIGEgZ2VuZXJpYyBibG9jayBjb250YWluZXIgKGRpdikgdGhhdCBjb3VsZCBob2xkIHZhcmlvdXMgZWxlbWVudHMgb3IgY29udGVudC4KCQk8L2Rpdj4KCgkJPGFkZHJlc3M+CgkJCUpvaG4gRG9lPGJyPgoJCQkxMjM0IFdlYiBTdC48YnI+CgkJCUludGVybmV0IENpdHksIDU2Nzg5CgkJPC9hZGRyZXNzPgoKCQk8aW5zPlRoaXMgaXMgc29tZSBpbnNlcnRlZCB0ZXh0LjwvaW5zPiA8ZGVsPlRoaXMgaXMgc29tZSBkZWxldGVkIHRleHQuPC9kZWw+CgogIDwvYm9keT4KPC9odG1sPgo=';
+
+
+GRAPHICS_AND_EMBEDED_CONTENT = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgo8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KICAgIDx0aXRsZT5HcmFwaGljcyBhbmQgRW1iZWRkZWQgQ29udGVudDwvdGl0bGU+CjwvaGVhZD4KPGJvZHk+CiAgICA8aDI+RXF1YXRpb24gb2YgYSBTaW5lIFdhdmU6PC9oMj4KICAgIDwhLS0gTWF0aE1MIHRvIGRpc3BsYXkgdGhlIGVxdWF0aW9uIHkgPSBzaW4oeCkgLS0+CiAgICA8bWF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OC9NYXRoL01hdGhNTCI+CiAgICAgICAgPG1pPnk8L21pPgogICAgICAgIDxtbz49PC9tbz4KICAgICAgICA8bWk+c2luPC9taT4KICAgICAgICA8bW8+JiN4MjA2MTs8L21vPgogICAgICAgIDxtaT54PC9taT4KICAgIDwvbWF0aD4KCiAgICA8IS0tIFNWRyB0byBwbG90IHRoZSBzaW5lIHdhdmUgLS0+CiAgICA8c3ZnIHdpZHRoPSI2MDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIC0xLjUgNi4yOCAzIj4KICAgICAgICA8IS0tIFggYW5kIFkgYXhlcyAtLT4KICAgICAgICA8bGluZSB4MT0iMCIgeTE9IjAiIHgyPSI2LjI4IiB5Mj0iMCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIwLjAxIi8+CiAgICAgICAgPGxpbmUgeDE9IjAiIHkxPSItMSIgeDI9IjAiIHkyPSIxIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjAuMDEiLz4KICAgICAgICAKICAgICAgICA8IS0tIFNpbmUgd2F2ZSBwYXRoIC0tPgogICAgICAgIDxwYXRoIGlkPSJzaW5lV2F2ZSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJibHVlIiBzdHJva2Utd2lkdGg9IjAuMDIiLz4KICAgICAgICAKICAgICAgICA8IS0tIEphdmFTY3JpcHQgdG8gZ2VuZXJhdGUgdGhlIHNpbmUgd2F2ZSAtLT4KICAgICAgICA8c2NyaXB0IHR5cGU9ImFwcGxpY2F0aW9uL2VjbWFzY3JpcHQiPjwhW0NEQVRBWwogICAgICAgICAgICBjb25zdCBwYXRoID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3NpbmVXYXZlJyk7CiAgICAgICAgICAgIGxldCBkID0gJyc7CiAgICAgICAgICAgIGZvciAobGV0IHggPSAwOyB4IDw9IDYuMjg7IHggKz0gMC4wMSkgewogICAgICAgICAgICAgICAgY29uc3QgeSA9IE1hdGguc2luKHgpOwogICAgICAgICAgICAgICAgZCArPSAoeCA9PT0gMCA/ICdNJyA6ICdMJykgKyB4ICsgJyAnICsgeSArICcgJzsKICAgICAgICAgICAgfQogICAgICAgICAgICBwYXRoLnNldEF0dHJpYnV0ZSgnZCcsIGQpOwogICAgICAgIF1dPjwvc2NyaXB0PgogICAgPC9zdmc+CgogICAgPHA+VGhpcyBTVkcgZ3JhcGggcGxvdHMgdGhlIHNpbmUgZnVuY3Rpb24gcmVwcmVzZW50ZWQgYnkgdGhlIE1hdGhNTCBlcXVhdGlvbiBhYm92ZS48L3A+CjwvYm9keT4KPC9odG1sPgo=';
 const SIDEBAR_TABLE_CONTENT = 
 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5UYWJsZSBDb250ZW50PC90aXRsZT4KCQk8c3R5bGU+CiAgICAgIHRhYmxlIHsKICAgICAgICB3aWR0aDogMTAwJTsKICAgICAgICBtYXJnaW46IGF1dG87CiAgICAgIH0JCQkKY2FwdGlvbiB7CQkJCiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7CgkgIGJhY2tncm91bmQtY29sb3I6IHdoaXRlOwp9CnRhYmxlIHsKICAgIGJvcmRlci1jb2xsYXBzZTogY29sbGFwc2U7CiAgICBmb250LXNpemU6IDAuOWVtOwogICAgZm9udC1mYW1pbHk6IHNhbnMtc2VyaWY7CiAgICBtaW4td2lkdGg6IDQwMHB4OwogICAgYm94LXNoYWRvdzogMCAwIDIwcHggcmdiYSgwLCAwLCAwLCAwLjE1KTsKfQp0YWJsZSB0aGVhZCB0ciB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA5ODc5OwogICAgY29sb3I6ICNmZmZmZmY7CiAgICB0ZXh0LWFsaWduOiBsZWZ0Owp9CnRhYmxlIHRoLAp0YWJsZSB0ZCB7CiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7Cn0KCnRhYmxlIHRib2R5IHRyIHsKICAgIGJvcmRlci1ib3R0b206IDFweCBzb2xpZCAjZGRkZGRkOwp9Cgp0YWJsZSB0Ym9keSB0cjpudGgtb2YtdHlwZShldmVuKSB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjZjNmM2YzOwp9Cgp0YWJsZSB0Ym9keSB0cjpsYXN0LW9mLXR5cGUgewogICAgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICMwMDk4Nzk7Cn0KdGFibGUgdGZvb3QgewogICAgYmFja2dyb3VuZC1jb2xvcjogZ3JheTsKfQkJCQoJCQkKPC9zdHlsZT4KICA8L2hlYWQ+CiAgPGJvZHk+CiAgICA8dGFibGUgYm9yZGVyPSIxIj4KICA8Y2FwdGlvbj5FbXBsb3llZSBEZXRhaWxzPC9jYXB0aW9uPgogIAogIDxjb2xncm91cD4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmMGYwZjA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNlMGUwZTA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNkMGQwZDA7Ij4KICA8L2NvbGdyb3VwPgoKICA8dGhlYWQ+CiAgICA8dHI+CiAgICAgIDx0aD5JRDwvdGg+CiAgICAgIDx0aD5OYW1lPC90aD4KICAgICAgPHRoPkRlcGFydG1lbnQ8L3RoPgogICAgPC90cj4KICA8L3RoZWFkPgoKICA8dGJvZHk+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDE8L3RkPgogICAgICA8dGQ+QWxpY2U8L3RkPgogICAgICA8dGQ+RW5naW5lZXJpbmc8L3RkPgogICAgPC90cj4KICAgIDx0cj4KICAgICAgPHRkPjAwMjwvdGQ+CiAgICAgIDx0ZD5Cb2I8L3RkPgogICAgICA8dGQ+TWFya2V0aW5nPC90ZD4KICAgIDwvdHI+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDM8L3RkPgogICAgICA8dGQ+Q2Fyb2w8L3RkPgogICAgICA8dGQ+U2FsZXM8L3RkPgogICAgPC90cj4KICA8L3Rib2R5PgoKICA8dGZvb3Q+CiAgICA8dHI+CiAgICAgIDx0ZCBjb2xzcGFuPSIzIj5FbmQgb2YgRW1wbG95ZWUgRGV0YWlsczwvdGQ+CiAgICA8L3RyPgogIDwvdGZvb3Q+CjwvdGFibGU+CiAgPC9ib2R5Pgo8L2h0bWw+Cg==';
 const SIDEBAR_FORM_CONTENT = 
 'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CiAgICA8dGl0bGU+Rm9ybXM8L3RpdGxlPgogICAgPHN0eWxlPgogICAgICBib2R5IHsKCQkJCWZvbnQtZmFtaWx5OiBBcmlhbCwgc2Fucy1zZXJpZjsKCQkJCW1hcmdpbjogMjBweDsKCQkJCXBhZGRpbmc6IDEwcHg7CgkJCQliYWNrZ3JvdW5kLWNvbG9yOiAjZjRmNGY0OwoJCQkJYm9yZGVyLXJhZGl1czogOHB4OwogICAgICB9CiAgICAgIGgxIHsKICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7CiAgICAgIH0KICAgICAgbGFiZWwgewogICAgICAgIGRpc3BsYXk6IGJsb2NrOwogICAgICAgIG1hcmdpbjogMTBweCAwIDVweDsKICAgICAgfQoJCQlpbnB1dFt0eXBlPSJidXR0b24iXSwKCQkJaW5wdXRbdHlwZT0ic3VibWl0Il0sCgkJCWlucHV0W3R5cGU9InJlc2V0Il0gewoJCQkgIHdpZHRoOiAxMDAlOwoJCQkgIHBhZGRpbmc6IDhweDsKCQkJCWJvcmRlcjogMXB4IHNvbGlkICNjY2M7CgkJCX0KCQkJdGV4dGFyZWEgewoJCQkJd2lkdGg6IDk5JTsKCQkJCW1hcmdpbi1ib3R0b206IDE1cHg7CgkJCQlib3JkZXI6IDFweCBzb2xpZCAjY2NjOwoJCQkJYm9yZGVyLXJhZGl1czogNHB4OwoJCSAgfQoJCQkuY29udGFpbmVyIHsKCQkJCW1heC13aWR0aDogNjAwcHg7CgkJCQltYXJnaW46IGF1dG87CgkJCQliYWNrZ3JvdW5kOiAjZmZmOwoJCQkJcGFkZGluZzogMjBweDsKCQkJCWJvcmRlci1yYWRpdXM6IDhweDsKCQkJCWJveC1zaGFkb3c6IDAgMnB4IDEwcHggcmdiYSgwLCAwLCAwLCAwLjEpOwoJCQl9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogIDxkaXYgY2xhc3M9ImNvbnRhaW5lciI+CiAgICA8aDE+Q3VycmljdWx1bSBWaXRhZTwvaDE+CiAgICA8Zm9ybT4KICAgICAgPGxhYmVsPklucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJoaWRkZW4iIHZhbHVlPSIzNDY1NyIgLz4KICAgICAgPGxhYmVsPkZ1bGwgbmFtZTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0idGV4dCIgbmFtZT0ibmFtZSIgdmFsdWU9IkpvaG4gRG9lIiAvPgogICAgICA8bGFiZWw+TnVtYmVyIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJudW1iZXIiIG5hbWU9Im51bWJlciIgLz4KICAgICAgPGxhYmVsPlNhbGFyeTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0ibnVtYmVyIiBuYW1lPSJmbG9hdCIgcGxhY2Vob2xkZXI9IjEuMDAwLDAwIiBzdGVwPSIwLjAxIiAvPgogICAgICA8bGFiZWw+UGFzc3dvcmQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InBhc3N3b3JkIiBuYW1lPSJwYXNzd29yZCIgLz4KICAgICAgPGxhYmVsPkJvcm4gZGF0ZTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iZGF0ZSIgbmFtZT0iZGF0ZSIgLz4KICAgICAgPGxhYmVsPlVSTDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0idXJsIiBuYW1lPSJ1cmwiIHBsYWNlaG9sZGVyPSJ3d3cudGVzdC5jb20iIC8+CiAgICAgIDxsYWJlbD5FbWFpbCBJbnB1dDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iZW1haWwiIG5hbWU9ICJlbWFpbCIgcGxhY2Vob2xkZXI9InRlc3RAdGVzdC5jb20iIC8+CiAgICAgIDxsYWJlbD5UZWxlcGhvbmUgSW5wdXQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InRlbCIgbmFtZT0gInBob25lIiBwbGFjZWhvbGRlcj0iKDk5KSA5OTk5OS05OTk5IiAvPgogICAgICA8bGFiZWw+U2VhcmNoIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJzZWFyY2giIG5hbWU9InNlYXJjaCIgdmFsdWU9IlRlc3Qgc2VhcmNoIiAvPgogICAgICA8bGFiZWw+R2VuZGVyOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIj5NYWxlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9InJhZGlvIiBuYW1lPSJnZW5kZXIiPkZlbWFsZTwvaW5wdXQ+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIj5PdGhlcjwvaW5wdXQ+CiAgICAgIDxsYWJlbD5FeHRyYTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iY2hlY2tib3giIG5hbWU9Imhhcy1saWNlbnNlIj5IYXMgYSBkcml2ZXIncyBsaWNlbnNlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9ImNoZWNrYm94IiBuYW1lPSJoYXMtY2FyIj5IYXMgYSBjYXI8L2lucHV0PgogICAgICA8bGFiZWw+UmF0aW5nIG9mIHlvdXQgbGFzdCBqb2I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InJhbmdlIiBuYW1lPSJyYW5nZSIgdmFsdWU9IjEiIG1pbj0iMSIgbWF4PSI1IiAvPgogICAgICA8bGFiZWw+UHJvZmlsZSBQaWN0dXJlOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJmaWxlIiBuYW1lPSJmaWxlIiAvPgogICAgICA8bGFiZWw+RmF2b3JpdGUgQ29sb3I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImNvbG9yIiBuYW1lPSJjb2xvciIgdmFsdWU9IiNlNjY0NjUiIC8+CiAgICAgIDxsYWJlbD5TaG9ydCBCaW86PC9sYWJlbD4KICAgICAgPHRleHRhcmVhIG5hbWU9ImJpbyIgcGxhY2Vob2xkZXI9IkVudGVyIHRleHQgaGVyZS4uLiI+PC90ZXh0YXJlYT4KICAgICAgPGlucHV0IHR5cGU9ImJ1dHRvbiIgbmFtZT0iYnV0dG9uIiB2YWx1ZT0iQnV0dG9uIiAvPgogICAgICA8aW5wdXQgdHlwZT0ic3VibWl0IiBuYW1lPSJzdWJtaXQiIHZhbHVlPSJTdWJtaXQiIC8+CiAgICAgIDxpbnB1dCB0eXBlPSJyZXNldCIgbmFtZT0icmVzZXQiIC8+CiAgICA8L2Zvcm0+CiAgPC9kaXY+CjwvYm9keT4KCjwvaHRtbD4=';
 
 const categoryLinks = {
-    "Element 1": BLANK_PAGE + SIDEBAR_DOCUMENT_STRUCTURE,
-    "Element 2": BLANK_PAGE + SIDEBAR_METADATA,
-    "Element 3": BLANK_PAGE + SIDEBAR_SCRIPTING,
-    "Element 4": BLANK_PAGE + SIDEBAR_SECTIONING,
-    "Element 5": BLANK_PAGE + SIDEBAR_HEADINGS,
-    "Element 6": BLANK_PAGE + SIDEBAR_TEXT_CONTENT,
-    "Element 7": "/",
-    "Element 8": "/",
-    "Element 9": "/",
+    "Element 1" : BLANK_PAGE + SIDEBAR_DOCUMENT_STRUCTURE,
+    "Element 2" : BLANK_PAGE + SIDEBAR_METADATA,
+    "Element 3" : BLANK_PAGE + SIDEBAR_SCRIPTING,
+    "Element 4" : BLANK_PAGE + SIDEBAR_SECTIONING,
+    "Element 5" : BLANK_PAGE + SIDEBAR_HEADINGS,
+    "Element 6" : BLANK_PAGE + SIDEBAR_TEXT_CONTENT,
+    "Element 7" : "/",
+    "Element 8" : "/",
+    "Element 9" : BLANK_PAGE + GRAPHICS_AND_EMBEDED_CONTENT,
     "Element 10": BLANK_PAGE + SIDEBAR_TABLE_CONTENT,
     "Element 11": BLANK_PAGE + SIDEBAR_FORM_CONTENT
 };
@@ -2110,7 +2371,6 @@ document.querySelectorAll('#element-list a').forEach(anchor => {
   console.log = function(...args) {
     originalLog.apply(console, args);
     launchToast('Console', args.join(' '));
-
   };
 
   // Override console.error
@@ -2119,6 +2379,14 @@ document.querySelectorAll('#element-list a').forEach(anchor => {
     originalError.apply(console, args);
     launchToast('Console', args.join(' '));
   };
+
+const originalDebug = console.debug;
+console.debug = function(...args) {
+    if (isDebugMode) {
+        originalDebug.apply(console, args);  // Keep the original console.debug behavior
+        launchToast('Debug', args.join(' '));  // Custom behavior to show toast
+    }
+};
 
   // Function to handle errors
   function handleErrors(error) {
@@ -2346,6 +2614,749 @@ function toggleElement() {
    // event.preventDefault();
    // showOptions(event);
  });
+
+//]]>
+</script>
+<!-- Main and Event Scripts -->
+<script async='async' type='text/javascript'>
+//<![CDATA[
+	// main.js and events.js combined
+
+	// Global variables
+	let showReadonly = false; // Default value for showing read-only properties
+	let showNull = false;     // Default value for showing null properties
+	let activeTab = 'html';   // Default active tab
+	let selectedElement = null; // To track the currently selected element
+	let toggleCheckbox = null; // To reference the toggle checkbox
+	let isUpdating = false;    // Flag to prevent recursive updates
+
+	// Create Shadow DOM
+	const shadowHost = document.querySelector('.canvas'); // document.getElementById('shadow-host');
+	const shadowRoot = shadowHost.attachShadow({ mode: 'open' });
+
+	/**
+	 * Updates the Shadow DOM content based on the CodeMirror editor's value.
+	 * Prevents recursive updates by using the isUpdating flag.
+	 */
+
+	function updateShadowContent() {
+		if (isUpdating) return; // Prevent recursive updates
+		isUpdating = true;
+		const htmlContent = editor.getValue();
+		// console.debug('Updating Shadow DOM with content:', htmlContent); // Debugging
+		// Clear existing content
+		shadowRoot.innerHTML = '';
+		// Create a container to hold the new content
+		const container = document.createElement('div');
+		container.innerHTML = htmlContent;
+		shadowRoot.appendChild(container);
+		isUpdating = false;
+	}
+
+	// Initial render
+	updateShadowContent();
+
+	/**
+	 * Debounce function to limit the rate of function execution.
+	 * @param {Function} func - The function to debounce.
+	 * @param {number} wait - The debounce delay in milliseconds.
+	 * @returns {Function} - The debounced function.
+	 */
+	function debounce(func, wait) {
+		let timeout;
+		return function(...args) {
+			clearTimeout(timeout);
+			timeout = setTimeout(() => func.apply(this, args), wait);
+		};
+	}
+
+	// Update Shadow DOM when editor content changes (debounced)
+	editor.on('change', debounce(() => {
+		updateShadowContent();
+		// If an element is selected, re-display its properties to reflect changes
+		if (selectedElement) {
+			const categorized = categorizeProperties(selectedElement);
+			displayProperties(categorized, selectedElement);
+		}
+	}, 300));
+
+	// Categorized properties arrays in single lines for readability
+	const categorizedProperties = {
+		css: ["color", "background-color", "font-size", "width", "height", /* add more as needed */],
+		html: ["accessKey", "align", "autocapitalize", "autofocus", "contentEditable", "dir", "draggable", "enterKeyHint", "hidden", "id", "inert", "inputMode", "lang", "nonce", "part", "popover", "role", "slot", "spellcheck", "tabIndex", "title", "translate"],
+		javascript: ["accessKeyLabel", "assignedSlot", "attributes", "baseURI", "childElementCount", "childNodes", "children", "classList", "className", "clientHeight", "clientLeft", "clientTop", "clientWidth", "dataset", "firstChild", "firstElementChild", "innerHTML", "innerText", "isConnected", "isContentEditable", "lastChild", "lastElementChild", "localName", "namespaceURI", "nextElementSibling", "nextSibling", "nodeName", "nodeType", "nodeValue", "offsetHeight", "offsetLeft", "offsetParent", "offsetTop", "offsetWidth", "outerHTML", "outerText", "ownerDocument", "parentElement", "parentNode", "prefix", "previousElementSibling", "previousSibling", "scrollHeight", "scrollLeft", "scrollTop", "scrollWidth", "shadowRoot", "tagName", "textContent"]
+	};
+
+	/**
+	 * Retrieves all properties of an object, including inherited ones,
+	 * and determines if they are read-only.
+	 * @param {Object} obj - The object to inspect.
+	 * @returns {Object} - An object containing properties and their read-only status.
+	 */
+	function getAllProperties(obj) {
+		const properties = {};
+		let currentObj = obj;
+
+		const processedProps = new Set();
+
+		while (currentObj !== null) {
+			const ownProps = Object.getOwnPropertyNames(currentObj);
+			ownProps.forEach(prop => {
+				if (!processedProps.has(prop)) { // Avoid duplicates
+					processedProps.add(prop);
+					try {
+						let value;
+
+						// Check if the property is a getter
+						const descriptor = Object.getOwnPropertyDescriptor(currentObj, prop);
+						let readOnly = false;
+						if (descriptor) {
+							if (typeof descriptor.get === 'function') {
+								// Only call getters if 'this' is of correct type
+								if (obj instanceof currentObj.constructor) {
+									value = obj[prop];
+								} else {
+									value = undefined;
+								}
+							} else {
+								value = obj[prop];
+							}
+
+							// Determine if property is read-only
+							readOnly = descriptor.writable === false || typeof descriptor.set !== 'function';
+						} else {
+							value = obj[prop];
+						}
+
+						// Handle functions by indicating they are functions
+						properties[prop] = {
+							value: typeof value === 'function' ? 'function() { ... }' : value,
+							readOnly: readOnly
+						};
+					} catch (error) {
+						properties[prop] = {
+							value: `Error: ${error.message}`,
+							readOnly: true
+						};
+					}
+				}
+			});
+			currentObj = Object.getPrototypeOf(currentObj);
+		}
+
+		return properties;
+	}
+
+	/**
+	 * Categorizes the properties of an object into CSS, HTML, and JavaScript categories.
+	 * @param {Object} obj - The object to categorize properties for.
+	 * @returns {Object} - An object containing categorized properties.
+	 */
+	function categorizeProperties(obj) {
+		const categories = {
+			css: [],
+			html: [],
+			javascript: []
+		};
+
+		// Get all properties with read-only status
+		const properties = getAllProperties(obj);
+
+		// HTML and JavaScript properties
+		for (const category of ['html', 'javascript']) {
+			const propsList = categorizedProperties[category];
+			propsList.forEach(propName => {
+				if (propName in properties) {
+					let { value, readOnly } = properties[propName];
+
+					// Apply showReadonly and showNull filters
+					if ((!showReadonly && readOnly) || (!showNull && value === null)) {
+						return; // Skip this property
+					}
+
+					categories[category].push({ prop: propName, value, readOnly });
+				}
+			});
+		}
+
+		// CSS properties
+		if (obj instanceof HTMLElement) {
+			const computedStyle = getComputedStyle(obj);
+			const cssPropsList = categorizedProperties.css;
+			cssPropsList.forEach(propName => {
+				let value = computedStyle.getPropertyValue(propName);
+				if (value) {
+					if (!showNull && value.trim() === '') {
+						return; // Skip empty CSS properties
+					}
+					categories.css.push({ prop: propName, value: value.trim(), readOnly: false });
+				}
+			});
+		}
+
+		return categories;
+	}
+
+	/**
+	 * Creates an input element based on the type of the property.
+	 * @param {Object} item - The property object containing name, value, and read-only status.
+	 * @returns {HTMLElement} - The created input element.
+	 */
+	function createInputElement(item) {
+		const { value, readOnly, prop } = item;
+		let inputElement;
+
+		switch (typeof value) {
+			case 'number':
+				inputElement = document.createElement('input');
+				inputElement.type = 'number';
+				inputElement.value = value;
+				break;
+			case 'string':
+				// Check if the property is a color property
+				if (prop.toLowerCase().includes('color')) {
+					inputElement = document.createElement('input');
+					inputElement.type = 'color';
+					// Convert color string to hex if possible
+					const hexColor = cssColorToHex(value);
+					inputElement.value = hexColor || '#000000';
+				} else {
+					inputElement = document.createElement('input');
+					inputElement.type = 'text';
+					inputElement.value = value;
+				}
+				break;
+			case 'boolean':
+				inputElement = document.createElement('select');
+				const optionTrue = document.createElement('option');
+				optionTrue.value = 'true';
+				optionTrue.text = 'true';
+				const optionFalse = document.createElement('option');
+				optionFalse.value = 'false';
+				optionFalse.text = 'false';
+				inputElement.add(optionTrue);
+				inputElement.add(optionFalse);
+				inputElement.value = value.toString();
+				break;
+			case 'object':
+				if (value === null) {
+					inputElement = document.createElement('input');
+					inputElement.type = 'text';
+					inputElement.value = 'null';
+					inputElement.readOnly = true;
+				} else if (value instanceof HTMLElement) {
+					// Create an input field displaying the string representation
+					inputElement = document.createElement('input');
+					inputElement.type = 'text';
+					inputElement.value = generateObjectLabel(value);
+					inputElement.readOnly = true; // Make it read-only as per user's preference
+
+					// Add JSON structure to title
+					const jsonStructure = {
+						tagName: value.tagName,
+						id: value.id,
+						className: value.className
+						// Add more properties as needed
+					};
+					inputElement.title = JSON.stringify(jsonStructure, null, 2);
+
+					// Add event listener to navigate to the element's properties
+					inputElement.addEventListener('click', () => {
+						selectedElement = value; // Set the clicked element as selected
+						const categorized = categorizeProperties(value);
+						displayProperties(categorized, value);
+					});
+				} else {
+					// For other object types, display their string representation
+					inputElement = document.createElement('input');
+					inputElement.type = 'text';
+					inputElement.value = generateObjectLabel(value);
+					inputElement.readOnly = true; // Make it read-only as per user's preference
+
+					// Add JSON structure to title
+					const jsonStructure = {
+						// Iterate through object properties to create a JSON structure
+						...Object.keys(value).reduce((acc, key) => {
+							try {
+								acc[key] = value[key];
+							} catch (e) {
+								acc[key] = `Error: ${e.message}`;
+							}
+							return acc;
+						}, {})
+					};
+					inputElement.title = JSON.stringify(jsonStructure, null, 2);
+
+					// Add event listener to navigate to the object's properties
+					inputElement.addEventListener('click', () => {
+						selectedElement = value; // Set the clicked object as selected
+						const categorized = categorizePropertiesObject(value);
+						displayProperties(categorized, value);
+					});
+				}
+				break;
+			default:
+				inputElement = document.createElement('input');
+				inputElement.type = 'text';
+				inputElement.value = value;
+				inputElement.readOnly = true;
+		}
+
+		inputElement.className = 'property-input';
+
+		if (readOnly) {
+			inputElement.readOnly = true;
+		}
+
+		// Add event listeners for editable inputs
+		if (!readOnly) {
+			if (inputElement.tagName.toLowerCase() === 'input' && inputElement.type !== 'color' && inputElement.type !== 'number') {
+				// For text inputs, handle Enter key
+				inputElement.addEventListener('keydown', (e) => {
+					if (e.key === 'Enter') {
+						inputElement.blur(); // Trigger change event
+					}
+				});
+			}
+
+			// For color and number inputs, the 'change' event is sufficient
+			inputElement.addEventListener('change', (e) => {
+				handlePropertyChange(e, prop);
+			});
+		}
+
+		return inputElement;
+	}
+
+	/**
+	 * Generates the label for object-type properties based on their attributes.
+	 * @param {Object} obj - The object to generate the label for.
+	 * @returns {string} - The generated label.
+	 */
+	function generateObjectLabel(obj) {
+		return obj.tagName ?
+			(obj.id && obj.className ?
+				`<${obj.tagName.toLowerCase()} id="${obj.id}" class="${obj.className}">` :
+			(obj.tagName && obj.className ?
+				`<${obj.tagName.toLowerCase()} class="${obj.className}">` :
+			(obj.tagName && obj.id ?
+				`<${obj.tagName.toLowerCase()} id="${obj.id}">` :
+			obj.toString()))) :
+		obj.toString();
+	}
+
+	/**
+	 * Handles the change event for editable property inputs.
+	 * @param {Event} e - The event object.
+	 * @param {string} prop - The property name being edited.
+	 */
+	function handlePropertyChange(e, prop) {
+		const newValue = e.target.value;
+		if (!selectedElement) return;
+
+		// Prevent recursive updates
+		if (isUpdating) return;
+
+		isUpdating = true;
+
+		// Update the property on the selected element/object
+		try {
+			if (selectedElement instanceof HTMLElement) {
+				if (prop.toLowerCase().includes('color')) {
+					selectedElement.style[prop] = newValue;
+				} else if (prop === 'innerText' || prop === 'innerHTML') {
+					selectedElement[prop] = newValue;
+				} else {
+					selectedElement[prop] = newValue;
+				}
+			} else {
+				// For other objects, attempt to set the property directly
+				selectedElement[prop] = newValue;
+			}
+		} catch (error) {
+			alert(`Error setting property: ${error.message}`);
+			isUpdating = false;
+			return;
+		}
+
+		// Update CodeMirror content
+		updateCodeMirrorContent();
+
+		// Refresh the properties panel to show updated values
+		const categorized = categorizeProperties(selectedElement);
+		displayProperties(categorized, selectedElement);
+
+		isUpdating = false;
+	}
+
+	/**
+	 * Converts a CSS color string to its HEX equivalent.
+	 * @param {string} color - The CSS color string.
+	 * @returns {string|null} - The HEX color string or null if conversion fails.
+	 */
+	function cssColorToHex(color) {
+		const tempElem = document.createElement('div');
+		tempElem.style.color = color;
+		document.body.appendChild(tempElem);
+
+		const computedColor = getComputedStyle(tempElem).color;
+		document.body.removeChild(tempElem);
+
+		const rgb = computedColor.match(/\d+/g);
+		if (rgb) {
+			return "#" + rgb.slice(0, 3).map(x => {
+				const hex = parseInt(x).toString(16);
+				return hex.length === 1 ? '0' + hex : hex;
+			}).join('');
+		}
+		return null;
+	}
+
+	/**
+	 * Categorizes the properties of an object into CSS, HTML, and JavaScript categories.
+	 * For non-HTMLElement objects, categorize as 'javascript' only.
+	 * @param {Object} obj - The object to categorize properties for.
+	 * @returns {Object} - An object containing categorized properties.
+	 */
+	function categorizePropertiesObject(obj) {
+		const categories = {
+			css: [],
+			html: [],
+			javascript: []
+		};
+
+		// Since obj may not be an HTMLElement, categorize its properties as 'javascript'
+		const props = getAllProperties(obj);
+		for (const propName in props) {
+			if (props.hasOwnProperty(propName)) {
+				const { value, readOnly } = props[propName];
+
+				// Apply showReadonly and showNull filters
+				if ((!showReadonly && readOnly) || (!showNull && value === null)) {
+					continue; // Skip this property
+				}
+
+				categories.javascript.push({ prop: propName, value, readOnly });
+			}
+		}
+
+		return categories;
+	}
+
+	/**
+	 * Displays the properties in the properties panel.
+	 * @param {Object} categorized - The categorized properties.
+	 * @param {Object} element - The selected element or object.
+	 */
+	function displayProperties(categorized, element) {
+		const panel = document.getElementById('properties-panel');
+		const propertyList = panel.querySelector('.property-list');
+		propertyList.innerHTML = ''; // Clear previous content
+
+		// Update the title with the tag name or object type
+		const tagSpan = document.getElementById('element-tag');
+		if (element instanceof HTMLElement) {
+			tagSpan.textContent = element.tagName.toLowerCase();
+		} else {
+			tagSpan.textContent = element.toString();
+		}
+
+		console.debug(`Displaying properties for ${activeTab} category`);
+
+		// Display properties for the active tab
+		displayCategoryProperties(activeTab, categorized, element);
+
+		panel.style.display = 'flex'; // Show the panel
+
+		// Highlight the selected element or object using overlay
+		highlightSelectedElement(element);
+	}
+
+	/**
+	 * Highlights the selected element within the Shadow DOM using an overlay.
+	 * Does not modify the original DOM elements.
+	 * @param {Object} element - The element or object to highlight.
+	 */
+	function highlightSelectedElement(element) {
+		const overlay = document.getElementById('highlight-overlay');
+
+		if (selectedElement && selectedElement !== element) {
+			// Hide previous highlight
+			overlay.style.display = 'none';
+		}
+
+		if (element instanceof HTMLElement) {
+			const rect = element.getBoundingClientRect();
+			overlay.style.width = `${rect.width}px`;
+			overlay.style.height = `${rect.height}px`;
+			overlay.style.top = `${rect.top + window.scrollY}px`;
+			overlay.style.left = `${rect.left + window.scrollX}px`;
+			overlay.style.display = 'block';
+		} else {
+			// For non-HTMLElement objects, hide the overlay
+			overlay.style.display = 'none';
+		}
+	}
+
+	/**
+	 * Displays properties of a specific category in the properties panel.
+	 * @param {string} category - The category of properties to display.
+	 * @param {Object} categorized - The categorized properties.
+	 * @param {Object} element - The selected element or object.
+	 */
+	function displayCategoryProperties(category, categorized, element) {
+		const panel = document.getElementById('properties-panel');
+		const propertyList = panel.querySelector('.property-list');
+		propertyList.innerHTML = ''; // Clear previous content
+
+		const props = categorized[category];
+		if (props.length > 0) {
+			props.forEach(item => {
+				const listItem = document.createElement('li');
+
+				const propNameDiv = document.createElement('div');
+				propNameDiv.className = 'property-name';
+
+				// Create the link to MDN documentation
+				const propLink = document.createElement('a');
+				propLink.href = getMDNLink(category, item.prop);
+				propLink.target = '_blank';
+				propLink.rel = 'noopener noreferrer';
+				propLink.textContent = item.prop;
+				propLink.addEventListener('click', (e) => {
+					e.stopPropagation(); // Prevent triggering other events
+				});
+
+				propNameDiv.appendChild(propLink);
+
+				// Create input element based on property type
+				const inputElement = createInputElement(item);
+
+				listItem.appendChild(propNameDiv);
+				listItem.appendChild(inputElement);
+				propertyList.appendChild(listItem);
+			});
+		} else {
+			propertyList.innerHTML = '<li>No properties available.</li>';
+		}
+
+		// Update active tab styling
+		document.querySelectorAll('.tab').forEach(tab => {
+			tab.classList.toggle('active', tab.dataset.category === category);
+		});
+
+		console.debug(`Displayed ${category} properties`);
+	}
+
+	/**
+	 * Generates the MDN documentation link for a given property.
+	 * @param {string} category - The category of the property (css or javascript).
+	 * @param {string} propName - The name of the property.
+	 * @returns {string} - The MDN documentation URL.
+	 */
+	function getMDNLink(category, propName) {
+		if (category === 'css') {
+			return `https://developer.mozilla.org/en-US/docs/Web/CSS/${propName}`;
+		} else {
+			return `https://developer.mozilla.org/en-US/docs/Web/API/Element/${propName}`;
+		}
+	}
+
+	/**
+	 * Handles the selection of an element via right-click (desktop) or long-press (mobile).
+	 * @param {Event} event - The event object.
+	 */
+	function handleElementSelection(event) {
+		event.preventDefault(); // Prevent the default context menu
+		const element = event.target;
+		if (element === document.body || element === shadowHost) {
+			// Do not select the body or shadow host itself
+			return;
+		}
+		selectedElement = element; // Track the selected element
+		console.debug('Selected element:', element); // Debugging
+		const categorized = categorizeProperties(element);
+		displayProperties(categorized, element);
+	}
+
+	/**
+	 * Handles the long-press (touch and hold) event on mobile devices.
+	 * @param {Event} event - The event object.
+	 */
+	function handleLongPress(event) {
+		const element = event.target;
+		const touchDuration = 500; // milliseconds
+		let touchTimer;
+
+		const start = () => {
+			touchTimer = setTimeout(() => {
+				if (element === document.body || element === shadowHost) {
+					// Do not select the body or shadow host itself
+					return;
+				}
+
+				selectedElement = element; // Track the selected element
+				console.debug('Long pressed element:', element); // Debugging
+				const categorized = categorizeProperties(element);
+				displayProperties(categorized, element);
+			}, touchDuration);
+		};
+
+		const cancel = () => {
+			clearTimeout(touchTimer);
+		};
+
+		start();
+
+		// Cancel the timer if touch ends before the duration
+		event.target.addEventListener('touchend', cancel, { once: true });
+		event.target.addEventListener('touchmove', cancel, { once: true });
+	}
+
+	/**
+	 * Closes the properties panel when the close button is clicked.
+	 */
+	function closePropertiesPanel() {
+		const panel = document.getElementById('properties-panel');
+		panel.style.display = 'none';
+		const overlay = document.getElementById('highlight-overlay');
+		overlay.style.display = 'none';
+		if (selectedElement) {
+			selectedElement = null; // Reset selected element
+			console.debug('Properties panel closed');
+		}
+	}
+
+	/**
+	 * Toggles the visibility of read-only and null properties based on the checkbox state.
+	 */
+	function toggleReadonlyNullProperties() {
+		showReadonly = toggleCheckbox.checked;
+		showNull = toggleCheckbox.checked;
+		console.debug('Toggle Readonly/Null:', toggleCheckbox.checked); // Debugging
+
+		// If the properties panel is open, refresh the displayed properties
+		const panel = document.getElementById('properties-panel');
+		if (panel.style.display === 'flex') { // 'flex' based on display style
+			if (selectedElement) {
+				const categorized = categorizeProperties(selectedElement);
+				displayProperties(categorized, selectedElement);
+			}
+		}
+	}
+
+	/**
+	 * Handles the clicking of tabs to switch property categories.
+	 * @param {Event} event - The event object.
+	 */
+	function handleTabClick(event) {
+		const clickedTab = event.currentTarget;
+		const category = clickedTab.getAttribute('data-category');
+
+		console.debug('Tab clicked:', category); // Debugging
+
+		if (category !== activeTab) {
+			activeTab = category;
+
+			// Remove 'active' class from all tabs
+			document.querySelectorAll('.tab').forEach(tab => {
+				tab.classList.remove('active');
+			});
+
+			// Add 'active' class to the clicked tab
+			clickedTab.classList.add('active');
+
+			console.debug(`Active tab changed to: ${activeTab}`); // Debugging
+
+			// Refresh the properties panel with the new category
+			if (selectedElement) {
+				const categorized = categorizeProperties(selectedElement);
+				displayProperties(categorized, selectedElement);
+			}
+		}
+	}
+
+	/**
+	 * Updates the CodeMirror editor's content based on the Shadow DOM's current state.
+	 * Prevents recursive updates by using the isUpdating flag.
+	 */
+	function updateCodeMirrorContent() {
+		if (isUpdating) return; // Prevent recursive updates
+		isUpdating = true;
+		const shadowContent = shadowRoot.innerHTML;
+		editor.setValue(shadowContent);
+		isUpdating = false;
+	}
+
+	/**
+	 * Attaches all necessary event listeners.
+	 */
+	function attachEventListeners() {
+		// Get references to DOM elements
+		const closePanel = document.getElementById('close-panel');
+		const toggleCheckboxElem = document.getElementById('toggle-readonly-null');
+		const searchInput = document.getElementById('search-input');
+
+		// Assign the toggleCheckbox to the global variable
+		toggleCheckbox = toggleCheckboxElem;
+
+		// Attach event listeners for context menu (right-click) and touchstart (long press)
+		shadowRoot.addEventListener('contextmenu', handleElementSelection); // Desktop: Right-click
+		shadowRoot.addEventListener('touchstart', handleLongPress); // Mobile: Touch and hold
+
+		// Close button functionality
+		closePanel.addEventListener('click', closePropertiesPanel);
+
+		// Checkbox functionality to toggle showReadonly and showNull
+		toggleCheckboxElem.addEventListener('change', toggleReadonlyNullProperties);
+
+		// Attach event listeners to all tabs
+		document.querySelectorAll('.tab').forEach(tab => {
+			tab.addEventListener('click', handleTabClick);
+		});
+
+		// Attach search functionality
+		searchInput.addEventListener('input', () => {
+			const filter = searchInput.value.toLowerCase();
+			const propertyItems = document.querySelectorAll('.property-list li');
+
+			propertyItems.forEach(item => {
+				const propName = item.querySelector('.property-name a').textContent.toLowerCase();
+				if (propName.includes(filter)) {
+					item.style.display = 'flex';
+				} else {
+					item.style.display = 'none';
+				}
+			});
+		});
+
+		// Keyboard accessibility for tabs
+		document.querySelectorAll('.tab').forEach(tab => {
+			tab.setAttribute('tabindex', '0'); // Make focusable
+			tab.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					tab.click();
+				}
+			});
+		});
+
+		// Keyboard accessibility for close button
+		const closePanelElem = document.getElementById('close-panel');
+		closePanelElem.setAttribute('tabindex', '0');
+		closePanelElem.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				closePanelElem.click();
+			}
+		});
+	}
+
+	/**
+	 * Removes redundancies and ensures all functions are defined once.
+	 * Ensures no duplicate functions exist.
+	 */
+
+	// Initialize event listeners once the DOM is fully loaded
+	document.addEventListener('DOMContentLoaded', attachEventListeners);
 
 //]]>
 </script>
