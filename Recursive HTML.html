@@ -153,6 +153,7 @@ function getUrlParameters(parameter, staticURL, decode) {
 
 const MAXIMIZED = getUrlParameters('m', '', true);
 const RENDERER = getUrlParameters('RENDER', '', true);
+const DEBUG = getUrlParameters('DEBUG', '', true);
 var PARAM_HTML = getUrlParameters('HTML', '', true); // limit: 8.192 bytes
 var dataBase64 = window.atob(PARAM_HTML);
 
@@ -171,12 +172,12 @@ const DEFAULT_THEME = 'dark-mode'; // white-mode
 const DEFAULT_PAGE = (window.location.protocol + '//' + window.location.hostname + window.location.pathname);
 const BLANK_PAGE = DEFAULT_PAGE + '?' + 'm=0' + '&' + 'HTML=';
 const HELP_URL = `https://developer.mozilla.org/${languagesMatched}/docs/Web/HTML/Element/`;
-const isDebugMode = false;
+
+const isMobile = ('maxTouchPoints' in navigator) && navigator.maxTouchPoints > 0;
+const isDebugMode = DEBUG ? DEBUG : false;
 
 // var editorBody = editor.getValue();
-editorRender = RENDERER ? RENDERER : 'shadow';
-var editorRender = editorRender; // iframe | shadow | light | virtual | fragment | template | embed | object
-
+var editorRender = RENDERER ? RENDERER : 'shadow'; // iframe | shadow | light | virtual | fragment | template | embed | object
 var storedLinePosition = localStorage.getItem("position-line");
 var storedColumnPosition = localStorage.getItem("position-column");
 var storedGutterPosition = localStorage.getItem("position-wrap");
@@ -301,772 +302,889 @@ function showCookies() {
 
 //]]>
 </script>
-<!-- CSS -->
+<!-- 3. CSS -->
+<!-- CODEMIRROR CSS -->
 <style id='page-skin-1' type='text/css'><!--
 /* CODEMIRROR: https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css */
 .CodeMirror{font-family:monospace;width:auto;height:300px;color:#000;position:relative;overflow:hidden;background:#fff}.CodeMirror-lines{padding:4px 0;cursor:text;min-height:1px}.CodeMirror pre.CodeMirror-line,.CodeMirror pre.CodeMirror-line-like{padding:0 4px;border-radius:0;border-width:0;background:none;font-family:inherit;font-size:inherit;margin:0;white-space:pre;overflow-wrap: normal;line-height:inherit;color:inherit;z-index:2;position:relative;overflow:visible;font-variant-ligatures:contextual}.CodeMirror-gutter-filler,.CodeMirror-scrollbar-filler{background-color:transparent}.CodeMirror-gutters{border-right:1px solid gray;background-color:#f8f8f8;white-space:nowrap;position:absolute;left:0;top:0;min-height:100%;z-index:3}.CodeMirror-linenumber{padding:0 3px 0 5px;min-width:20px;text-align:right;color:#595959;white-space:nowrap}.CodeMirror-guttermarker{color:#000}.CodeMirror-guttermarker-subtle,.cm-s-default .cm-hr{color:#999}.CodeMirror-cursor{border-left:1px solid #000;border-right:none;width:0;position:absolute;pointer-events:none}.CodeMirror div.CodeMirror-secondarycursor{border-left:1px solid silver}.cm-fat-cursor .CodeMirror-cursor{width:auto;border:0!important;background:#7e7}.cm-fat-cursor div.CodeMirror-cursors{z-index:1}.cm-fat-cursor .CodeMirror-line::selection,.cm-fat-cursor .CodeMirror-line>span::selection,.cm-fat-cursor .CodeMirror-line>span>span::selection{background:0 0}.cm-fat-cursor .CodeMirror-line::-moz-selection,.cm-fat-cursor .CodeMirror-line>span::-moz-selection,.cm-fat-cursor .CodeMirror-line>span>span::-moz-selection{background:0 0}.cm-fat-cursor{caret-color:transparent}@keyframes blink{50%{background-color:transparent}}.cm-tab{display:inline-block;text-decoration:inherit}.CodeMirror-rulers{position:absolute;left:0;right:0;top:-50px;bottom:0;overflow:hidden}.CodeMirror-ruler{border-left:1px solid #ccc;top:0;bottom:0;position:absolute}.cm-s-default .cm-def,.cm-s-default .cm-header{color:#00f}.cm-s-default .cm-quote{color:#090}.cm-negative{color:#d44}.cm-positive{color:#292}.cm-header,.cm-strong{font-weight:700}.cm-em{font-style:italic}.cm-link{text-decoration:underline}.cm-strikethrough{text-decoration:line-through}.cm-s-default .cm-keyword{color:#ea4dff}.cm-s-default .cm-atom{color:#219}.cm-s-default .cm-number{color:#21ab74}.cm-s-default .cm-variable-2{color:#05a}.cm-s-default .cm-type,.cm-s-default .cm-variable-3{color:#085}.cm-s-default .cm-comment{color:#969696}.cm-s-default .cm-string{color:#a11}.cm-s-default .cm-string-2{color:#f50}.cm-s-default .cm-meta{color:#969696;font-style:italic}.cm-s-default .cm-qualifier{color:#555}.cm-s-default .cm-builtin{color:#30a}.cm-s-default .cm-bracket{color:#997}.cm-s-default .cm-tag{color:#0e6600}.cm-s-default .cm-attribute,.cm-s-default .cm-link{color:#00c}.cm-invalidchar,.cm-s-default .cm-error{color:red}.CodeMirror-composing{border-bottom:2px solid}div.CodeMirror span.CodeMirror-matchingbracket{color:#0b0}div.CodeMirror span.CodeMirror-nonmatchingbracket{color:#a22}.CodeMirror-matchingtag{background:rgba(255, 0, 0, 0.3)}.CodeMirror-activeline-background{background:#0052C221}.CodeMirror-scroll{overflow:scroll!important;margin-bottom:-50px;margin-right:-50px;padding-bottom:50px;height:100%;outline:0;position:relative}.CodeMirror-sizer{margin-top:5px;position:relative;border-right:50px solid transparent}.CodeMirror-gutter-filler,.CodeMirror-hscrollbar,.CodeMirror-scrollbar-filler,.CodeMirror-vscrollbar{position:absolute;z-index:6;display:none;outline:0}.CodeMirror-vscrollbar{right:0;top:0;overflow-x:hidden;overflow-y:scroll}.CodeMirror-hscrollbar{bottom:0;left:0;overflow-y:hidden;overflow-x:scroll}.CodeMirror-scrollbar-filler{right:0;bottom:0}.CodeMirror-gutter-filler{left:0;bottom:0}.CodeMirror-gutter{white-space:normal;height:100%;display:inline-block;vertical-align:top;margin-bottom:-50px}.CodeMirror-gutter-wrapper{position:absolute;z-index:4;background:0 0!important;border:none!important}.CodeMirror-gutter-background{position:absolute;top:0;bottom:0;z-index:4}.CodeMirror-gutter-elt{position:absolute;cursor:default;z-index:4}.CodeMirror-gutter-wrapper ::selection{background-color:transparent}.CodeMirror-linebackground{position:absolute;left:0;right:0;top:0;bottom:0;z-index:0}.CodeMirror-linewidget{position:relative;z-index:2;padding:.1px}.CodeMirror-rtl pre{direction:rtl}.CodeMirror-code{outline:0}.CodeMirror-gutter,.CodeMirror-gutters,.CodeMirror-linenumber,.CodeMirror-scroll,.CodeMirror-sizer{box-sizing:content-box}.CodeMirror-measure{position:absolute;width:100%;height:0;overflow:hidden;visibility:hidden}.CodeMirror-measure pre{position:static}div.CodeMirror-cursors{visibility:hidden;position:relative;z-index:1}.CodeMirror-focused div.CodeMirror-cursors,div.CodeMirror-dragcursors{visibility:visible}.CodeMirror-selected{background:#d9d9d9}.CodeMirror-focused .CodeMirror-selected{background:#d7d4f0}.CodeMirror-crosshair{cursor:crosshair}.CodeMirror-line::selection,.CodeMirror-line>span::selection,.CodeMirror-line>span>span::selection{background:#d7d4f0}.cm-searching{background-color:rgba(255,255,0,.4)}.cm-force-border{padding-right:.1px}@media print{.CodeMirror div.CodeMirror-cursors{visibility:hidden}}.cm-tab-wrap-hack:after{content:''}span.CodeMirror-selectedtext{background:0 0}.CodeMirror-matchingbracket{outline:grey solid 1px;color:red!important}.CodeMirror-foldmarker{color: #f00;text-shadow: #f99 1px 1px 2px,#fff -1px -1px 2px,#f99 1px -1px 2px,#f99 -1px 1px 2px;font-family:arial;line-height:.3;cursor:pointer}.CodeMirror-foldgutter{width:.7em}.CodeMirror-foldgutter-folded,.CodeMirror-foldgutter-open{cursor:pointer}.CodeMirror-foldgutter-open:after{content:"\25BE"}.CodeMirror-foldgutter-folded:after{content:"\25B8"}
+
+--></style>
+<!-- MAIN CSS -->
+<style>    
 /* VARIABLES */
 :root {
---rh-wm-hb-bg-color: #f8f8f8;
---rh-dm-hb-bg-color: #1f1f1f;
---rh-wm-hb-item-color: black;
---rh-dm-hb-item-color: white;
---rh-wm-cm-bg-color: white;
---rh-wm-cm-text-color: black;
---rh-dm-cm-bg-color: black;
---rh-dm-cm-text-color: white;
---rh-wm-if-bg-color: white;
---rh-dm-if-bg-color: #444444;
---rh-wm-if-red-color: #ff0000;
---rh-dm-if-red-color: #ff9494;
---rh-wm-if-blue-color: #0000ff;
---rh-dm-if-blue-color: #a8a8ff;
+  --rh-wm-hb-bg-color: #f8f8f8;
+  --rh-dm-hb-bg-color: #1f1f1f;
+  --rh-wm-hb-item-color: black;
+  --rh-dm-hb-item-color: white;
+
+  --rh-wm-cm-bg-color: white;
+  --rh-wm-cm-text-color: black;
+  --rh-dm-cm-bg-color: black;
+  --rh-dm-cm-text-color: white;
+
+  --rh-wm-if-bg-color: white;
+  --rh-dm-if-bg-color: #444444;
+
+  --rh-wm-if-red-color: #ff0000;
+  --rh-dm-if-red-color: #ff9494;
+
+  --rh-wm-if-blue-color: #0000ff;
+  --rh-dm-if-blue-color: #a8a8ff;
 }
+
 /* ROOT | MAIN */
 * {
-box-sizing: border-box;
-transition: background-color 0.4s ease-out;
+  box-sizing: border-box;
+  transition: background-color 0.4s ease-out;
 }
+
 html, body {
-margin: 0px;
-color-scheme: light;
-height: 100%;
-width: 100%;
-padding: 0;
-margin: 0;
-font-family: monospace;
-overflow: hidden;
+  margin: 0px;
+  color-scheme: light;
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-family: monospace;
+  overflow: hidden;
 }
+
 #base {
-height: calc(100%);
+  height: calc(100%);
 }
+
 #main {
-height: calc(100% - 38px);
+  height: calc(100% - 38px);
 }
+
 .menu {
-height: 38px;
-border-top: 1px solid gray;
-border-bottom: 1px solid gray;
-padding: 2px 0px;
-white-space: nowrap;
-overflow: hidden;
-background-color: var(--rh-wm-hb-bg-color);
+  height: 38px;
+  border-top: 1px solid gray;
+  border-bottom: 1px solid gray;
+  padding: 2px 0px;
+  white-space: nowrap;
+  overflow: hidden;
+  background-color: var(--rh-wm-hb-bg-color);
 }
 .menu label {
-text-decoration: none;
-color: var(--rh-wm-hb-item-color);
-cursor: pointer;
-display: inline-block;
+  text-decoration: none;
+  color: var(--rh-wm-hb-item-color);
+  cursor: pointer;
+  display: inline-block;
 }
 .menu label.control:hover, #menu label.control:active {
-background: #ddd;
-color: black;
+  background: #ddd;
+  color: black;
 }
 .menu label.control:active {
-background: #ccc;
+  background: #ccc;
 }
 .menu label.control {
-user-select: none;
-padding: 2px 4px;
+  user-select: none;
+  padding: 2px 4px;
 }
 .menu label.disabled {
-background: #eee !important;
-cursor: default;
+  background: #eee !important;
+  cursor: default;
 }
 #logo {
-font-size: 22px;
-position: relative;
-top: 2px;
-margin: 0 0px 0 5px;
+  font-size: 22px;
+  position: relative;
+  top: 2px;
+  margin: 0 0px 0 5px;
 }
 a#livelink {
-color: rgb(0, 0, 238);
-display: none;
+  color: rgb(0, 0, 238);
+  display: none;
 }
+
 .padded {
-padding-top: 22px;
+  padding-top: 22px;
 }
 .CodeMirror {
-color-scheme: light;
-background-color: var(--rh-wm-cm-bg-color);
-color: var(--rh-wm-cm-text-color);
-direction: initial;
+  color-scheme: light;
+  background-color: var(--rh-wm-cm-bg-color);
+  color: var(--rh-wm-cm-text-color);
+  direction: initial;
 }
+
 .canvas {
-background-color: var(--rh-wm-if-bg-color);
-width: 100%;
-height: 60%;
-margin: 0;
-border: 0;
-overflow: auto;
-box-sizing: border-box;
-font-family: initial;
+  background-color: var(--rh-wm-if-bg-color);
+  width: 100%;
+  height: 60%;
+  margin: 0;
+  border: 0;
+  overflow: auto;
+  box-sizing: border-box;
+  font-family: initial;
+  z-index: 3;
+}
+.renderer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5em;
+  color: var(--rh-wm-hb-item-color);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 4;
 }
 #positionCodemirror {
-/* width: 108px; */
-background-color: #fff3;
-pointer-events: none;
-user-select: none;
-position: absolute;
-right: 20px;
-z-index: 2;
+  /* width: 108px; */
+  background-color: #fff3;
+  pointer-events: none;
+  user-select: none;
+  position: absolute;
+  right: 20px;
+  z-index: 2;
 }
+
 #positionFrame {
-position: absolute;
-right: 20px;
+  position: absolute;
+  right: 20px;
 }
+
 .scroll-offset-container {
-/* width: 101px; */
-display: none;
-background-color: #0005;
-color:white;
-pointer-events: none;
-user-select: none;
-position: fixed;
-right: 20px;
-z-index: 2;
+  /* width: 101px; */
+  display: none;
+  background-color: #0005;
+  color:white;
+  pointer-events: none;
+  user-select: none;
+  position: fixed;
+  right: 20px;	
+  z-index: 4;
 }
+
 .wrap {
-cursor: ns-resize;
-user-select: none;
-background-color: gray;
-text-align: center;
-font-weight: bold;
-image-rendering: pixelated;
-background-repeat: no-repeat;
-background-position: 50% center;
-background-image:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=')
+  cursor: ns-resize;
+  user-select: none;
+  background-color: gray;
+  text-align: center;
+  font-weight: bold;
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+  background-position: 50% center;
+  background-image:  url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=')
 }
+
 .wrap:hover, .wrap:active {
-background-color: #aaa;
+  background-color: #aaa;
 }
+
 .footer {
-position: fixed;
-bottom: 0;
-right: 0;
-padding: 4px 8px;
-font-size: 12px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 4px 8px;
+  font-size: 12px;
+  z-index: 3;
 }
+
 .links {
-position: relative;
+  position: relative;
 }
+
 hr {
-/* position: absolute; */
+  /* position: absolute; */
 }
+
 .links:after {
-display: inline-block;
+  display: inline-block;
 }
 .fab {
-width: 50px;
-height: 50px;
-background-color: darkgray;
-border-radius: 50%;
-box-shadow: 0 6px 10px 0 #666;
-font-size: 25px;
-line-height: 50px;
-text-align: center;
-position: fixed;
-right: 25px;
-bottom: 25px;
-cursor: pointer;
-z-index: 4;
-transition: all 0.1s ease-in-out;
+  width: 50px;
+  height: 50px;
+  background-color: darkgray;
+  border-radius: 50%;
+  box-shadow: 0 6px 10px 0 #666;
+  font-size: 25px;
+  line-height: 50px;
+  text-align: center;
+  position: fixed;
+  right: 25px;
+  bottom: 25px;
+  cursor: pointer;
+  z-index: 4;
+  transition: all 0.1s ease-in-out;
 }
+
 .fab:hover, .fab:active {
-box-shadow: 0 6px 14px 0 #666;
-transform: scale(1.2);
+  box-shadow: 0 6px 14px 0 #666;
+  transform: scale(1.2);
 }
+
 .CodeMirror-hscrollbar {
-overflow-x: hidden !important;
+  overflow-x: hidden !important;
 }
+
 .dark-mode body {
-color-scheme: light dark;
+  color-scheme: light dark;
 }
+
 .dark-mode .menu {
-background-color: var(--rh-dm-hb-bg-color);
+  background-color: var(--rh-dm-hb-bg-color);
 }
+
 .dark-mode .menu label {
-color: var(--rh-dm-hb-item-color);
+  color: var(--rh-dm-hb-item-color);
 }
+
 .dark-mode .canvas {
-background-color: var(--rh-dm-if-bg-color);
+  background-color: var(--rh-dm-if-bg-color);
 }
+
 .dark-mode .title {
-background-color: #1c1c1c;
-color: white;
+  background-color: #1c1c1c;
+  color: white;
 }
+
 .dark-mode .fab {
-box-shadow: 0 6px 10px 0 #171717;
+  box-shadow: 0 6px 10px 0 #171717;
 }
+
 .dark-mode #toast {
-box-shadow: 0 6px 10px 0 #171717;
+  box-shadow: 0 6px 10px 0 #171717;
 }
+
 .dark-mode .CodeMirror {
-color-scheme: light dark;
-background-color: var(--rh-dm-cm-bg-color);
-color: var(--rh-dm-cm-text-color);
+  color-scheme: light dark;
+  background-color: var(--rh-dm-cm-bg-color);
+  color: var(--rh-dm-cm-text-color);
 }
+
 .dark-mode .CodeMirror-gutters,
 .dark-mode .CodeMirror-cursor,
 .dark-mode .CodeMirror-activeline-background {
-background-color: var(--rh-dm-hb-bg-color);
+  background-color: var(--rh-wm-hb-item-color);
 }
+
 .dark-mode #positionCodemirror {
-filter: invert(100%);
+  filter: invert(100%);
 }
+
 .dark-mode .horizontal-line {
-color: var(--rh-dm-if-red-color);
-background-color: var(--rh-dm-if-red-color);
+  color: var(--rh-dm-if-red-color);
+  background-color: var(--rh-dm-if-red-color);
 }
+
 .dark-mode .vertical-line {
-color: var(--rh-dm-if-blue-color);
-background-color: var(--rh-dm-if-blue-color);
+  color: var(--rh-dm-if-blue-color);
+  background-color: var(--rh-dm-if-blue-color);
 }
+
 .dark-mode .vertical-line {
-color: #a8a8ff;
-background-color: #a8a8ff;
+  color: #a8a8ff;
+  background-color: #a8a8ff;
 }
+
 .dark-mode .cm-s-default .cm-tag {
-color: #2bff00;
+  color: #2bff00;
 }
+
 .dark-mode .cm-s-default .cm-attribute {
-color: #6161ff;
+  color: #6161ff;
 }
+
 .dark-mode .cm-s-default .cm-string {
-color: #ec1313;
+  color: #ec1313;
 }
+
 .dark-mode .cm-s-default .cm-atom {
-color: #745ef3;
+  color: #745ef3;
 }
+
 .dark-mode .root-element:nth-child(odd) {
-background-color: var(--rh-dm-if-red-color);
+  background-color: var(--rh-dm-if-red-color);
 }
 .dark-mode .root-element:nth-child(even) {
-background-color: var(--rh-dm-if-blue-color);
+  background-color: var(--rh-dm-if-blue-color);
 }
 .dark-mode .sidebar {
-background-color: #333;
-color: white;
+  background-color: #333;
+  color: white;
 }
+.dark-mode .renderer {
+  color: var(--rh-dm-hb-item-color);
+}
+
 /* TOAST */
 #toast {
-position: fixed;
-visibility: hidden;
-max-width: 50px;
-height: 50px;
-margin-left: 25px; /*margin: auto;*/
-background-color: #333;
-color: #fff;
-text-align: center;
-border-radius: 2px;
-position: fixed;
-z-index: 5;
-left: 0;
-right: 0;
-bottom: 25px;
-font-size: 17px;
-white-space: nowrap;
-box-shadow: 0 6px 10px 0 #666;
+  position: fixed;
+  visibility: hidden;
+  max-width: 50px;
+  height: 50px;
+  margin-left: 25px; /*margin: auto;*/
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  position: fixed;
+  z-index: 5;
+  left: 0;
+  right: 0;
+  bottom: 25px;
+  font-size: 17px;
+  white-space: nowrap;
+  box-shadow: 0 6px 10px 0 #666;
 }
 #toast #icon {
-width: 50px;
-height: 50px;
-float: left;
-box-sizing: border-box;
-background-color: darkgray;
-color: #000;
+  width: 50px;
+  height: 50px;
+  float: left;
+  box-sizing: border-box;
+  background-color: darkgray;
+  color: #000;
 }
 #toast #desc {
-color: #fff;
-padding: 16px;
-overflow: clip;
-white-space: nowrap;
-z-index: 3;
+  color: #fff;
+  padding: 16px;
+  overflow: clip;
+  white-space: nowrap;
+  z-index: 3;
 }
+
 #toast.show {
-visibility: visible;
-animation: fadein 0.5s, expand 0.5s 0.5s, stay 3s 1s, shrink 0.5s 4s, fadeout 0.5s 4.5s;
-animation-fill-mode: forwards;
+  visibility: visible;
+  animation: fadein 0.5s, expand 0.5s 0.5s, stay 3s 1s, shrink 0.5s 4s, fadeout 0.5s 4.5s;
+  animation-fill-mode: forwards;
 }
+
 .messageBox {
-display: none;
-background-color: rgb(0, 0, 0); /* Fallback color */
-background-color: rgba(0, 0, 0, 0.4); /* Black w/opacity/see-through */
-color: white;
-font-weight: bold;
-border: 3px solid #f1f1f1;
-position: absolute;
-top: 50%;
-left: 50%;
-transform: translate(-50%, -50%);
-z-index: 2;
-width: 20%;
-padding: 20px;
-text-align: center;
+  display: none;
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/opacity/see-through */
+  color: white;
+  font-weight: bold;
+  border: 3px solid #f1f1f1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 20%;
+  padding: 20px;
+  text-align: center;
 }
+
+/* Toast */
 @keyframes fadein {
-from {
-bottom: 0;
-opacity: 0;
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+  to {
+    bottom: 25px;
+    opacity: 1;
+  }
 }
-to {
-bottom: 25px;
-opacity: 1;
-}
-}
+
 @keyframes expand {
-from {
-min-width: 50px;
+  from {
+    min-width: 50px;
+  }
+  to {
+    min-width: 70%;
+  }
 }
-to {
-min-width: 70%;
-}
-}
+
 @keyframes stay {
-from {
-min-width: 70%;
+  from {
+    min-width: 70%;
+  }
+  to {
+    min-width: 70%;
+  }
 }
-to {
-min-width: 70%;
-}
-}
+
 @keyframes shrink {
-from {
-min-width: 70%;
+  from {
+    min-width: 70%;
+  }
+  to {
+    min-width: 50px;
+  }
 }
-to {
-min-width: 50px;
-}
-}
+
 @keyframes fadeout {
-from {
-bottom: 30px;
-opacity: 1;
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+  to {
+    bottom: 60px;
+    opacity: 0;
+  }
 }
-to {
-bottom: 60px;
-opacity: 0;
-}
-}
+
 @media only screen and (min-width: 450px) {
-@keyframes expand {
-from {
-min-width: 50px;
+  @keyframes expand {
+    from {
+      min-width: 50px;
+    }
+    to {
+      min-width: 350px;
+    }
+  }
+
+  @keyframes stay {
+    from {
+      min-width: 350px;
+    }
+    to {
+      min-width: 350px;
+    }
+  }
+
+  @keyframes shrink {
+    from {
+      min-width: 350px;
+    }
+    to {
+      min-width: 50px;
+    }
+  }
 }
-to {
-min-width: 350px;
+
+/* Frame switch */
+.fade-in {
+	animation: fadeIn 0.5s forwards;
 }
+
+.fade-out {
+	animation: fadeOut 0.5s forwards;
 }
-@keyframes stay {
-from {
-min-width: 350px;
+
+/* Keyframes for fade-in and fade-out animations */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translate(-50%, -50%) translateX(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, -50%) translateX(0);
+	}
 }
-to {
-min-width: 350px;
+
+@keyframes fadeOut {
+	from {
+		opacity: 1;
+		transform: translate(-50%, -50%) translateX(0);
+	}
+	to {
+		opacity: 0;
+		transform: translate(-50%, -50%) translateX(20px);
+	}
 }
-}
-@keyframes shrink {
-from {
-min-width: 350px;
-}
-to {
-min-width: 50px;
-}
-}
-}
+
 /* CONTAINER */
 #dimensions {
-display: none;
-position: absolute;
-width: 100%;
-height: 100%;
-margin-top: 15px;
-pointer-events: none;
-z-index: 4;
+  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin-top: 15px;
+  pointer-events: none;
+  z-index: 4;
 }
+
 #innerDimensions {
-display: none;
-border: 1px solid lime;
-background-color: #0eff061c;
-position: relative;
+  display: none;
+  border: 1px solid lime;
+  background-color: #0eff061c;
+  position: relative;
 }
+
 .horizontal-line {
-width: 100%;
-height: 2px;
-color: var(--rh-wm-if-red-color);
-background-color: var(--rh-wm-if-red-color);
-position: absolute;
-justify-content: space-between;
-top: 50%;
-left: 0;
-transform: translateY(-50%);
-font-size: 12px;
-display: flex;
+  width: 100%;
+  height: 2px;
+  color: var(--rh-wm-if-red-color);
+  background-color: var(--rh-wm-if-red-color);
+  position: absolute;
+  justify-content: space-between;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  font-size: 12px;
+  display: flex; 
 }
+
 .horizontal-left {
-margin-left: 5px;
-margin-top: 5px;
-font-size: 12px;
-white-space: nowrap;
+  margin-left: 5px;
+  margin-top: 5px;
+  font-size: 12px;
+  white-space: nowrap;
 }
+
 .horizontal-right {
-margin-right: 5px;
-margin-top: 5px;
-white-space: nowrap;
+  margin-right: 5px;
+  margin-top: 5px;
+  white-space: nowrap;
 }
+
 .vertical-line {
-height: 100%;
-width: 2px;
-color: var(--rh-wm-if-blue-color);
-background-color: var(--rh-wm-if-blue-color);
-position: absolute;
-justify-content: space-between;
-top: 0;
-left: 50%;
-transform: translateX(-50%);
-font-size: 12px;
-display: flex;
-flex-direction: column;
+  height: 100%;
+  width: 2px;
+  color: var(--rh-wm-if-blue-color);
+  background-color: var(--rh-wm-if-blue-color);
+  position: absolute;
+  justify-content: space-between;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column; 
 }
+
 .vertical-top {
-margin-left: 5px;
-margin-top: 5px;
-white-space: nowrap;
+  margin-left: 5px;
+  margin-top: 5px;
+  white-space: nowrap;
 }
+
 .vertical-bottom {
-margin-left: 5px;
-margin-bottom: 5px;
-white-space: nowrap;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  white-space: nowrap;
 }
+
 .horizontal-line::before {
-content: "X";
-position: absolute;
-top: 2px;
-left: calc(50% + -11px);
+  content: "X";
+  position: absolute;
+  top: 2px;
+  left: calc(50% + -11px);
 }
+
 .vertical-line::before {
-content: "Y";
-position: absolute;
-right: -11px;
-top: calc(50% - 15px);
+  content: "Y";
+  position: absolute;
+  right: -11px;
+  top: calc(50% - 15px);
 }
+
 .horizontal-outer-right {
-position: absolute;
-top: 50%;
-right: -40px;
-transform: translate(0, -50%);
-color: #0eff061c;
+  position: absolute;
+  top: 50%;
+  right: -40px;
+  transform: translate(0, -50%);
+  color: #0eff061c;
 }
+
 .vertical-outer-bottom {
-position: absolute;
-bottom: -20px;
-left: 50%;
-transform: translateX(-50%);
-color: #0eff061c;
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #0eff061c;
 }
+
 .container {
-position: relative;
-width: 100%;
-height: 100vh;
+  position: relative;
+  width: 100%;
+  height: 100vh;
 }
 .emoji-button {
-position: absolute;
-top: 10px;
-right: 10px;
-font-size: 2rem;
-cursor: pointer;
-z-index: 3;
-transition: transform 0.3s;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 3;
+  transition: transform 0.3s;
 }
 .sidebar {
-background-color: white;
-color: black;
-overflow-y: auto;
-position: fixed;
-top: 0;
-right: -70%;
-width: 70%;
-height: 100%;
-transition: right 0.3s;
-padding: 8px;
-z-index: 5;
+  background-color: white;
+  color: black;
+  overflow-y: auto;
+  position: fixed;
+  top: 0;
+  right: -70%;
+  width: 70%;
+  height: 100%;
+  transition: right 0.3s;
+  padding: 8px;
+  z-index: 5;
 }
 .sidebar.show {
-right: 0;
-padding-right: 3%;
+  right: 0;
+  padding-right: 3%;
 }
 .overlay {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.5);
-z-index: 4;
-display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 4;
+  display: none;
 }
 .overlay.show {
-display: block;
+  display: block;
 }
 .tag-container {
-background-color: #7575752b;
-padding: 10px;
-border: 1px solid #ccc;
-margin: 20px 0;
-display: flex;
-flex-direction: column;
+	background-color: #7575752b;
+	padding: 10px;
+	border: 1px solid #ccc;
+	margin: 20px 0;
+	display: flex;
+	flex-direction: column;
 }
 .tag-name {
-font-weight: bold;
+	font-weight: bold;
 }
 .tag-link, .tag-summary, .tag-name {
-list-style: none;
-text-decoration: none;
-color: inherit;
+    list-style: none;
+    text-decoration: none;
+    color: inherit;
 }
 .root-element {
-top: 0;
-padding: 15px;
-border: 1px solid #ccc;
-background-color: #f0f0f0;
-flex-direction: initial;
-justify-content: space-between;
+	top: 0;
+	padding: 15px;
+	border: 1px solid #ccc;
+	background-color: #f0f0f0;
+    flex-direction: initial;
+    justify-content: space-between;
 }
 .root-element:nth-child(odd) {
-background-color: var(--rh-wm-if-red-color);
-color: white;
+	background-color: var(--rh-wm-if-red-color);
+    color: white;
 }
 .root-element:nth-child(even) {
-background-color: var(--rh-wm-if-blue-color);
-color: white;
+	background-color: var(--rh-wm-if-blue-color);
+    color: white;
 }
 .root-element .tag-container {
-margin: 0; /* Remove margin from root element */
+	margin: 0; /* Remove margin from root element */
 }
 .example-container {
-display: flex;
-justify-content: space-between;
-align-items: center;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 .example-render {
-display: flex;
-align-items: center;
-gap: 10px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 .details-container {
-display: flex;
-justify-content: space-between;
+	display: flex;
+	justify-content: space-between;
 }
 a.example-link {
-text-decoration: none;
-color: inherit;
+	text-decoration: none;
+	color: inherit;
 }
 a.example-link:hover, a.example-link:focus {
-text-decoration: underline;
+	text-decoration: underline;
 }
 .floating-menu {
-position: absolute;
-border: 1px solid #ccc;
-z-index: 1000;
-padding: 5px;
-border-radius: 4px;
-box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-background-color: #000000b5;
-color: white;
+  position: absolute;
+  border: 1px solid #ccc;
+  z-index: 10;
+  padding: 5px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  background-color: #000000b5;
+  color: white;
 }
 .floating-menu select {
-width: 100%;
+  width: 100%;
 }
-
---></style>
+</style>
+<!-- PROPERTIES -->
 <style>
 
-	/* Styles for the properties panel */
+/* Styles for the properties panel */
+#properties-panel {
+	font-family: Arial, sans-serif;
+	position: fixed;
+	top: 10px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 500px; /* Default width */
+	height: 400px; /* Default height */
+	max-width: 90%;
+	max-height: 80%;
+	background: #ffffff; /* Panel background color */
+	border: 1px solid #ccc;
+	z-index: 1000;
+	box-sizing: border-box;
+	resize: both; /* Enables resizing */
+	overflow: hidden; /* Hides overflow to maintain layout */
+	margin: 0;
+	min-width: 300px;
+	min-height: 200px;
+	max-width: 800px;
+	max-height: 600px;
+	display: none; /* Hidden by default */
+	display: flex; /* Enables flex layout */
+	flex-direction: column; /* Stack children vertically */
+}
+
+/* Header styling */
+#properties-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: #f9f9f9;
+	border-bottom: 1px solid #ccc;
+	padding: 10px;
+	flex-shrink: 0; /* Prevents shrinking when content grows */
+}
+
+#properties-header h3 {
+	margin: 0;
+	font-size: 18px;
+}
+
+/* Controls container */
+#controls {
+	display: flex;
+	align-items: center;
+}
+
+/* Checkbox styling */
+#toggle-readonly-null {
+	width: 16px;
+	height: 16px;
+	margin-right: 10px;
+	cursor: pointer;
+}
+
+/* Close button styling */
+#close-panel {
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	font-size: 20px;
+	color: #333;
+	user-select: none;
+}
+
+#close-panel:hover {
+	color: #000;
+}
+
+/* Tabs styling */
+.tab-container {
+	display: flex;
+	border-bottom: 1px solid #ccc;
+	background: #f1f1f1;
+	flex-shrink: 0;
+	z-index: 9; /* Below the header */
+}
+
+.tab {
+	flex: 1;
+	text-align: center;
+	padding: 10px 0;
+	cursor: pointer;
+	font-weight: bold;
+	border-right: 1px solid #ccc;
+	user-select: none;
+	background-color: #f1f1f1; /* Default background for tabs */
+	transition: background-color 0.3s, border-bottom 0.3s;
+}
+
+.tab:last-child {
+	border-right: none;
+}
+
+.tab.active {
+	background: #ffffff; /* Active tab background color */
+	border-bottom: 2px solid #000;
+}
+
+/* Active CSS tab background color */
+.tab[data-category="css"].active {
+	background-color: #e0f7fa; /* Distinct background for active CSS tab */
+}
+
+/* Reset background color when not active */
+.tab[data-category="css"]:not(.active) {
+	background-color: #f1f1f1; /* Default background for inactive tabs */
+}
+
+/* Style for the property list */
+.property-list {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	overflow-y: auto; /* Enables vertical scrolling */
+	flex: 1; /* Allows the list to grow and fill available space */
+	background-color: #ffffff; /* Ensure background consistency */
+}
+
+.property-list li {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 12px;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.property-name {
+	width: 45%;
+	word-break: break-word;
+}
+
+.property-input {
+	width: 50%;
+	box-sizing: border-box; /* Ensures padding and borders are included */
+	padding: 4px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	cursor: pointer; /* Indicate clickable inputs */
+}
+
+/* Styling for the property name link */
+.property-name a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.property-name a:hover {
+	text-decoration: underline;
+}
+
+/* Read-only input styling */
+.property-input[readonly] {
+	background-color: #f9f9f9;
+	color: #555;
+	cursor: not-allowed;
+}
+
+/* Overlay for highlighting selected element */
+#highlight-overlay {
+	position: absolute;
+	border: 2px dashed rgba(0, 255, 0, 0.8); /* 2px lime border with 80% opacity */
+	background-color: rgba(0, 255, 0, 0.2); /* Lime background with 20% opacity */
+	pointer-events: none; /* Allows clicks to pass through */
+	z-index: 3; /* Just below the properties panel */
+	display: none; /* Hidden by default */
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
 	#properties-panel {
-        font-family: Arial, sans-serif;
-		position: fixed;
-		top: 10px;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 500px; /* Default width */
-		height: 400px; /* Default height */
-		max-width: 90%;
-		max-height: 80%;
-		background: #ffffff; /* Panel background color */
-		border: 1px solid #ccc;
-		z-index: 1000;
-		box-sizing: border-box;
-		resize: both; /* Enables resizing */
-		overflow: hidden; /* Hides overflow to maintain layout */
-        margin: 0;
-		min-width: 300px;
-		min-height: 200px;
-		max-width: 800px;
-		max-height: 600px;
-		display: none; /* Hidden by default */
-		display: flex; /* Enables flex layout */
-		flex-direction: column; /* Stack children vertically */
+		width: 95%;
+		height: 90%;
 	}
-
-	/* Header styling */
-	#properties-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		background: #f9f9f9;
-		border-bottom: 1px solid #ccc;
-		padding: 10px;
-		flex-shrink: 0; /* Prevents shrinking when content grows */
-	}
-
 	#properties-header h3 {
-		margin: 0;
-		font-size: 18px;
+		font-size: 16px;
 	}
-
-	/* Controls container */
-	#controls {
-		display: flex;
-		align-items: center;
-	}
-
-	/* Checkbox styling */
-	#toggle-readonly-null {
-		width: 16px;
-		height: 16px;
-		margin-right: 10px;
-		cursor: pointer;
-	}
-
-	/* Close button styling */
-	#close-panel {
-		width: 24px;
-		height: 24px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		font-size: 20px;
-		color: #333;
-		user-select: none;
-	}
-
-	#close-panel:hover {
-		color: #000;
-	}
-
-	/* Tabs styling */
-	.tab-container {
-		display: flex;
-		border-bottom: 1px solid #ccc;
-		background: #f1f1f1;
-		flex-shrink: 0;
-		z-index: 9; /* Below the header */
-	}
-
 	.tab {
-		flex: 1;
-		text-align: center;
-		padding: 10px 0;
-		cursor: pointer;
-		font-weight: bold;
-		border-right: 1px solid #ccc;
-		user-select: none;
-		background-color: #f1f1f1; /* Default background for tabs */
-		transition: background-color 0.3s, border-bottom 0.3s;
+		font-size: 16px;
 	}
-
-	.tab:last-child {
-		border-right: none;
-	}
-
-	.tab.active {
-		background: #ffffff; /* Active tab background color */
-		border-bottom: 2px solid #000;
-	}
-
-	/* Active CSS tab background color */
-	.tab[data-category="css"].active {
-		background-color: #e0f7fa; /* Distinct background for active CSS tab */
-	}
-
-	/* Reset background color when not active */
-	.tab[data-category="css"]:not(.active) {
-		background-color: #f1f1f1; /* Default background for inactive tabs */
-	}
-
-	/* Style for the property list */
-	.property-list {
-		list-style-type: none;
-		padding: 0;
-		margin: 0;
-		overflow-y: auto; /* Enables vertical scrolling */
-		flex: 1; /* Allows the list to grow and fill available space */
-		background-color: #ffffff; /* Ensure background consistency */
-	}
-
-	.property-list li {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 8px 12px;
-		border-bottom: 1px solid #f0f0f0;
-	}
-
-	.property-name {
-		width: 45%;
-		word-break: break-word;
-	}
-
-	.property-input {
-		width: 50%;
-		box-sizing: border-box; /* Ensures padding and borders are included */
-		padding: 4px;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		cursor: pointer; /* Indicate clickable inputs */
-	}
-
-	/* Styling for the property name link */
-	.property-name a {
-		color: inherit;
-		text-decoration: none;
-	}
-
-	.property-name a:hover {
-		text-decoration: underline;
-	}
-
-	/* Read-only input styling */
-	.property-input[readonly] {
-		background-color: #f9f9f9;
-		color: #555;
-		cursor: not-allowed;
-	}
-
-	/* Overlay for highlighting selected element */
-	#highlight-overlay {
-		position: absolute;
-		border: 2px solid rgba(0, 255, 0, 0.8); /* 2px lime border with 80% opacity */
-		background-color: rgba(0, 255, 0, 0.3); /* Lime background with 30% opacity */
-		pointer-events: none; /* Allows clicks to pass through */
-		z-index: 999; /* Just below the properties panel */
-		display: none; /* Hidden by default */
-	}
-
-	/* Responsive adjustments */
-	@media (max-width: 600px) {
-		#properties-panel {
-			width: 95%;
-			height: 90%;
-		}
-		#properties-header h3 {
-			font-size: 16px;
-		}
-		.tab {
-			font-size: 16px;
-		}
-	}
+}
 </style>
 <meta name='google-adsense-platform-account' content='ca-host-pub-1556223355139109'/>
 <meta name='google-adsense-platform-domain' content='blogspot.com'/>
@@ -1113,9 +1231,10 @@ width: 100%;
 <div class='vertical-inner-bottom' id='vertical-inner-bottom'></div>
 </div>
 </div>
-<div class='canvas' id='output' name='output' style='width: 100%; height: auto' title='HTML output'></div>
+<div class='canvas' id='output' name='output' style='width: 100%; height: auto' title='HTML output'><div class='renderer'></div></div>
 </main>
-<label class='fab' for='data' id='fab' onClick='fullScreen();return false;' onTouchEnd='saveShortcut()' title='Open in new window'>
+<label class='fab' for='data' id='fab' title='Open in new window'>
+<!-- onClick='switchRender();return false;' onTouchEnd='saveShortcut()' -->
 <svg height='35px' style='padding:14px 0 0 0' viewBox='0 0 16 16' width='35px' xmlns='http://www.w3.org/2000/svg'>
 <path d='M14 3.414L9.414 8 14 12.586v-2.583h2V16h-6v-1.996h2.59L8 9.414l-4.59 4.59H6V16H0v-5.997h2v2.583L6.586 8 2 3.414v2.588H0V0h16v6.002h-2V3.414zm-1.415-1.413H10V0H6v2H3.415L8 6.586 12.585 2z' fill-rule='evenodd'></path>
 </svg>
@@ -1164,104 +1283,9 @@ width: 100%;
 </div>
 <footer class='footer'></footer>
 <!-- </div> -->
-<!-- TESTS -->
+<!-- IIFE | BODY INIT -->
 <script defer='defer' type='text/javascript'>
 //<![CDATA[
-  const scrollXSpan = document.getElementById('scrollX');
-  const scrollYSpan = document.getElementById('scrollY');
-  const scrollOffsetContainer = document.getElementById('scrollOffsetContainer');
-
-  output.addEventListener('scroll', () => {
-   localStorage.setItem("position-x-scroll", frame.scrollLeft);
-   localStorage.setItem("position-y-scroll", frame.scrollTop);
-
-   storedXPosition = frame.scrollLeft;
-   storedYPosition = frame.scrollTop;
-   
-   scrollXSpan.textContent = `X: ${storedXPosition}`;
-   scrollYSpan.textContent = `Y: ${storedYPosition}`;
-
-   if (storedXPosition > 0 || storedYPosition > 0) {
-    scrollOffsetContainer.style.display = 'block';
-   } else {
-    scrollOffsetContainer.style.display = 'none';
-   }
-}, { passive: true });
-
-output.addEventListener("submit", function(event) {
-    event.preventDefault(); // Prevent form submission
-   alert('captured');
-}, { passive: true });
-
-/*
-document.querySelector('form').addEventListener('submit', function(event) {
-	  alert('0');
-    event.preventDefault(); // Prevents default form submission
-
-    // Capture all form data
-    const formData = new FormData(this);
-
-    // Convert FormData to an object
-    const formObject = {};
-    formData.forEach((value, key) => {
-        formObject[key] = value;
-    });
-
-    // Call function to create optgroup and options
-    createOptgroupAndOptions(formObject);
-});
-*/
-
-//]]>
-</script>
-<!-- TESTS 2 -->
-<script async='async' type='text/javascript'>
-//<![CDATA[  
-function decodeBase64(base64) {
-    // Decode the Base64 string
-    const binaryString = atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    
-    // Convert the binary string to a Uint8Array
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    
-    // Create a Blob from the Uint8Array and return the decoded string
-    const blob = new Blob([bytes], { type: 'text/html' });
-    return URL.createObjectURL(blob); // This can be used as an object URL
-}
-
-// Function to encode a string into Base64 (handling special characters)
-function encodeBase64(string) {
-    // Convert the string into a UTF-8 encoded array of characters
-    const utf8Bytes = new TextEncoder().encode(string);
-    
-    // Convert the UTF-8 array to a Base64 encoded string
-    let binaryString = '';
-    for (let i = 0; i < utf8Bytes.length; i++) {
-        binaryString += String.fromCharCode(utf8Bytes[i]);
-    }
-    
-    // Return the Base64 encoded string
-    return btoa(binaryString);
-}  
-
-//]]>
-</script>
-<script defer='defer' type='text/javascript'>
-//<![CDATA[
-    document.addEventListener('click', function(event) {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('overlay');
-      const hamburgerButton = document.getElementById('hamburger-button');
-
-      if (!sidebar.contains(event.target) && !hamburgerButton.contains(event.target) && sidebar.classList.contains('show')) {
-        toggleSidebar();
-      }
-    });
-
 if (!window.EyeDropper) {
 	console.warn('EyeDropper not compatible.')
 } else {
@@ -1277,8 +1301,7 @@ if (!window.EyeDropper) {
 			}
 		}
 	});
-}        
-
+}      
 //]]>
 </script>
 <!-- Canvas functions -->
@@ -1335,10 +1358,10 @@ function positionElement(element, x, y) {
             { value: 'virtual', text: 'Virtual DOM' },
             { value: 'iframe', text: 'Iframe' },
             { value: 'frame', text: 'Frame' },
-            { value: 'template', text: 'Template' },
-            { value: 'embed', text: 'Embed' },
-            { value: 'fragment', text: 'Fragment' },
-            { value: 'object', text: 'Object' }
+            //{ value: 'template', text: 'Template' },
+            //{ value: 'embed', text: 'Embed' },
+            //{ value: 'fragment', text: 'Fragment' },
+            //{ value: 'object', text: 'Object' }
          ];
 
          options.forEach(optionData => {
@@ -1409,8 +1432,12 @@ output.addEventListener('input', () => {
 
 output.addEventListener('contextmenu', function(event) {
   event.preventDefault();
-  //handleRender(event);
+  
+  if (event.ctrlKey) {
+    handleRender(event);
+  }
 });
+
 
 document.addEventListener('DOMContentLoaded', (event) => {
    const output = document.querySelector('.canvas');
@@ -1449,292 +1476,240 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 var logoElement = document.getElementById('logo');
+// logoElement.label = +DEFAULT_TITLE;
 logoElement.setAttribute('href', BLANK_PAGE);
 })();
 
 //]]>
 </script>
-<!-- UPDATE (frame on change) FUNCTION -->
+<!-- CONTAINER -->
 <script async='async' type='text/javascript'>
 //<![CDATA[
-async function change(e) {
-    frame = document.querySelector('.canvas'); // document.getElementById('output');
-    dataArea.value = editor.getValue();
-
-  try {  
-	await renderContent(dataArea.value, editorRender);
-
-    editCounter++;
-    if (editCounter > 1) window.editStarted = true;
-  } catch (error) {
-    console.error("Error during change event: ", error);
-    // handleErrors(error);
-  }
-}
-
-async function renderContent(data, renderMethod = 'shadow') {
-  if (typeof data !== 'string') {
-    console.error('renderContent expects a string. Received:', data);
-    return;
-  }
-  const frame = document.querySelector('.canvas'); // document.getElementById('output');
-  const footer = document.querySelector('.footer');
-
-  // Remove any existing 'frameCanvas' before creating a new one
-  const existingFrameCanvas = frame.querySelector('.frameCanvas');
-  if (existingFrameCanvas) {
-    frame.removeChild(existingFrameCanvas);
-  }
-
-  // Create a new temporary child element called 'frameCanvas'
-  const frameCanvas = document.createElement('div');
-  frameCanvas.classList.add('frameCanvas');
-
-  frame.style.position = 'relative';  // Optional styling to fit the frameCanvas in the frame
-  frame.appendChild(frameCanvas);
-
-  try {
-    switch (renderMethod) {
-
-      case 'shadow':
-        // Clear existing content
-        frameCanvas.innerHTML = '';
-
-        // Attach a shadow DOM and insert the HTML content
-        const shadowRoot = frameCanvas.attachShadow({ mode: 'open' });
-        shadowRoot.innerHTML = data;
-
-        // Execute any scripts within the shadow DOM
-        executeScripts(shadowRoot); // await executeScriptsSequentially(shadowRoot); // 
-        break;
-
-      case 'iframe':
-        frameCanvas.innerHTML = '';
-
-        // Create and configure the iframe
-        const iframe = document.createElement('iframe');
-
-        // Apply each referrer policy one by one
-      //  iframe.setAttribute('referrerpolicy', 'no-referrer');
-      //  iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
-      //  iframe.setAttribute('referrerpolicy', 'origin');
-      //  iframe.setAttribute('referrerpolicy', 'origin-when-cross-origin');
-        iframe.setAttribute('referrerpolicy', 'same-origin');
-       // iframe.setAttribute('referrerpolicy', 'strict-origin');
-       // iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-       // iframe.setAttribute('referrerpolicy', 'unsafe-url');
-
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
-        iframe.style.position = 'absolute';
-        iframe.srcdoc = data;
-        frameCanvas.appendChild(iframe);
-
-        // Write HTML content into the iframe
-        const iframeDocument = iframe.contentWindow.document;
-        iframeDocument.open();
-        iframeDocument.write(data);
-        iframeDocument.close();
-
-        // If window.outWin exists, write the data there as well
-        if (window.outWin) {
-          const outFrame = window.outWin.document;
-          outFrame.open();
-          outFrame.write(data);
-          outFrame.close();
-        }
-        break;
-
-    case 'frame':
-        frameCanvas.innerHTML = '';
-
-        // Create and configure the frameset
-        const frameset = document.createElement('frameset');
-        // frameset.setAttribute('cols', '100%');
-        frameset.setAttribute('style', 'width: 100%; height: auto');
-// Assuming one frame takes up the full width
-        frameCanvas.appendChild(frameset);
-
-        // Create and configure the frame
-        const frame = document.createElement('frame');
-        frame.setAttribute('name', 'mainFrame');
-        frameset.appendChild(frame);
-
-        // Write HTML content into the frame
-        const frameDocument = frame.contentWindow.document;
-        frameDocument.open();
-        frameDocument.write(data);
-        frameDocument.close();
-
-        // If window.outWin exists, write the data there as well
-        if (window.outWin) {
-          const outFrame = window.outWin.document;
-          outFrame.open();
-          outFrame.write(data);
-          outFrame.close();
-        }
-        break;
-
-      case 'light':
-        // Clear existing content
-        frameCanvas.innerHTML = '';
-
-        // Insert HTML content directly into the Light DOM
-        frameCanvas.innerHTML = data;
-
-        // Execute any scripts within the Light DOM
-        executeScripts(frameCanvas);
-        break;
-
-      case 'virtual':
-        // Clear existing content
-        frameCanvas.innerHTML = '';
-        // Render the virtual DOM with the provided data
-        frameCanvas.innerHTML = data; // renderVirtualDOM(frameCanvas, data);
-        executeScripts(frameCanvas);
-        break;
-
-    case 'fragment':
-      // Clear existing content
-      frameCanvas.innerHTML = '';
-
-      // Create a DocumentFragment
-      const fragment = document.createDocumentFragment();
-
-      // Create and append elements to the DocumentFragment
-      const fragmentContent = document.createElement('div');
-      fragmentContent.innerHTML = data; // 'data' contains the HTML content to insert
-      fragment.appendChild(fragmentContent);
-
-      // Append the DocumentFragment to the DOM (frameCanvas)
-      frameCanvas.appendChild(fragment);
-
-      // Optional: Execute any scripts in the inserted content if necessary
-      executeScripts(frameCanvas); // Assuming you have executeScripts defined
-      break;
-
-    case 'template':
-      // Clear existing content
-      frameCanvas.innerHTML = '';
-
-      // Create and configure the template element
-      const template = document.createElement('template');
-      template.innerHTML = data;
-
-      // Clone the template content and append to frameCanvas
-      const clone = document.importNode(template.content, true);
-      frameCanvas.appendChild(clone);
-
-      // Execute any scripts if necessary
-      executeScripts(frameCanvas); // Assume executeScripts is a function you defined
-      break;
-
-    case 'embed':
-      // Clear existing content
-      frameCanvas.innerHTML = '';
-
-      // Create and configure the embed element
-      const embed = document.createElement('embed');
-      embed.style.width = '100%';
-      embed.style.height = '100%';
-      embed.innerHTML = data;
-      //embed.src = data.url; // 'data' should contain the URL to embed
-      embed.type = data.type || 'text/html'; // Specify the MIME type if available
-      frameCanvas.appendChild(embed);
-      break;
-    
-    case 'object':
-      // Clear existing content
-      frameCanvas.innerHTML = '';
-
-      // Create and configure the object element
-      const obj = document.createElement('object');
-      obj.style.width = '100%';
-      obj.style.height = '100%';
-      // obj.setAttribute('data', data.url); // 'data' should contain the URL to embed
-      obj.setAttribute('innerHTML', data);
-      obj.type = data.type || 'text/html'; // Specify the MIME type if available
-      frameCanvas.appendChild(obj);
-      break;
-
-      default:
-        // Optional: Handle unexpected renderMethod values
-        console.warn(`Unknown render method: ${renderMethod}`);
-        break;
-    }
-
-    const titleElement = frameCanvas.querySelector('title') || frameCanvas.shadowRoot?.querySelector('title');
-    const noScript = frameCanvas.querySelector('noscript') || frameCanvas.shadowRoot?.querySelector('noscript');
-
-    const pageTitle = (titleElement && titleElement.textContent.trim().length > 0)
-      ? `${titleElement.textContent} - ${DEFAULT_TITLE}`
-      : `Untitled - ${DEFAULT_TITLE}`;
-    document.title = pageTitle;
-    footer.innerText = noScript ? noScript.innerText : '';
-
-  } catch (error) {
-    handleErrors(error);
-  } finally {
-    editorRender = renderMethod;
-    // frameCanvas.contentEditable = true;  
-  }
-}
-
-async function executeScriptsSequentially(context) {
-  const scripts = Array.from(context.querySelectorAll('script'));
-  
-  for (const script of scripts) {
-    const newScript = document.createElement('script');
-    
-    // Copy all attributes (e.g., src, type) from the original script
-    Array.from(script.attributes).forEach(attr => {
-      newScript.setAttribute(attr.name, attr.value);
-    });
-
-    if (script.src) {
-      // External script
-      newScript.src = script.src;
-      newScript.async = false; // Maintain execution order
-      await new Promise((resolve, reject) => {
-        newScript.onload = resolve;
-        newScript.onerror = () => reject(new Error(`Failed to load script: ${script.src}`));
-        context.appendChild(newScript);
-      });
-    } else {
-      // Inline script
-      newScript.textContent = script.textContent;
-      context.appendChild(newScript);
-    }
-    
-    // Remove the original script to prevent duplicate execution
-    script.remove();
-  }
-}
-
-function executeScripts(context) {
-  var scripts = context.querySelectorAll('script');
-  scripts.forEach((script) => {
-    const newScript = document.createElement('script');
-    newScript.textContent = script.textContent;
-    context.appendChild(newScript);
-    script.remove();
-  });
+var isInteracting = false;
+function handleDown(event) {
+  isInteracting = true;
+  getProportions();
 };
 
-/*
-// New
-function executeScripts(context) {
-  const scripts = context.querySelectorAll('script');
-  scripts.forEach((oldScript) => {
-    const newScript = document.createElement('script');
-    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-    newScript.textContent = oldScript.textContent;
-    oldScript.parentNode.replaceChild(newScript, oldScript);
-  });
-}
-*/
+function handleUp(event) {
+  isInteracting = false;
+  toggleElement();
+};
 
+function handleMove(event) {
+  if (isInteracting) {
+    getProportions;
+  }
+};
+
+function getProportions() {
+  navigator.vibrate && navigator.vibrate(200);
+  var gutterPosition = splitInstance.getSizes()[0];
+  localStorage.setItem('position-wrap', Math.round(gutterPosition) );
+  document.getElementById('gutter').textContent = Math.round(gutterPosition) + '%' + ' ' + Math.round(100 - gutterPosition) + '%';
+  
+  const dimensions = document.getElementById('dimensions');
+  const innerDimensions = document.getElementById('innerDimensions');
+
+  const frame = document.querySelector('.canvas'); // document.getElementById('output');
+  const frameLeft = document.getElementById('horizontal-left');
+  const frameRight = document.getElementById('horizontal-right');
+  const frameTop = document.getElementById('vertical-top');
+  const frameBottom = document.getElementById('vertical-bottom');
+  
+  const innerDiv = document.querySelector('.canvas').children[0]; // frame.contentWindow.document.querySelector('div');
+
+  let frameY = frame.scrollHeight; //  frame.contentWindow.document.body.scrollHeight;
+  let frameX = frame.scrollWidth; // frame.contentWindow.document.body.scrollWidth;
+  let frameHOffset = frame.offsetHeight; // frame.contentWindow.document.body.offsetHeight;
+  let frameWOffset = frame.offsetWidth; // frame.contentWindow.document.body.offsetWidth;
+  let frameYOffset = frame.scrollTop; // frame.contentWindow.pageYOffset;
+  let frameXOffset = frame.scrollLeft; // frame.contentWindow.pageXOffset;
+  let frameWidth = frame.offsetWidth;
+  let frameHeight = frame.offsetHeight;
+  let frameWidthPercent = ((frameXOffset + frameWidth) / (frameX + frameWidth - frame.offsetWidth)) * 100;
+  let frameHeightPercent = ((frameYOffset + frameHeight) / (frameY + frameHeight - frame.offsetHeight)) * 100;
+  let frameRect = frame.getBoundingClientRect();
+  
+  let scrollBarWidth = frame.offsetWidth - frame.clientWidth;
+  let scrollBarHeight = frame.offsetHeight - frame.clientHeight;
+
+  dimensions.style.height = (frameHeight - scrollBarHeight) + 'px';
+  dimensions.style.width = (frameWidth - scrollBarWidth) + 'px';
+
+  // innerDimensions.style.height = innerDiv.offsetHeight + 'px';
+  // innerDimensions.style.width = innerDiv.offsetWidth + 'px';
+
+  // var footer = document.querySelector('.footer');
+  // footer.innerHTML = 
+  // 'FW: ' + frameWidth + ' ' + frameX + ' | FH: ' + frameHeight + '|' + frameY  +
+  // ' FYO: ' + frameYOffset + ' ' + frameHOffset + '| FHO' + frameXOffset + ' ' + frameWOffset;
+
+  frameTop.innerHTML = Math.round(frameHeight) + 'px';
+  frameLeft.innerHTML = Math.round(frameWidth) + 'px';
+  frameBottom.style.display = 'none';
+  frameRight.style.display = 'none';
+
+  if (Math.round(frameX) > Math.round(frameWidth)) {
+    frameRight.innerHTML = Math.round(frameX) + 'px (' + Math.round(frameWidthPercent) + '%)';
+    frameRight.style.display = 'block';
+  } else {
+    // innerDimensions.style.width = frameWidth + 'px'; // frameWOffset + 'px';
+    if (frameWOffset > 0) {
+      localStorage.setItem("position-x-scroll", frameWOffset);
+    };
+  };
+
+  if (Math.round(frameY) > Math.round(frameHeight)) {
+	frameBottom.innerHTML = Math.round(frameY) + 'px (' + Math.round(frameHeightPercent) + '%)';
+	frameBottom.style.display = 'block';
+  } else {
+    // innerDimensions.style.height = frameBodyHeight; // frameHOffset + 'px';
+  if (frameHOffset > 0) {
+    localStorage.setItem("position-y-scroll", frameHOffset);
+  };
+ }
+
+  toggleElement();
+};
+
+function toggleElement() {
+  if (isInteracting) {
+    dimensions.style.display = 'block';
+    gutter.style.backgroundSize = '0px 0px';
+  } else {
+    dimensions.style.display = 'none';
+    gutter.textContent = '';
+    gutter.style.backgroundSize = '30px 5px';
+  }
+};
+    
+//]]>
+</script>
+<!-- UI BASE SETTINGS -->
+<script async='async' type='text/javascript'>
+//<![CDATA[  
+var select = document.querySelector.bind(document);
+var editCounter = 0;
+var cookiesAllowed = false;
+var editStarted = false;
+const dataArea = document.getElementById('data');
+const gutter = document.getElementById('gutter');
+const canvas = document.querySelector('.canvas');
+const lightDOM = document.createElement('div');
+const footer = document.querySelector('.footer');
+
+//dataArea.focus();
+//editor.focus();
+
+if (PARAM_HTML === null) {
+    dataArea.value = exampleHTML;
+} else if (PARAM_HTML === '') {
+    dataArea.value = '';
+} else {
+    dataArea.value = dataBase64;
+}
+
+// Codemirror Initializer
+var editor = CodeMirror.fromTextArea(dataArea, {
+  mode: 'htmlmixed',
+  lineNumbers: true,
+  indentWithTabs: true,
+  electricChars: true,
+  theme: 'default',
+  matchBrackets: true,
+  autoCloseBrackets: true,
+  showCursorWhenSelecting: true,
+  tabSize: 2,
+  keyMap: "sublime",
+  styleActiveLine: true,
+  autofocus: true,
+  screenReaderLabel: 'Code Canvas',
+  ariaLabel: 'Codemirror',
+  ariaLabelledBy: 'Code Canvas',
+  foldGutter: true,
+  specialChars: /[\u0000-\u0019\u00ad\u200b\u2028\u2029\ufeff]/,
+            specialCharPlaceholder: function(char) {
+                var element = document.createElement('span');
+                element.style.color = 'red';
+                element.innerHTML = '•';
+                element.title = 'Special character: ' + char.charCodeAt(0);
+                return element;
+            },
+  rtlMoveVisually: false,
+  gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+  extraKeys: {"Ctrl-Space": "autocomplete", "Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
+  matchTags: {
+    bothTags: true
+  }
+});
+
+// SplitJS Initializer
+var splitInstance = Split(['.CodeMirror', '.canvas'], {
+  sizes: [gutterPosition, (100-gutterPosition)],
+  gutterSize: 15,
+  minSze: 85,
+  lint: true,
+  direction: 'vertical',
+
+  onDrag: handleDown,
+  onDragStart: handleDown,
+  onDragEnd: handleUp,
+  onMouseDown: handleDown,
+  onMouseUp: handleUp,
+  onMouseMove: handleDown,
+  // onResize: alert('resize'),
+  gutter: function() {return document.getElementById("gutter")}
+
+});
+
+// Canvas Creator
+function initializeCanvas() {
+  frame = document.querySelector('.canvas');
+
+  // Create frameCanvas if it doesn't exist
+  frameCanvas = frame.querySelector('.frameCanvas');
+  if (!frameCanvas) {
+    frameCanvas = document.createElement('div');
+    frameCanvas.classList.add('frameCanvas');
+    frame.style.position = 'relative'; // Optional styling
+    frame.appendChild(frameCanvas);
+  }
+
+  // Create Shadow DOM frame if it doesn't exist
+  shadowFrame = frameCanvas.querySelector('.shadowFrame');
+  if (!shadowFrame) {
+    shadowFrame = document.createElement('div');
+    shadowFrame.classList.add('shadowFrame');
+    shadowFrame.style.position = 'relative'; // Optional styling
+    shadowFrame.style.display = 'none'; // Initially hidden
+    frameCanvas.appendChild(shadowFrame);
+
+    // Attach Shadow Root
+    shadowRoot = shadowFrame.attachShadow({ mode: 'open' });
+  }
+
+  // Create iframe if it doesn't exist
+  iframe = frameCanvas.querySelector('iframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.setAttribute('referrerpolicy', 'same-origin');
+
+    // Styling for iframe
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+    iframe.style.position = 'absolute';
+    iframe.style.display = 'none'; // Initially hidden
+
+    frameCanvas.appendChild(iframe);
+  }
+}
+   
+initializeCanvas();
+
+dataArea.value = editor.getValue();
+lightDOM.innerHTML = dataArea.value;
 //]]>
 </script>
 <!-- UI FUNCTION CALLS -->
@@ -1852,22 +1827,6 @@ function messageBox(title, body) {
   document.addEventListener('keyup', handleKeyUp);
 };
 
-function handleDown(event) {
-  isInteracting = true;
-  getProportions();
-};
-
-function handleUp(event) {
-  isInteracting = false;
-  toggleElement();
-};
-
-function handleMove(event) {
-  if (isInteracting) {
-    getProportions;
-  }
-};
-
 function allowCookies() {
   launchToast('info', 'Cookies Allowed');
   select('#mode').style.display = 'none';
@@ -1914,450 +1873,56 @@ function cursorRefresh(){
   localStorage.setItem('position-column', cursor.ch);
 };
 
-//]]>
-</script>
-<!-- UI ASYNC SETTINGS -->
-<script async='async' type='text/javascript'>
-//<![CDATA[  
-var select = document.querySelector.bind(document);
-var editCounter = 0;
-var cookiesAllowed = false;
-var editStarted = false;
-const dataArea = document.getElementById('data');
-const gutter = document.getElementById('gutter');
-var frame = document.querySelector('.canvas'); // document.getElementById('output');
+function switchRender() {
+  const renderer = document.querySelector('.renderer');
 
-//dataArea.focus();
-//editor.focus();
-
-if (PARAM_HTML === null) {
-    dataArea.value = exampleHTML;
-} else if (PARAM_HTML === '') {
-    dataArea.value = '';
-} else {
-    dataArea.value = dataBase64;
-}
-
-// Codemirror Initializer
-var editor = CodeMirror.fromTextArea(dataArea, {
-  mode: 'htmlmixed',
-  lineNumbers: true,
-  indentWithTabs: true,
-  electricChars: true,
-  theme: 'default',
-  matchBrackets: true,
-  autoCloseBrackets: true,
-  showCursorWhenSelecting: true,
-  tabSize: 2,
-  keyMap: "sublime",
-  styleActiveLine: true,
-  autofocus: true,
-  screenReaderLabel: 'Code Canvas',
-  ariaLabel: 'Codemirror',
-  ariaLabelledBy: 'Code Canvas',
-  foldGutter: true,
-  specialChars: /[\u0000-\u0019\u00ad\u200b\u2028\u2029\ufeff]/,
-            specialCharPlaceholder: function(char) {
-                var element = document.createElement('span');
-                element.style.color = 'red';
-                element.innerHTML = '•';
-                element.title = 'Special character: ' + char.charCodeAt(0);
-                return element;
-            },
-  rtlMoveVisually: false,
-  gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
-  extraKeys: {"Ctrl-Space": "autocomplete", "Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
-  matchTags: {
-    bothTags: true
+  if (editorRender === 'iframe') {
+    editorRender = 'shadow';
+    renderContent(dataArea.value, 'shadow');
+    showTransientMessage('Editor Mode (Shadow-Dom)');  // renderer.innerHTML = 'Editor Mode (Shadow Dom)';
+  } else {
+    editorRender = 'iframe';
+    renderContent(dataArea.value, 'iframe')
+    showTransientMessage('Preview Mode (Iframe)'); // renderer.innerHTML = 'Preview Mode (Iframe)';
   }
-});
-
-// SplitJS Initializer
-var splitInstance = Split(['.CodeMirror', '.canvas'], {
-  sizes: [gutterPosition, (100-gutterPosition)],
-  gutterSize: 15,
-  minSze: 85,
-  lint: true,
-  direction: 'vertical',
-  onDrag: handleDown,
-  onDragStart: handleDown,
-  onDragEnd: handleUp,
-  onMouseDown: handleDown,
-  onMouseUp: handleUp,
-  onMouseMove: handleDown,
-  // onResize: alert('resize'),
-  gutter: function() {return document.getElementById("gutter")}
-});
-
-//]]>
-</script>
-<!-- SIDEBAR EXAMPLES -->
-<script async='async' type='text/javascript'>
-//<![CDATA[  
-
-const SIDEBAR_DOCUMENT_STRUCTURE = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5Eb2N1bWVudCBTdHJ1Y3R1cmU8L3RpdGxlPgogIDwvaGVhZD4KICA8Ym9keT4KICAgIC4uLgogIDwvYm9keT4KPC9odG1sPgo=';
-const SIDEBAR_METADATA = 'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CiAgICA8IS0tIEV4YW1wbGUgb2YgdGl0bGUgLS0+CiAgICA8dGl0bGU+QnVsbWEgQ1NTIEV4YW1wbGU8L3RpdGxlPgoKICAgIDwhLS0gQWRkIGRvY3VtZW50IHRpdGxlIG1ldGFkYXRhIC0tPgogICAgPG1ldGEgY2hhcnNldD0iVVRGLTgiPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgogICAgPG1ldGEgbmFtZT0iZGVzY3JpcHRpb24iIGNvbnRlbnQ9IkV4YW1wbGUgZG9jdW1lbnQgdXNpbmcgQnVsbWEgQ1NTIGZyYW1ld29yay4iPgoKICAgIDwhLS0gRXhhbXBsZSBvZiBsaW5rOiBBZGQgZXh0ZXJuYWwgcmVzb3VyY2UgbGluayAtLT4KICAgIDxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iaHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9idWxtYUAwLjkuNC9jc3MvYnVsbWEubWluLmNzcyI+CgogICAgPCEtLSBFeGFtcGxlIG9mIGVtYmVkZGVkIENTUyBzdHlsZXMgLS0+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7CiAgICAgICAgICAgIGJhY2tncm91bmQtY29sb3I6ICNmNWY1ZjU7CiAgICAgICAgfQogICAgICAgIC5jdXN0b20tYm94IHsKICAgICAgICAgICAgcGFkZGluZzogMjBweDsKICAgICAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDVweDsKICAgICAgICAgICAgYm94LXNoYWRvdzogMHB4IDJweCAxMHB4IHJnYmEoMCwwLDAsMC4xKTsKICAgICAgICB9CiAgICAgICAgLmNlbnRlci10ZXh0IHsKICAgICAgICAgICAgdGV4dC1hbGlnbjogY2VudGVyOwogICAgICAgIH0KICAgIDwvc3R5bGU+CjwvaGVhZD4KPGJvZHk+CiAgICA8IS0tIEhlYWRlciBTZWN0aW9uIC0tPgogICAgPHNlY3Rpb24gY2xhc3M9Imhlcm8gaXMtcHJpbWFyeSI+CiAgICAgICAgPGRpdiBjbGFzcz0iaGVyby1ib2R5Ij4KICAgICAgICAgICAgPHAgY2xhc3M9InRpdGxlIGNlbnRlci10ZXh0Ij4KICAgICAgICAgICAgICAgIFdlbGNvbWUgdG8gdGhlIEJ1bG1hIEV4YW1wbGUKICAgICAgICAgICAgPC9wPgogICAgICAgICAgICA8cCBjbGFzcz0ic3VidGl0bGUgY2VudGVyLXRleHQiPgogICAgICAgICAgICAgICAgVGhpcyBpcyBhIGRlbW9uc3RyYXRpb24gb2YgdGhlIEJ1bG1hIENTUyBmcmFtZXdvcmsgaW4gYWN0aW9uLgogICAgICAgICAgICA8L3A+CiAgICAgICAgPC9kaXY+CiAgICA8L3NlY3Rpb24+CgogICAgPCEtLSBFeGFtcGxlIGNvbnRlbnQgc2VjdGlvbiAtLT4KICAgIDxzZWN0aW9uIGNsYXNzPSJzZWN0aW9uIj4KICAgICAgICA8ZGl2IGNsYXNzPSJjb250YWluZXIiPgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJjdXN0b20tYm94Ij4KICAgICAgICAgICAgICAgIDxoMiBjbGFzcz0idGl0bGUgaXMtNCI+U3R5bGlzaCBCb3g8L2gyPgogICAgICAgICAgICAgICAgPHA+VGhpcyBib3ggdXNlcyBlbWJlZGRlZCBzdHlsZXMgZm9yIGN1c3RvbSBwYWRkaW5nLCBiYWNrZ3JvdW5kLCBhbmQgc2hhZG93LjwvcD4KICAgICAgICAgICAgPC9kaXY+CgogICAgICAgICAgICA8YnI+CgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJjb2x1bW5zIj4KICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9ImNvbHVtbiBpcy1vbmUtdGhpcmQiPgogICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9Im5vdGlmaWNhdGlvbiBpcy1pbmZvIj4KICAgICAgICAgICAgICAgICAgICAgICAgVGhpcyBpcyBhbiBpbmZvIG5vdGlmaWNhdGlvbi4KICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICAgICAgPGRpdiBjbGFzcz0iY29sdW1uIGlzLW9uZS10aGlyZCI+CiAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz0ibm90aWZpY2F0aW9uIGlzLXN1Y2Nlc3MiPgogICAgICAgICAgICAgICAgICAgICAgICBUaGlzIGlzIGEgc3VjY2VzcyBub3RpZmljYXRpb24uCiAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9ImNvbHVtbiBpcy1vbmUtdGhpcmQiPgogICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9Im5vdGlmaWNhdGlvbiBpcy1kYW5nZXIiPgogICAgICAgICAgICAgICAgICAgICAgICBUaGlzIGlzIGEgZGFuZ2VyIG5vdGlmaWNhdGlvbi4KICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICA8L2Rpdj4KICAgICAgICA8L2Rpdj4KICAgIDwvc2VjdGlvbj4KPC9ib2R5Pgo8L2h0bWw+';
-const SIDEBAR_SCRIPTING = 'PHNjcmlwdD5jb25zb2xlLmxvZygnaGknKTwvc2NyaXB0Pgo8bm9zY3JpcHQ+SmF2YXNjcmlwdCBvZmY8L25vc2NyaXB0Pgk=';
-const SIDEBAR_SECTIONING = 'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KICA8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiIC8+CiAgICA8dGl0bGU+U2VjdGlvbmluZzwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgIG1haW4gewogICAgICAgIHdpZHRoOiAxMDAlOwogICAgICAgIG1hcmdpbjogYXV0bzsKICAgICAgfQogICAgICBoZWFkZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0cGluazsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIG5hdiB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogbGlnaHRncmVlbjsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIHNlY3Rpb24gewogICAgICAgIGRpc3BsYXk6IGZsZXg7CiAgICAgIH0KCQkJYXJ0aWNsZSB7CiAgICAgICAgZmxleDogMCAwIDYwJTsKICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgIH0KICAgICAgYXJ0aWNsZSBoZWFkZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0Ymx1ZTsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIGFydGljbGUgc2VjdGlvbiB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogbWVkaXVtcHVycGxlOwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgICAgYXJ0aWNsZSBmb290ZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0Z3JheTsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9IAogICAgICBhc2lkZSB7CiAgICAgICAgZmxleDogMCAwIDQwJTsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBsaWdodHllbGxvdzsKICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgIH0KICAgICAgZm9vdGVyIHsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBncmF5OwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9oZWFkPgogIDxib2R5PgogICAgPG1haW4+CiAgICAgIDxoZWFkZXI+SGVhZGVyPC9oZWFkZXI+CiAgICAgIDxuYXY+TmF2aWdhdGlvbjwvbmF2PgogICAgICA8c2VjdGlvbj4KICAgICAgICA8YXJ0aWNsZT4KICAgICAgICAgIDxoZWFkZXI+QXJ0aWNsZSBIZWFkZXI8L2hlYWRlcj4KICAgICAgICAgIDxzZWN0aW9uPkFydGljbGUgU2VjdGlvbiAxPC9zZWN0aW9uPgogICAgICAgICAgPHNlY3Rpb24+QXJ0aWNsZSBTZWN0aW9uIDI8L3NlY3Rpb24+CiAgICAgICAgICA8Zm9vdGVyPkFydGljbGUgRm9vdGVyPC9mb290ZXI+CiAgICAgICAgPC9hcnRpY2xlPgogICAgICAgIDxhc2lkZT4KICAgICAgICAgIDxhc2lkZT5Bc2lkZTwvYXNpZGU+CiAgICAgICAgICA8YXNpZGU+QXNpZGU8L2FzaWRlPgogICAgICAgIDwvYXNpZGU+CiAgICAgIDwvc2VjdGlvbj4KICAgICAgPGZvb3Rlcj5Gb290ZXI8L2Zvb3Rlcj4KICAgIDwvbWFpbj4KICA8L2JvZHk+CjwvaHRtbD4K';   
-const SIDEBAR_HEADINGS = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5IZWFkaW5nczwvdGl0bGU+CiAgPC9oZWFkPgogIDxib2R5PgoJCTxoMT5Cb29rIFRpdGxlOiBUaGUgV29ybGQgb2YgUHJvZ3JhbW1pbmc8L2gxPgoJCTxoMj5QYXJ0IDE6IEludHJvZHVjdGlvbiB0byBQcm9ncmFtbWluZzwvaDI+CgkJCgkJPGgzPkNoYXB0ZXIgMTogV2hhdCBpcyBQcm9ncmFtbWluZz88L2gzPgoJCTxoND5TZWN0aW9uIDEuMTogRGVmaW5pdGlvbnMgYW5kIENvbmNlcHRzPC9oND4KCQk8aDU+U3Vic2VjdGlvbiAxLjEuMTogV2hhdCBpcyBhIFByb2dyYW0/PC9oNT4KCQk8aDY+RGV0YWlsIDEuMS4xLjE6IEJhc2ljIHByb2dyYW0gc3RydWN0dXJlIGFuZCBleGFtcGxlczwvaDY+CgoJCTxoMz5DaGFwdGVyIDI6IFByb2dyYW1taW5nIExhbmd1YWdlczwvaDM+CgkJPGg0PlNlY3Rpb24gMi4xOiBUeXBlcyBvZiBQcm9ncmFtbWluZyBMYW5ndWFnZXM8L2g0PgoJCTxoNT5TdWJzZWN0aW9uIDIuMS4xOiBIaWdoLUxldmVsIHZzIExvdy1MZXZlbCBMYW5ndWFnZXM8L2g1PgoJCTxoNj5EZXRhaWwgMi4xLjEuMTogRXhhbXBsZXMgb2YgaGlnaC1sZXZlbCBsYW5ndWFnZXMgKFB5dGhvbiwgSmF2YSwgZXRjLik8L2g2PgogIDwvYm9keT4KPC9odG1sPgo=';
-const SIDEBAR_TEXT_CONTENT = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5UZXh0IENvbnRlbnQ8L3RpdGxlPgogIDwvaGVhZD4KICA8Ym9keT4KCQk8cD5UaGlzIGlzIGFuIGV4YW1wbGUgb2YgYSBwYXJhZ3JhcGggdGhhdCBnaXZlcyBjb250ZXh0IHRvIHRoZSByZXN0IG9mIHRoZSBjb250ZW50IG9uIHRoaXMgcGFnZS48L3A+CgoJCTxocj4KCgkJPHByZT4KCQlUaGlzIGlzIGFuIGV4YW1wbGUgb2YgcHJlZm9ybWF0dGVkIHRleHQuCgkJSXQgbWFpbnRhaW5zIHRoZSBleGFjdCBzcGFjaW5nIGFuZCBsaW5lIGJyZWFrcy4KCQk8L3ByZT4KCgkJPGJsb2NrcXVvdGU+CgkJVGhpcyBpcyBhbiBleGFtcGxlIG9mIGEgYmxvY2sgcXVvdGF0aW9uLiBJdCdzIHVzdWFsbHkgdXNlZCB0byBjaXRlIGV4dGVybmFsIHNvdXJjZXMgb3IgaGlnaGxpZ2h0IGltcG9ydGFudCBjb250ZW50LgoJCTwvYmxvY2txdW90ZT4KCgkJPG9sPgoJCQk8bGk+Rmlyc3Qgb3JkZXJlZCBpdGVtPC9saT4KCQkJPGxpPlNlY29uZCBvcmRlcmVkIGl0ZW08L2xpPgoJCQk8bGk+VGhpcmQgb3JkZXJlZCBpdGVtPC9saT4KCQk8L29sPgoKCQk8dWw+CgkJCTxsaT5GaXJzdCB1bm9yZGVyZWQgaXRlbTwvbGk+CgkJCTxsaT5TZWNvbmQgdW5vcmRlcmVkIGl0ZW08L2xpPgoJCQk8bGk+VGhpcmQgdW5vcmRlcmVkIGl0ZW08L2xpPgoJCTwvdWw+CgoJCTxkbD4KCQkJPGR0PkhUTUw8L2R0PgoJCQk8ZGQ+QSBtYXJrdXAgbGFuZ3VhZ2UgZm9yIGNyZWF0aW5nIHdlYiBwYWdlcy48L2RkPgoKCQkJPGR0PkNTUzwvZHQ+CgkJCTxkZD5BIHN0eWxlc2hlZXQgbGFuZ3VhZ2UgdXNlZCB0byBzdHlsZSB3ZWIgcGFnZXMuPC9kZD4KCQk8L2RsPgoKCQk8ZmlndXJlPgoJCQk8aW1nIHNyYz0iaW1hZ2UuanBnIiBhbHQ9IkV4YW1wbGUgaW1hZ2UiPgoJCQk8ZmlnY2FwdGlvbj5UaGlzIGlzIGEgY2FwdGlvbiBkZXNjcmliaW5nIHRoZSBmaWd1cmUgYWJvdmUuPC9maWdjYXB0aW9uPgoJCTwvZmlndXJlPgoKCQk8ZGl2PgoJCQlUaGlzIGlzIGEgZ2VuZXJpYyBibG9jayBjb250YWluZXIgKGRpdikgdGhhdCBjb3VsZCBob2xkIHZhcmlvdXMgZWxlbWVudHMgb3IgY29udGVudC4KCQk8L2Rpdj4KCgkJPGFkZHJlc3M+CgkJCUpvaG4gRG9lPGJyPgoJCQkxMjM0IFdlYiBTdC48YnI+CgkJCUludGVybmV0IENpdHksIDU2Nzg5CgkJPC9hZGRyZXNzPgoKCQk8aW5zPlRoaXMgaXMgc29tZSBpbnNlcnRlZCB0ZXh0LjwvaW5zPiA8ZGVsPlRoaXMgaXMgc29tZSBkZWxldGVkIHRleHQuPC9kZWw+CgogIDwvYm9keT4KPC9odG1sPgo=';
-
-
-GRAPHICS_AND_EMBEDED_CONTENT = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgo8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KICAgIDx0aXRsZT5HcmFwaGljcyBhbmQgRW1iZWRkZWQgQ29udGVudDwvdGl0bGU+CjwvaGVhZD4KPGJvZHk+CiAgICA8aDI+RXF1YXRpb24gb2YgYSBTaW5lIFdhdmU6PC9oMj4KICAgIDwhLS0gTWF0aE1MIHRvIGRpc3BsYXkgdGhlIGVxdWF0aW9uIHkgPSBzaW4oeCkgLS0+CiAgICA8bWF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OC9NYXRoL01hdGhNTCI+CiAgICAgICAgPG1pPnk8L21pPgogICAgICAgIDxtbz49PC9tbz4KICAgICAgICA8bWk+c2luPC9taT4KICAgICAgICA8bW8+JiN4MjA2MTs8L21vPgogICAgICAgIDxtaT54PC9taT4KICAgIDwvbWF0aD4KCiAgICA8IS0tIFNWRyB0byBwbG90IHRoZSBzaW5lIHdhdmUgLS0+CiAgICA8c3ZnIHdpZHRoPSI2MDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIC0xLjUgNi4yOCAzIj4KICAgICAgICA8IS0tIFggYW5kIFkgYXhlcyAtLT4KICAgICAgICA8bGluZSB4MT0iMCIgeTE9IjAiIHgyPSI2LjI4IiB5Mj0iMCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIwLjAxIi8+CiAgICAgICAgPGxpbmUgeDE9IjAiIHkxPSItMSIgeDI9IjAiIHkyPSIxIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjAuMDEiLz4KICAgICAgICAKICAgICAgICA8IS0tIFNpbmUgd2F2ZSBwYXRoIC0tPgogICAgICAgIDxwYXRoIGlkPSJzaW5lV2F2ZSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJibHVlIiBzdHJva2Utd2lkdGg9IjAuMDIiLz4KICAgICAgICAKICAgICAgICA8IS0tIEphdmFTY3JpcHQgdG8gZ2VuZXJhdGUgdGhlIHNpbmUgd2F2ZSAtLT4KICAgICAgICA8c2NyaXB0IHR5cGU9ImFwcGxpY2F0aW9uL2VjbWFzY3JpcHQiPjwhW0NEQVRBWwogICAgICAgICAgICBjb25zdCBwYXRoID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3NpbmVXYXZlJyk7CiAgICAgICAgICAgIGxldCBkID0gJyc7CiAgICAgICAgICAgIGZvciAobGV0IHggPSAwOyB4IDw9IDYuMjg7IHggKz0gMC4wMSkgewogICAgICAgICAgICAgICAgY29uc3QgeSA9IE1hdGguc2luKHgpOwogICAgICAgICAgICAgICAgZCArPSAoeCA9PT0gMCA/ICdNJyA6ICdMJykgKyB4ICsgJyAnICsgeSArICcgJzsKICAgICAgICAgICAgfQogICAgICAgICAgICBwYXRoLnNldEF0dHJpYnV0ZSgnZCcsIGQpOwogICAgICAgIF1dPjwvc2NyaXB0PgogICAgPC9zdmc+CgogICAgPHA+VGhpcyBTVkcgZ3JhcGggcGxvdHMgdGhlIHNpbmUgZnVuY3Rpb24gcmVwcmVzZW50ZWQgYnkgdGhlIE1hdGhNTCBlcXVhdGlvbiBhYm92ZS48L3A+CjwvYm9keT4KPC9odG1sPgo=';
-const SIDEBAR_TABLE_CONTENT = 
-'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5UYWJsZSBDb250ZW50PC90aXRsZT4KCQk8c3R5bGU+CiAgICAgIHRhYmxlIHsKICAgICAgICB3aWR0aDogMTAwJTsKICAgICAgICBtYXJnaW46IGF1dG87CiAgICAgIH0JCQkKY2FwdGlvbiB7CQkJCiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7CgkgIGJhY2tncm91bmQtY29sb3I6IHdoaXRlOwp9CnRhYmxlIHsKICAgIGJvcmRlci1jb2xsYXBzZTogY29sbGFwc2U7CiAgICBmb250LXNpemU6IDAuOWVtOwogICAgZm9udC1mYW1pbHk6IHNhbnMtc2VyaWY7CiAgICBtaW4td2lkdGg6IDQwMHB4OwogICAgYm94LXNoYWRvdzogMCAwIDIwcHggcmdiYSgwLCAwLCAwLCAwLjE1KTsKfQp0YWJsZSB0aGVhZCB0ciB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA5ODc5OwogICAgY29sb3I6ICNmZmZmZmY7CiAgICB0ZXh0LWFsaWduOiBsZWZ0Owp9CnRhYmxlIHRoLAp0YWJsZSB0ZCB7CiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7Cn0KCnRhYmxlIHRib2R5IHRyIHsKICAgIGJvcmRlci1ib3R0b206IDFweCBzb2xpZCAjZGRkZGRkOwp9Cgp0YWJsZSB0Ym9keSB0cjpudGgtb2YtdHlwZShldmVuKSB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjZjNmM2YzOwp9Cgp0YWJsZSB0Ym9keSB0cjpsYXN0LW9mLXR5cGUgewogICAgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICMwMDk4Nzk7Cn0KdGFibGUgdGZvb3QgewogICAgYmFja2dyb3VuZC1jb2xvcjogZ3JheTsKfQkJCQoJCQkKPC9zdHlsZT4KICA8L2hlYWQ+CiAgPGJvZHk+CiAgICA8dGFibGUgYm9yZGVyPSIxIj4KICA8Y2FwdGlvbj5FbXBsb3llZSBEZXRhaWxzPC9jYXB0aW9uPgogIAogIDxjb2xncm91cD4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmMGYwZjA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNlMGUwZTA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNkMGQwZDA7Ij4KICA8L2NvbGdyb3VwPgoKICA8dGhlYWQ+CiAgICA8dHI+CiAgICAgIDx0aD5JRDwvdGg+CiAgICAgIDx0aD5OYW1lPC90aD4KICAgICAgPHRoPkRlcGFydG1lbnQ8L3RoPgogICAgPC90cj4KICA8L3RoZWFkPgoKICA8dGJvZHk+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDE8L3RkPgogICAgICA8dGQ+QWxpY2U8L3RkPgogICAgICA8dGQ+RW5naW5lZXJpbmc8L3RkPgogICAgPC90cj4KICAgIDx0cj4KICAgICAgPHRkPjAwMjwvdGQ+CiAgICAgIDx0ZD5Cb2I8L3RkPgogICAgICA8dGQ+TWFya2V0aW5nPC90ZD4KICAgIDwvdHI+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDM8L3RkPgogICAgICA8dGQ+Q2Fyb2w8L3RkPgogICAgICA8dGQ+U2FsZXM8L3RkPgogICAgPC90cj4KICA8L3Rib2R5PgoKICA8dGZvb3Q+CiAgICA8dHI+CiAgICAgIDx0ZCBjb2xzcGFuPSIzIj5FbmQgb2YgRW1wbG95ZWUgRGV0YWlsczwvdGQ+CiAgICA8L3RyPgogIDwvdGZvb3Q+CjwvdGFibGU+CiAgPC9ib2R5Pgo8L2h0bWw+Cg==';
-const SIDEBAR_FORM_CONTENT = 
-'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CiAgICA8dGl0bGU+Rm9ybXM8L3RpdGxlPgogICAgPHN0eWxlPgogICAgICBib2R5IHsKCQkJCWZvbnQtZmFtaWx5OiBBcmlhbCwgc2Fucy1zZXJpZjsKCQkJCW1hcmdpbjogMjBweDsKCQkJCXBhZGRpbmc6IDEwcHg7CgkJCQliYWNrZ3JvdW5kLWNvbG9yOiAjZjRmNGY0OwoJCQkJYm9yZGVyLXJhZGl1czogOHB4OwogICAgICB9CiAgICAgIGgxIHsKICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7CiAgICAgIH0KICAgICAgbGFiZWwgewogICAgICAgIGRpc3BsYXk6IGJsb2NrOwogICAgICAgIG1hcmdpbjogMTBweCAwIDVweDsKICAgICAgfQoJCQlpbnB1dFt0eXBlPSJidXR0b24iXSwKCQkJaW5wdXRbdHlwZT0ic3VibWl0Il0sCgkJCWlucHV0W3R5cGU9InJlc2V0Il0gewoJCQkgIHdpZHRoOiAxMDAlOwoJCQkgIHBhZGRpbmc6IDhweDsKCQkJCWJvcmRlcjogMXB4IHNvbGlkICNjY2M7CgkJCX0KCQkJdGV4dGFyZWEgewoJCQkJd2lkdGg6IDk5JTsKCQkJCW1hcmdpbi1ib3R0b206IDE1cHg7CgkJCQlib3JkZXI6IDFweCBzb2xpZCAjY2NjOwoJCQkJYm9yZGVyLXJhZGl1czogNHB4OwoJCSAgfQoJCQkuY29udGFpbmVyIHsKCQkJCW1heC13aWR0aDogNjAwcHg7CgkJCQltYXJnaW46IGF1dG87CgkJCQliYWNrZ3JvdW5kOiAjZmZmOwoJCQkJcGFkZGluZzogMjBweDsKCQkJCWJvcmRlci1yYWRpdXM6IDhweDsKCQkJCWJveC1zaGFkb3c6IDAgMnB4IDEwcHggcmdiYSgwLCAwLCAwLCAwLjEpOwoJCQl9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogIDxkaXYgY2xhc3M9ImNvbnRhaW5lciI+CiAgICA8aDE+Q3VycmljdWx1bSBWaXRhZTwvaDE+CiAgICA8Zm9ybT4KICAgICAgPGxhYmVsPklucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJoaWRkZW4iIHZhbHVlPSIzNDY1NyIgLz4KICAgICAgPGxhYmVsPkZ1bGwgbmFtZTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0idGV4dCIgbmFtZT0ibmFtZSIgdmFsdWU9IkpvaG4gRG9lIiAvPgogICAgICA8bGFiZWw+TnVtYmVyIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJudW1iZXIiIG5hbWU9Im51bWJlciIgLz4KICAgICAgPGxhYmVsPlNhbGFyeTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0ibnVtYmVyIiBuYW1lPSJmbG9hdCIgcGxhY2Vob2xkZXI9IjEuMDAwLDAwIiBzdGVwPSIwLjAxIiAvPgogICAgICA8bGFiZWw+UGFzc3dvcmQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InBhc3N3b3JkIiBuYW1lPSJwYXNzd29yZCIgLz4KICAgICAgPGxhYmVsPkJvcm4gZGF0ZTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iZGF0ZSIgbmFtZT0iZGF0ZSIgLz4KICAgICAgPGxhYmVsPlVSTDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0idXJsIiBuYW1lPSJ1cmwiIHBsYWNlaG9sZGVyPSJ3d3cudGVzdC5jb20iIC8+CiAgICAgIDxsYWJlbD5FbWFpbCBJbnB1dDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iZW1haWwiIG5hbWU9ICJlbWFpbCIgcGxhY2Vob2xkZXI9InRlc3RAdGVzdC5jb20iIC8+CiAgICAgIDxsYWJlbD5UZWxlcGhvbmUgSW5wdXQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InRlbCIgbmFtZT0gInBob25lIiBwbGFjZWhvbGRlcj0iKDk5KSA5OTk5OS05OTk5IiAvPgogICAgICA8bGFiZWw+U2VhcmNoIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJzZWFyY2giIG5hbWU9InNlYXJjaCIgdmFsdWU9IlRlc3Qgc2VhcmNoIiAvPgogICAgICA8bGFiZWw+R2VuZGVyOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIj5NYWxlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9InJhZGlvIiBuYW1lPSJnZW5kZXIiPkZlbWFsZTwvaW5wdXQ+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIj5PdGhlcjwvaW5wdXQ+CiAgICAgIDxsYWJlbD5FeHRyYTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iY2hlY2tib3giIG5hbWU9Imhhcy1saWNlbnNlIj5IYXMgYSBkcml2ZXIncyBsaWNlbnNlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9ImNoZWNrYm94IiBuYW1lPSJoYXMtY2FyIj5IYXMgYSBjYXI8L2lucHV0PgogICAgICA8bGFiZWw+UmF0aW5nIG9mIHlvdXQgbGFzdCBqb2I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InJhbmdlIiBuYW1lPSJyYW5nZSIgdmFsdWU9IjEiIG1pbj0iMSIgbWF4PSI1IiAvPgogICAgICA8bGFiZWw+UHJvZmlsZSBQaWN0dXJlOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJmaWxlIiBuYW1lPSJmaWxlIiAvPgogICAgICA8bGFiZWw+RmF2b3JpdGUgQ29sb3I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImNvbG9yIiBuYW1lPSJjb2xvciIgdmFsdWU9IiNlNjY0NjUiIC8+CiAgICAgIDxsYWJlbD5TaG9ydCBCaW86PC9sYWJlbD4KICAgICAgPHRleHRhcmVhIG5hbWU9ImJpbyIgcGxhY2Vob2xkZXI9IkVudGVyIHRleHQgaGVyZS4uLiI+PC90ZXh0YXJlYT4KICAgICAgPGlucHV0IHR5cGU9ImJ1dHRvbiIgbmFtZT0iYnV0dG9uIiB2YWx1ZT0iQnV0dG9uIiAvPgogICAgICA8aW5wdXQgdHlwZT0ic3VibWl0IiBuYW1lPSJzdWJtaXQiIHZhbHVlPSJTdWJtaXQiIC8+CiAgICAgIDxpbnB1dCB0eXBlPSJyZXNldCIgbmFtZT0icmVzZXQiIC8+CiAgICA8L2Zvcm0+CiAgPC9kaXY+CjwvYm9keT4KCjwvaHRtbD4=';
-
-const categoryLinks = {
-    "Element 1" : BLANK_PAGE + SIDEBAR_DOCUMENT_STRUCTURE,
-    "Element 2" : BLANK_PAGE + SIDEBAR_METADATA,
-    "Element 3" : BLANK_PAGE + SIDEBAR_SCRIPTING,
-    "Element 4" : BLANK_PAGE + SIDEBAR_SECTIONING,
-    "Element 5" : BLANK_PAGE + SIDEBAR_HEADINGS,
-    "Element 6" : BLANK_PAGE + SIDEBAR_TEXT_CONTENT,
-    "Element 7" : "/",
-    "Element 8" : "/",
-    "Element 9" : BLANK_PAGE + GRAPHICS_AND_EMBEDED_CONTENT,
-    "Element 10": BLANK_PAGE + SIDEBAR_TABLE_CONTENT,
-    "Element 11": BLANK_PAGE + SIDEBAR_FORM_CONTENT
 };
 
-const elementsList = [
-  {
-    "category": "Document Structure",
-    "elements": [
-      { "tag": "html", "use": "Root element of an HTML document" },
-      { "tag": "head", "use": "Container for document metadata" },
-      { "tag": "body", "use": "Document body" }
-    ]
-  },
-  {
-    "category": "Metadata",
-    "elements": [
-      { "tag": "title", "use": "Document title" },
-   // { "tag": "base", "use": "Base URL for all relative URLs" },
-      { "tag": "link", "use": "External resource link" },
-      { "tag": "meta", "use": "Metadata about the document" },
-      { "tag": "style", "use": "Embedded CSS styles" }
-    ]
-  },
-  {
-    "category": "Scripting",
-    "elements": [
-      { "tag": "script", "use": "Embedded script" },
-      { "tag": "noscript", "use": "Alternative content if scripting is disabled" }
-    ]
-  },
-  {
-    "category": "Sectioning",
-    "elements": [
-      { "tag": "main", "use": "Main content of the document (Use only once)" },
-      { "tag": "header", "use": "Introductory content for a section" },
-      { "tag": "nav", "use": "Section of navigation links" },
-      { "tag": "article", "use": "Independent, self-contained content" },
-      { "tag": "section", "use": "Section of content" },
-      { "tag": "aside", "use": "Sidebar content" },
-      { "tag": "footer", "use": "Concluding content for a section" }
-    ]
-  },
-  {
-    "category": "Headings",
-    "elements": [
-      { "tag": "h1", "use": "Heading level 1" },
-      { "tag": "h2", "use": "Heading level 2" },
-      { "tag": "h3", "use": "Heading level 3" },
-      { "tag": "h4", "use": "Heading level 4" },
-      { "tag": "h5", "use": "Heading level 5" },
-      { "tag": "h6", "use": "Heading level 6" }
-    ]
-  },
-  {
-    "category": "Text Content",
-    "elements": [
-      { "tag": "p", "use": "Paragraph" },
-      { "tag": "hr", "use": "Thematic break" },
-      { "tag": "pre", "use": "Preformatted text" },
-      { "tag": "blockquote", "use": "Block quotation" },
-      { "tag": "ol", "use": "Ordered list" },
-      { "tag": "ul", "use": "Unordered list" },
-      { "tag": "li", "use": "List item" },
-      { "tag": "dl", "use": "Description list" },
-      { "tag": "dt", "use": "Term in a description list" },
-      { "tag": "dd", "use": "Description of a term in a description list" },
-      { "tag": "figure", "use": "Figure with optional caption" },
-      { "tag": "figcaption", "use": "Caption for a figure" },
-      { "tag": "div", "use": "Generic block container" },
-      { "tag": "address", "use": "Contact information" },
-      { "tag": "ins", "use": "Inserted text" },
-      { "tag": "del", "use": "Deleted text" }
-    ]
-  },
-  {
-    "category": "Inline Text Semantics",
-    "elements": [
-      { "tag": "a", "use": "Hyperlink" },
-      { "tag": "em", "use": "Emphasized text" },
-      { "tag": "strong", "use": "Important text" },
-      { "tag": "small", "use": "Smaller text" },
-      { "tag": "s", "use": "Strikethrough text" },
-      { "tag": "cite", "use": "Cited title" },
-      { "tag": "q", "use": "Inline quotation" },
-      { "tag": "dfn", "use": "Defining instance of a term" },
-      { "tag": "abbr", "use": "Abbreviation" },
-      { "tag": "data", "use": "Machine-readable data" },
-      { "tag": "time", "use": "Date and time" },
-      { "tag": "code", "use": "Computer code fragment" },
-      { "tag": "var", "use": "Variable" },
-      { "tag": "samp", "use": "Sample output from a program" },
-      { "tag": "kbd", "use": "User input (typically keyboard input)" },
-      { "tag": "sub", "use": "Subscript text" },
-      { "tag": "sup", "use": "Superscript text" },
-      { "tag": "i", "use": "Text in an alternate voice or mood" },
-      { "tag": "b", "use": "Stylistically offset text (bold)" },
-      { "tag": "u", "use": "Unarticulated annotation (underline)" },
-      { "tag": "mark", "use": "Marked or highlighted text" },
-      { "tag": "bdi", "use": "Isolate text direction" },
-      { "tag": "bdo", "use": "Override text direction" },
-      { "tag": "span", "use": "Generic inline container" },
-      { "tag": "br", "use": "Line break" },
-      { "tag": "wbr", "use": "Optional line break opportunity" },
-      { "tag": "ruby", "use": "Ruby annotation (for East Asian typography)" },
-      { "tag": "rt", "use": "Ruby text (annotation)" },
-      { "tag": "rp", "use": "Fallback parentheses for ruby text" }
-    ]
-  },
-  {
-    "category": "Image and Multimedia",
-    "elements": [
-      { "tag": "img", "use": "Image (use 'alt' attribute for accessibility)" },
-      { "tag": "picture", "use": "Container for multiple image sources" },
-      { "tag": "iframe", "use": "Inline frame (embedded browsing context)" },
-      { "tag": "embed", "use": "Embedded external content" },
-      { "tag": "object", "use": "Embedded object" },
-   // { "tag": "param", "use": "Parameters for an object" },
-      { "tag": "video", "use": "Video content" },
-      { "tag": "audio", "use": "Audio content" },
-      { "tag": "source", "use": "Media source for video or audio" },
-      { "tag": "track", "use": "Timed text tracks for media elements" },
-      { "tag": "map", "use": "Image map" },
-      { "tag": "area", "use": "Clickable area within an image map" },
-      { "tag": "canvas", "use": "Canvas for dynamic graphics" }
-    ]
-  },
-  {
-    "category": "Graphics and Embedded Content",
-    "elements": [
-      { "tag": "svg", "use": "SVG (Scalable Vector Graphics) content" },
-      { "tag": "math", "use": "Mathematical markup" }
-    ]
-  },
-  {
-    "category": "Table Content",
-    "elements": [
-      { "tag": "table", "use": "Table container" },
-      { "tag": "caption", "use": "Table caption" },
-      { "tag": "colgroup", "use": "Grouping of table columns" },
-      { "tag": "col", "use": "Column within a colgroup" },
-      { "tag": "tbody", "use": "Table body section" },
-      { "tag": "thead", "use": "Table header section" },
-      { "tag": "tfoot", "use": "Table footer section" },
-      { "tag": "tr", "use": "Table row" },
-      { "tag": "td", "use": "Table data cell" },
-      { "tag": "th", "use": "Table header cell" }
-    ]
-  },
-  {
-    "category": "Forms",
-    "elements": [
-      { "tag": "form", "use": "Form container" },
-      { "tag": "label", "use": "Caption for a form control" },
-      { "tag": "input", "use": "Form input control" },
-      { "tag": "button", "use": "Clickable button" },
-      { "tag": "select", "use": "Drop-down list control" },
-      { "tag": "datalist", "use": "List of predefined options for input controls" },
-      { "tag": "optgroup", "use": "Group of options within a select element" },
-      { "tag": "option", "use": "Option in a select element or datalist" },
-      { "tag": "textarea", "use": "Multiline text input control" },
-      { "tag": "output", "use": "Result of a calculation or user action" },
-      { "tag": "progress", "use": "Progress indicator" },
-      { "tag": "meter", "use": "Scalar measurement within a known range" },
-      { "tag": "fieldset", "use": "Group of form controls" },
-      { "tag": "legend", "use": "Caption for a fieldset" }
-    ]
-  },
-  {
-    "category": "Interactive Elements",
-    "elements": [
-      { "tag": "details", "use": "Disclosure widget for additional information" },
-      { "tag": "summary", "use": "Summary or caption for a details element" },
-      { "tag": "dialog", "use": "Dialog box or window" },
-      { "tag": "menu", "use": "Menu of commands or options" }
-    ]
-  },
-  {
-    "category": "Web Components",
-    "elements": [
-      { "tag": "template", "use": "Container for client-side content that is not rendered" },
-      { "tag": "slot", "use": "Placeholder inside a web component for external content" }
-    ]
+function showTransientMessage(message) {
+  const renderer = document.querySelector('.renderer');
+  let background = renderer.nextSibling;
+  // background.style.filter = 'blur(1px)';   
+
+  renderer.textContent = message;
+
+  renderer.classList.remove('fade-out');
+  // background.classList.remove('fade-out');
+  
+  void renderer.offsetWidth;
+  // void background.offsetWidth;
+
+  renderer.classList.add('fade-in');
+  // background.classList.add('fade-in');
+
+  setTimeout(() => {
+	renderer.classList.remove('fade-in');
+    // background.classList.remove('fade-in');
+
+	renderer.classList.add('fade-out');
+    // background.classList.add('fade-out');
+   // background.style.filter = 'blur(0px)';
+  }, 1500);
+};
+
+function handleTouchEnd(event) {
+  // Prevent default behavior to avoid unintended side effects
+  event.preventDefault();
+
+  if (editorRender === 'iframe') {
+	alert('iframe');
+  } else if (editorRender === 'shadow') {
+	alert('shadow');
   }
-];
-
-//]]>
-</script>
-<!-- SIDEBAR -->
-<script async='async' type='text/javascript'>
-//<![CDATA[
-const content = document.getElementById('content');
-const sidebar = document.getElementById('sidebar');
-
-const fragment = document.createDocumentFragment();  // Create the fragment
-
-elementsList.forEach(({ category, elements }, index) => {
-    const key = `Element ${index + 1}`; // Construct the key to access categoryLinks
-    
-    const rootContainer = document.createElement('div');
-    rootContainer.classList.add('tag-container', 'root-element');
-	rootContainer.id = category.toLowerCase().replace(/\s+/g, '-');
-
-	const rootTagName = document.createElement('div');
-	rootTagName.classList.add('tag-name');
-	rootTagName.innerText = category;
- 
-    const rootTagLink = document.createElement('a');
-    rootTagLink.classList.add('tag-link');
-    	
-    rootTagLink.href = categoryLinks[key] || "#";
-    rootTagLink.innerText = "Example"; 
-    rootTagLink.target = "_blank"; 
-
-	rootContainer.appendChild(rootTagName);
-	rootContainer.appendChild(rootTagLink);
-	fragment.appendChild(rootContainer); // content.appendChild(rootContainer);
-
-	/*
-	// Create list item for the category
-	const categoryItem = document.createElement('li');
-	const categoryLink = document.createElement('a');
-	categoryLink.href = `#${rootContainer.id}`;
-	categoryLink.textContent = category;
-	categoryItem.appendChild(categoryLink);
-	*/
-
-	const sublist = document.createElement('ul');
-	sublist.id = `${category.toLowerCase().replace(/\s+/g, '-')}-elements`;
-	elements.forEach(({ tag, use }) => {
-		const listItem = document.createElement('li');
-		const link = document.createElement('a');
-		link.href = `#${tag}`;
-		link.textContent = tag;
-		listItem.appendChild(link);
-		sublist.appendChild(listItem);
-
-		const container = document.createElement('div');
-		container.classList.add('tag-container');
-		container.id = `${tag}`;
-
-		const tagName = document.createElement('div');
-		tagName.classList.add('tag-name');
-		
-        const tagLink = document.createElement('a');
-
-        tagLink.classList.add('tag-link');
-		tagLink.href = `${HELP_URL}${tag}`;
-		tagLink.target = '_blank';
-		tagLink.innerHTML = `<b>&lt;${tag}&gt;</b>`; // 'More about'+` ${tag}`; 
-		tagLink.setAttribute('aria-label', 'More information about'+` ${tag}`);
-        tagLink.setAttribute('title', 'More information about'+` ${tag}`);
-		
-		// Create a temporary element to determine its type
-		const tempElement = document.createElement(tag);
-		const elementType = tempElement.constructor.name;
-		const displayType = elementType === 'HTMLElement' ? 'element' : elementType.replace('HTML', '').replace('Element', '');
-
-		const detailsContainer = document.createElement('div');
-		detailsContainer.classList.add('details-container');
-
-		const detailElement = document.createElement('details');
-		detailElement.classList.add('tag-type');
-		detailElement.innerHTML = `<summary title="Type: ${elementType}">Example of ${displayType.toLowerCase()}:</summary>`;
-
-		const renderedElement = document.createElement(tag);
-		renderedElement.innerText = `${tag}`;
-
-		const renderedContainer = document.createElement('div');
-		renderedContainer.classList.add('example-render');
-		renderedContainer.appendChild(renderedElement);
-		
-		const addToEditor = document.createElement('div');
-		addToEditor.classList.add('add-editor');
-		addToEditor.innerText = 'Add'; // 'More about'+` ${tag}`; 
-        
-        cursorRefresh();
-  		addToEditor.onclick = function() {
-            editorInsert(LinePosition, ColumnPosition, `<${tag}></${tag}>`);
-        };
-
-		/* 
-		const readMoreLink = document.createElement('a');
-		readMoreLink.href = `${HELP_URL}${tag}`;
-		readMoreLink.classList.add('example-link');
-		readMoreLink.target = '_blank';
-		readMoreLink.innerText = 'Details'; // 'More about'+` ${tag}`; 
-		readMoreLink.setAttribute('aria-label', 'More information about'+` ${tag}`);
-        readMoreLink.setAttribute('title', 'More information about'+` ${tag}`);
-        */ 
-		
-		detailElement.appendChild(renderedContainer);
-		detailsContainer.appendChild(detailElement);
-		// detailsContainer.appendChild(readMoreLink);
-		detailsContainer.appendChild(addToEditor);
-
-		const tagUse = document.createElement('details');
-		tagUse.classList.add('tag-use');
-		tagUse.innerHTML = `<summary class="tag-summary">${use.toLowerCase()}:</summary>`;
-		//tagUse.innerText = use;
-
-		container.appendChild(tagName);
-		container.appendChild(detailsContainer);
-		container.appendChild(tagUse);
-        tagName.appendChild(tagLink);
-		fragment.appendChild(container); // content.appendChild(container);
-
-		tagUse.addEventListener('toggle', () => {
-			tagUse.open 
-				? (summaryElement.textContent = summaries[randomIndex], contentElement.textContent = details[randomIndex].slice(0, 500) + '...')
-				: (summaryElement.textContent = summaries[randomIndex].slice(0, 70) + '...', contentElement.textContent = '');
-		});
-
-	});
-    content.appendChild(fragment);
-});
-
-// Add event listeners with passive option
-document.querySelectorAll('#element-list a').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        const offset = 60; // Adjust this value to match the height of your sticky elements
-        const bodyRect = document.body.getBoundingClientRect().top;
-        const elementRect = target.getBoundingClientRect().top;
-        const elementPosition = elementRect - bodyRect;
-        const offsetPosition = elementPosition - offset;
-
-        window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-        });
-
-        // Open the details element
-        const detailsElement = target.querySelector('details');
-        if (detailsElement) {
-            detailsElement.open = true;
-        }
-    }, { passive: true }); // Mark the listener as passive
-});
+}
 
 //]]>
 </script>
@@ -2365,6 +1930,8 @@ document.querySelectorAll('#element-list a').forEach(anchor => {
 <script async='async' type='text/javascript'>
 //<![CDATA[
 // Console Sniffer
+
+ let lineAdjust = ' \n';
 
  // Override console.log
   const originalLog = console.log;
@@ -2391,15 +1958,396 @@ console.debug = function(...args) {
   // Function to handle errors
   function handleErrors(error) {
     if (!(error instanceof ReferenceError) && !(error instanceof SyntaxError)) {
-      launchToast('Caught Exception: ', error.name + error.message + error.stack);
+      launchToast('Caught Exception: ', error.name + lineAdjust + error.message + lineAdjust + error.stack);
     }
   }
 
   // Override global error handling
   window.onerror = function(message, source, lineno, colno, error) {
     handleErrors(error);
-  launchToast('Global Exception: ', error.name + error.message + error.stack );
+  launchToast('Global Exception: ', error.name + lineAdjust + error.message + lineAdjust + error.stack);
   };
+//]]>
+</script>
+<!-- UPDATE FUNCTION -->
+<script async='async' type='text/javascript'>
+//<![CDATA[
+async function change(e) {
+  try {  
+    dataArea.value = editor.getValue(); // update(e);
+	await renderContent(dataArea.value, editorRender);
+  } catch (error) {
+    console.error("Error during change event: ", error);
+    // handleErrors(error);
+  }
+}
+
+change();
+
+async function afterSwitch(e) {
+  try {  
+   shadowFrame.scrollLeft = storedXPosition;
+   shadowFrame.scrollTop = storedYPosition;
+  } catch (error) {
+    console.error("Error during change event: ", error);
+    // handleErrors(error);
+  }
+}
+
+afterSwitch();
+
+async function renderContent(data, renderMethod = 'shadow') {
+  if (typeof data !== 'string') {
+    console.error('renderContent expects a string. Received:', data);
+    return;
+  }
+
+  var tempXPosition = storedXPosition;
+  var tempYPosition = storedYPosition;
+  lightDOM.innerHTML = data;
+
+  try {
+    switch (renderMethod) {
+      case 'shadow':
+        // Show Shadow DOM and hide iframe
+        shadowFrame.style.display = 'block';
+        iframe.style.display = 'none';
+
+        // Clear existing Shadow DOM content
+        shadowRoot.innerHTML = '';
+
+        // Append new content to Shadow Root
+        shadowRoot.appendChild(lightDOM);
+
+        // Execute any scripts within the Shadow DOM
+        executeScripts(shadowRoot);
+        break;
+
+      case 'iframe':
+        tempXPosition = storedXPosition;
+        tempYPosition = storedYPosition;
+        
+        // Show iframe and hide Shadow DOM
+        iframe.style.display = 'block';
+        shadowFrame.style.display = 'none';
+
+        // Update iframe content using srcdoc
+        iframe.srcdoc = data;
+
+        // Alternatively, directly write to the iframe's document
+        const iframeDocument = iframe.contentWindow.document;
+        iframeDocument.open();
+        iframeDocument.write(data);
+        iframeDocument.close();
+
+        // If window.outWin exists, write the data there as well
+        if (window.outWin) {
+          const outFrame = window.outWin.document;
+          outFrame.open();
+          outFrame.write(data);
+          outFrame.close();
+        }
+        break;
+
+      default:
+        console.warn(`Unknown render method: ${renderMethod}`);
+        return; // Exit if render method is unrecognized
+    }
+  } catch (error) {
+    handleErrors(error);
+  } finally {
+    editorRender = renderMethod;
+    updatePageMetadata(data, renderMethod);
+    executeScripts(frameCanvas); // Execute any remaining scripts
+  }
+}
+
+function updatePageMetadata(data, renderMethod) {
+  // Select elements based on render method
+  const titleElement = lightDOM.querySelector('title') || (renderMethod === 'shadow' ? shadowRoot.querySelector('title') : null);
+  const noScript = lightDOM.querySelector('noscript') || (renderMethod === 'shadow' ? shadowRoot.querySelector('noscript') : null);
+
+  // Set the document title
+  const pageTitle = (titleElement && titleElement.textContent.trim().length > 0)
+    ? `${titleElement.textContent} - ${DEFAULT_TITLE}`
+    : `Untitled - ${DEFAULT_TITLE}`;
+  document.title = pageTitle;
+
+  // Update footer text
+  const footer = document.querySelector('footer'); // Ensure this selector matches your actual footer element
+  if (footer) {
+    footer.innerText = noScript ? noScript.innerText : '';
+  }
+}
+
+async function _renderContent(data, renderMethod = 'shadow') {
+  if (typeof data !== 'string') {
+    console.error('renderContent expects a string. Received:', data);
+    return;
+  }
+  frame = document.querySelector('.canvas'); // document.getElementById('output');
+
+  // Remove any existing 'frameCanvas' before creating a new one
+  const existingFrameCanvas = frame.querySelector('.frameCanvas');
+  if (existingFrameCanvas) {
+    frame.removeChild(existingFrameCanvas);
+  }
+
+  const frameCanvas = document.createElement('div');
+  frameCanvas.classList.add('frameCanvas');
+  frameCanvas.innerHTML = '';
+  frame.style.position = 'relative';  // Optional styling to fit the frameCanvas in the frame
+  frame.appendChild(frameCanvas);
+  
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = data;
+
+  try {
+    switch (renderMethod) {
+
+    case 'shadow':
+       const shadowFrame = document.createElement('div');
+       shadowFrame.classList.add('shadowFrame');
+       //shadowFrame.innerHTML = ''; // Clear any existing content
+       shadowFrame.style.position = 'relative';  // Optional styling
+       frameCanvas.appendChild(shadowFrame);
+
+       const shadowRoot = shadowFrame.attachShadow({ mode: 'open' });
+       shadowRoot.appendChild(tempDiv);
+       // await executeScripts(shadowRoot);     
+      break;
+
+      case 'iframe':
+        const iframe = document.createElement('iframe');
+
+        // iframe.setAttribute('referrerpolicy', 'no-referrer');
+        // iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+        // iframe.setAttribute('referrerpolicy', 'origin');
+        // iframe.setAttribute('referrerpolicy', 'origin-when-cross-origin');
+        iframe.setAttribute('referrerpolicy', 'same-origin');
+        // iframe.setAttribute('referrerpolicy', 'strict-origin');
+        // iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+        // iframe.setAttribute('referrerpolicy', 'unsafe-url');
+
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        iframe.style.position = 'absolute';
+        iframe.srcdoc = data;
+        frameCanvas.appendChild(iframe);
+
+        // Write HTML content into the iframe
+        const iframeDocument = iframe.contentWindow.document;
+        iframeDocument.open();
+        iframeDocument.write(data);
+        iframeDocument.close();
+
+        // If window.outWin exists, write the data there as well
+        if (window.outWin) {
+          const outFrame = window.outWin.document;
+          outFrame.open();
+          outFrame.write(data);
+          outFrame.close();
+        }
+        break;
+
+    case 'frame':
+        const frameset = document.createElement('frameset');
+        frameset.setAttribute('style', 'width: 100%; height: auto');
+        frameCanvas.appendChild(frameset);
+
+        const frame = document.createElement('frame');
+        frame.setAttribute('name', 'mainFrame');
+        frameset.appendChild(frame);
+
+        const frameDocument = frame.contentWindow.document;
+        frameDocument.open();
+        frameDocument.write(data);
+        frameDocument.close();
+
+        if (window.outWin) {
+          const outFrame = window.outWin.document;
+          outFrame.open();
+          outFrame.write(data);
+          outFrame.close();
+        }
+        break;
+
+      case 'light':
+        frameCanvas.innerHTML = data;
+        break;
+
+      case 'virtual':
+        // Clear existing content
+        frameCanvas.innerHTML = '';
+        // Render the virtual DOM with the provided data
+        frameCanvas.innerHTML = data; // renderVirtualDOM(frameCanvas, data);
+        executeScripts(frameCanvas);
+        break;
+
+    case 'fragment':
+      const fragment = document.createDocumentFragment();
+      const fragmentContent = document.createElement('div');
+      fragmentContent.innerHTML = data; // 'data' contains the HTML content to insert
+      fragment.appendChild(fragmentContent);
+
+      frameCanvas.appendChild(fragment);
+      break;
+
+    case 'template':
+      const template = document.createElement('template');
+      template.innerHTML = data;
+      const clone = document.importNode(template.content, true);
+      frameCanvas.appendChild(clone);
+      break;
+
+    case 'embed':
+      const embed = document.createElement('embed');
+      embed.style.width = '100%';
+      embed.style.height = '100%';
+      embed.innerHTML = data;
+      //embed.src = data.url; // 'data' should contain the URL to embed
+      embed.type = data.type || 'text/html'; // Specify the MIME type if available
+      frameCanvas.appendChild(embed);
+      break;
+
+    case 'object':
+      const obj = document.createElement('object');
+      obj.style.width = '100%';
+      obj.style.height = '100%';
+      // obj.setAttribute('data', data.url); // 'data' should contain the URL to embed
+      obj.setAttribute('innerHTML', data);
+      obj.type = data.type || 'text/html'; // Specify the MIME type if available
+      frameCanvas.appendChild(obj);
+      break;
+
+      default:
+        console.warn(`Unknown render method: ${renderMethod}`); // Handle unexpected renderMethod values
+        break;
+    }
+
+    const titleElement = tempDiv.querySelector('title') || frameCanvas.shadowRoot?.querySelector('title');
+    const noScript = tempDiv.querySelector('noscript') || frameCanvas.shadowRoot?.querySelector('noscript');
+    const script = tempDiv.querySelector('script') || frameCanvas.shadowRoot?.querySelector('script');
+
+    const pageTitle = (titleElement && titleElement.textContent.trim().length > 0)
+      ? `${titleElement.textContent} - ${DEFAULT_TITLE}`
+      : `Untitled - ${DEFAULT_TITLE}`;
+    document.title = pageTitle;
+    footer.innerText = noScript ? noScript.innerText : '';
+
+  } catch (error) {
+    handleErrors(error);
+  } finally {
+    editorRender = renderMethod;
+    executeScriptsSequentially(frameCanvas); // executeScripts(frameCanvas);
+  }
+}
+
+async function executeScriptsSequentially(context) {
+  const scripts = Array.from(context.querySelectorAll('script'));
+  
+  for (const script of scripts) {
+    const newScript = document.createElement('script');
+    
+    // Copy all attributes (e.g., src, type) from the original script
+    Array.from(script.attributes).forEach(attr => {
+      newScript.setAttribute(attr.name, attr.value);
+    });
+
+    if (script.src) {
+      // External script
+      newScript.src = script.src;
+      newScript.async = false; // Maintain execution order
+      await new Promise((resolve, reject) => {
+        newScript.onload = resolve;
+        newScript.onerror = () => reject(new Error(`Failed to load script: ${script.src}`));
+        context.appendChild(newScript);
+      });
+    } else {
+      // Inline script
+      newScript.textContent = script.textContent;
+      context.appendChild(newScript);
+    }
+    
+    // Remove the original script to prevent duplicate execution
+    script.remove();
+  }
+}
+
+function executeScripts(context) {
+  var scripts = context.querySelectorAll('script');
+  scripts.forEach((script) => {
+    const newScript = document.createElement('script');
+    newScript.textContent = script.textContent;
+    context.appendChild(newScript);
+    script.remove();
+  });
+};
+
+/*
+// New
+function executeScripts(context) {
+  const scripts = context.querySelectorAll('script');
+  scripts.forEach((oldScript) => {
+    const newScript = document.createElement('script');
+    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+    newScript.textContent = oldScript.textContent;
+    oldScript.parentNode.replaceChild(newScript, oldScript);
+  });
+}
+*/
+
+//]]>
+</script>
+<!-- Handle scroll -->
+<script defer='defer' type='text/javascript'>
+//<![CDATA[
+  const scrollXSpan = document.getElementById('scrollX');
+  const scrollYSpan = document.getElementById('scrollY');
+  const scrollOffsetContainer = document.getElementById('scrollOffsetContainer');
+
+  canvas.addEventListener('scroll', () => {
+    localStorage.setItem("position-x-scroll", frame.scrollLeft);
+    localStorage.setItem("position-y-scroll", frame.scrollTop);
+
+    storedXPosition = canvas.scrollLeft;
+    storedYPosition = canvas.scrollTop;
+   
+    scrollXSpan.textContent = `X: ${storedXPosition}`;
+    scrollYSpan.textContent = `Y: ${storedYPosition}`;
+   
+  if (storedXPosition > 0 || storedYPosition > 0) {
+   scrollOffsetContainer.style.display = 'block';
+  } else {
+   scrollOffsetContainer.style.display = 'none';
+  }
+}, { passive: true });
+
+output.addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevent form submission
+   alert('captured');
+}, { passive: true });
+
+/*
+document.querySelector('form').addEventListener('submit', function(event) {
+	  alert('0');
+    event.preventDefault(); // Prevents default form submission
+
+    // Capture all form data
+    const formData = new FormData(this);
+
+    // Convert FormData to an object
+    const formObject = {};
+    formData.forEach((value, key) => {
+        formObject[key] = value;
+    });
+
+    // Call function to create optgroup and options
+    createOptgroupAndOptions(formObject);
+});
+*/
+
 //]]>
 </script>
 <!-- EVENTS AND LISTENERS -->
@@ -2482,94 +2430,124 @@ editor.on("cursorActivity", function() {
   //setCookies();
 });
 
-change();
+document.addEventListener('click', function(event) {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const hamburgerButton = document.getElementById('hamburger-button');
+
+  if (!sidebar.contains(event.target) && !hamburgerButton.contains(event.target) && sidebar.classList.contains('show')) {
+	toggleSidebar();
+  }
+});
+
+editor.on("change", change);
+
+/*
+fab.addEventListener('click', switchRender);
+
+  if (renderMethod = 'shadow'){
+    fab.addEventListener('touchend', saveShortcut);
+  } else {
+    fab.addEventListener('touchend', fullScreen);  
+  }
+*/
 //]]>
 </script>
-<!-- CONTAINER -->
+<!-- NEW EVENTS -->
 <script async='async' type='text/javascript'>
 //<![CDATA[
-function getProportions() {
-  navigator.vibrate && navigator.vibrate(200);
-  var gutterPosition = splitInstance.getSizes()[0];
-  localStorage.setItem('position-wrap', Math.round(gutterPosition) );
-  document.getElementById('gutter').textContent = Math.round(gutterPosition) + '%' + ' ' + Math.round(100 - gutterPosition) + '%';
-  
-  const dimensions = document.getElementById('dimensions');
-  const innerDimensions = document.getElementById('innerDimensions');
+/**
+ * Initializes mouse and touch hold functionality on a given DOM element.
+ *
+ * @param {HTMLElement} element - The DOM element to attach the hold listeners to.
+ * @param {Function} shortPress - Callback function to execute on short press.
+ * @param {Function} longPress - Callback function to execute on long press.
+ * @param {number} holdDuration - Duration (in milliseconds) to distinguish between short and long press. Default is 1000ms.
+ * @returns {Function} Cleanup function to remove event listeners.
+ */
+function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000) {
+    let pressTimer;
+    let startTime;
+    let isLongPress = false;
+    let mouseDown = false; // Track mouse down state
 
-  const frame = document.querySelector('.canvas'); // document.getElementById('output');
-  const frameLeft = document.getElementById('horizontal-left');
-  const frameRight = document.getElementById('horizontal-right');
-  const frameTop = document.getElementById('vertical-top');
-  const frameBottom = document.getElementById('vertical-bottom');
-  
-  const innerDiv = document.querySelector('.canvas').children[0]; // frame.contentWindow.document.querySelector('div');
+    // Function to handle the start of a press
+    const startPress = (event) => {
+        // Prevent default behavior for touch events to avoid conflicts (like scrolling)
+        if (event.type === 'touchstart') {
+            event.preventDefault();
+        }
 
-  let frameY = frame.scrollHeight; //  frame.contentWindow.document.body.scrollHeight;
-  let frameX = frame.scrollWidth; // frame.contentWindow.document.body.scrollWidth;
-  let frameHOffset = frame.offsetHeight; // frame.contentWindow.document.body.offsetHeight;
-  let frameWOffset = frame.offsetWidth; // frame.contentWindow.document.body.offsetWidth;
-  let frameYOffset = frame.scrollTop; // frame.contentWindow.pageYOffset;
-  let frameXOffset = frame.scrollLeft; // frame.contentWindow.pageXOffset;
-  let frameWidth = frame.offsetWidth;
-  let frameHeight = frame.offsetHeight;
-  let frameWidthPercent = ((frameXOffset + frameWidth) / (frameX + frameWidth - frame.offsetWidth)) * 100;
-  let frameHeightPercent = ((frameYOffset + frameHeight) / (frameY + frameHeight - frame.offsetHeight)) * 100;
-  let frameRect = frame.getBoundingClientRect();
-  
-  let scrollBarWidth = frame.offsetWidth - frame.clientWidth;
-  let scrollBarHeight = frame.offsetHeight - frame.clientHeight;
+        isLongPress = false;
+        mouseDown = true; // Mouse is now down
+        startTime = new Date().getTime();
 
-  dimensions.style.height = (frameHeight - scrollBarHeight) + 'px';
-  dimensions.style.width = (frameWidth - scrollBarWidth) + 'px';
-
-  // innerDimensions.style.height = innerDiv.offsetHeight + 'px';
-  // innerDimensions.style.width = innerDiv.offsetWidth + 'px';
-
-  // var footer = document.querySelector('.footer');
-  // footer.innerHTML = 
-  // 'FW: ' + frameWidth + ' ' + frameX + ' | FH: ' + frameHeight + '|' + frameY  +
-  // ' FYO: ' + frameYOffset + ' ' + frameHOffset + '| FHO' + frameXOffset + ' ' + frameWOffset;
-
-  frameTop.innerHTML = Math.round(frameHeight) + 'px';
-  frameLeft.innerHTML = Math.round(frameWidth) + 'px';
-  frameBottom.style.display = 'none';
-  frameRight.style.display = 'none';
-
-  if (Math.round(frameX) > Math.round(frameWidth)) {
-    frameRight.innerHTML = Math.round(frameX) + 'px (' + Math.round(frameWidthPercent) + '%)';
-    frameRight.style.display = 'block';
-  } else {
-    // innerDimensions.style.width = frameWidth + 'px'; // frameWOffset + 'px';
-    if (frameWOffset > 0) {
-      localStorage.setItem("position-x-scroll", frameWOffset);
+        // Start the timer for long press
+        pressTimer = setTimeout(() => {
+            isLongPress = true;
+            longPress(event);
+            // Add visual feedback
+            element.classList.add('holding');
+            console.debug('Long press detected.');
+        }, holdDuration);
     };
-  };
 
-  if (Math.round(frameY) > Math.round(frameHeight)) {
-	frameBottom.innerHTML = Math.round(frameY) + 'px (' + Math.round(frameHeightPercent) + '%)';
-	frameBottom.style.display = 'block';
-  } else {
-    // innerDimensions.style.height = frameBodyHeight; // frameHOffset + 'px';
-  if (frameHOffset > 0) {
-    localStorage.setItem("position-y-scroll", frameHOffset);
-  };
- }
+    // Function to handle the end of a press
+    const endPress = (event) => {
+        if (!mouseDown) return; // Prevent multiple triggers
+        clearTimeout(pressTimer);
+        mouseDown = false; // Mouse is no longer down
 
-  toggleElement();
-};
+        if (!isLongPress) {
+            shortPress(event);
+            console.debug('Short press detected.');
+        } else {
+            // Remove visual feedback
+            element.classList.remove('holding');
+        }
+    };
 
-function toggleElement() {
-  if (isInteracting) {
-    dimensions.style.display = 'block';
-    gutter.style.backgroundSize = '0px 0px';
-  } else {
-    dimensions.style.display = 'none';
-    gutter.textContent = '';
-    gutter.style.backgroundSize = '30px 5px';
-  }
-};
-    
+    // Function to cancel the press without triggering shortPress or longPress
+    const cancelPress = (event) => {
+        if (mouseDown) {
+            clearTimeout(pressTimer);
+            mouseDown = false;
+            isLongPress = false;
+            element.classList.remove('holding');
+            console.debug('Press cancelled.');
+        }
+    };
+
+    // Attach Mouse Event Listeners
+    element.addEventListener('mousedown', startPress);
+    element.addEventListener('mouseup', endPress);
+    element.addEventListener('mouseleave', cancelPress);
+
+    // Attach Touch Event Listeners
+    element.addEventListener('touchstart', startPress);
+    element.addEventListener('touchend', endPress);
+    element.addEventListener('touchcancel', cancelPress);
+
+    // Return a cleanup function to remove all event listeners
+    return () => {
+        // Remove Mouse Event Listeners
+        element.removeEventListener('mousedown', startPress);
+        element.removeEventListener('mouseup', endPress);
+        element.removeEventListener('mouseleave', cancelPress);
+
+        // Remove Touch Event Listeners
+        element.removeEventListener('touchstart', startPress);
+        element.removeEventListener('touchend', endPress);
+        element.removeEventListener('touchcancel', cancelPress);
+    };
+}
+//]]>
+</script>
+<!-- NEW EVENTS -->
+<script async='async' type='text/javascript'>
+//<![CDATA[
+  // initializeMouseHold(gutter, handleUp, handleDown, 1000);     
+  initializeMouseHold(fab, switchRender, saveShortcut, 750);
 //]]>
 </script>
 <script async='async' type='text/javascript'>
@@ -2610,18 +2588,11 @@ function toggleElement() {
    createOptions(event);
  }
 
- window.addEventListener('contextmenu', function(event) {
-   // event.preventDefault();
-   // showOptions(event);
- });
-
 //]]>
 </script>
 <!-- Main and Event Scripts -->
 <script async='async' type='text/javascript'>
 //<![CDATA[
-	// main.js and events.js combined
-
 	// Global variables
 	let showReadonly = false; // Default value for showing read-only properties
 	let showNull = false;     // Default value for showing null properties
@@ -2630,11 +2601,21 @@ function toggleElement() {
 	let toggleCheckbox = null; // To reference the toggle checkbox
 	let isUpdating = false;    // Flag to prevent recursive updates
 
-	// Create Shadow DOM
-	const shadowHost = document.querySelector('.canvas'); // document.getElementById('shadow-host');
-	const shadowRoot = shadowHost.attachShadow({ mode: 'open' });
+    //var frame = document.querySelector('.canvas');
+    //const shadowRoot = frameCanvas.shadowRoot;
 
-	/**
+	// Create Shadow DOM
+    try {  
+      shadowHost = document.querySelector('.shadowFrame');
+      shadowRoot = shadowHost.shadowRoot;
+    } catch (error) {
+      console.error("Error during change event: ", error);
+    }
+
+    //const shadowHost = document.querySelector('.canvas'); // document.getElementById('shadow-host');
+	//const shadowRoot = shadowHost.attachShadow({ mode: 'open' });
+	
+     /**
 	 * Updates the Shadow DOM content based on the CodeMirror editor's value.
 	 * Prevents recursive updates by using the isUpdating flag.
 	 */
@@ -2643,13 +2624,13 @@ function toggleElement() {
 		if (isUpdating) return; // Prevent recursive updates
 		isUpdating = true;
 		const htmlContent = editor.getValue();
-		// console.debug('Updating Shadow DOM with content:', htmlContent); // Debugging
+		console.debug('Updating Shadow DOM with content:', htmlContent); // Debugging
 		// Clear existing content
-		shadowRoot.innerHTML = '';
+		//shadowRoot.innerHTML = '';
 		// Create a container to hold the new content
 		const container = document.createElement('div');
 		container.innerHTML = htmlContent;
-		shadowRoot.appendChild(container);
+		//shadowRoot.appendChild(container);
 		isUpdating = false;
 	}
 
@@ -2851,6 +2832,10 @@ function toggleElement() {
 					inputElement.value = generateObjectLabel(value);
 					inputElement.readOnly = true; // Make it read-only as per user's preference
 
+					inputElement.style.textDecoration = 'underline';
+					inputElement.style.color = 'blue';
+					inputElement.textContent = value;
+
 					// Add JSON structure to title
 					const jsonStructure = {
 						tagName: value.tagName,
@@ -2862,10 +2847,17 @@ function toggleElement() {
 
 					// Add event listener to navigate to the element's properties
 					inputElement.addEventListener('click', () => {
-						selectedElement = value; // Set the clicked element as selected
-						const categorized = categorizeProperties(value);
-						displayProperties(categorized, value);
-					});
+                        if (value instanceof HTMLElement && shadowRoot.contains(value)) {
+                            selectedElement = value; // Set the clicked element as selected
+                            const categorized = categorizeProperties(value);
+                            displayProperties(categorized, value);
+                        } else {
+                            // Optionally, provide feedback or simply do nothing
+                            alert('Root element cannot be clicked')
+                            console.debug('Element is outside the shadowRoot and cannot be selected.');
+                        }
+                    });
+
 				} else {
 					// For other object types, display their string representation
 					inputElement = document.createElement('input');
@@ -3357,6 +3349,412 @@ function toggleElement() {
 
 	// Initialize event listeners once the DOM is fully loaded
 	document.addEventListener('DOMContentLoaded', attachEventListeners);
+
+//]]>
+</script>
+<!-- SIDEBAR EXAMPLES -->
+<script async='async' type='text/javascript'>
+//<![CDATA[  
+
+const SIDEBAR_DOCUMENT_STRUCTURE = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5Eb2N1bWVudCBTdHJ1Y3R1cmU8L3RpdGxlPgogIDwvaGVhZD4KICA8Ym9keT4KICAgIC4uLgogIDwvYm9keT4KPC9odG1sPgo=';
+const SIDEBAR_METADATA = 'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CiAgICA8IS0tIEV4YW1wbGUgb2YgdGl0bGUgLS0+CiAgICA8dGl0bGU+QnVsbWEgQ1NTIEV4YW1wbGU8L3RpdGxlPgoKICAgIDwhLS0gQWRkIGRvY3VtZW50IHRpdGxlIG1ldGFkYXRhIC0tPgogICAgPG1ldGEgY2hhcnNldD0iVVRGLTgiPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgogICAgPG1ldGEgbmFtZT0iZGVzY3JpcHRpb24iIGNvbnRlbnQ9IkV4YW1wbGUgZG9jdW1lbnQgdXNpbmcgQnVsbWEgQ1NTIGZyYW1ld29yay4iPgoKICAgIDwhLS0gRXhhbXBsZSBvZiBsaW5rOiBBZGQgZXh0ZXJuYWwgcmVzb3VyY2UgbGluayAtLT4KICAgIDxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iaHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9idWxtYUAwLjkuNC9jc3MvYnVsbWEubWluLmNzcyI+CgogICAgPCEtLSBFeGFtcGxlIG9mIGVtYmVkZGVkIENTUyBzdHlsZXMgLS0+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7CiAgICAgICAgICAgIGJhY2tncm91bmQtY29sb3I6ICNmNWY1ZjU7CiAgICAgICAgfQogICAgICAgIC5jdXN0b20tYm94IHsKICAgICAgICAgICAgcGFkZGluZzogMjBweDsKICAgICAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDVweDsKICAgICAgICAgICAgYm94LXNoYWRvdzogMHB4IDJweCAxMHB4IHJnYmEoMCwwLDAsMC4xKTsKICAgICAgICB9CiAgICAgICAgLmNlbnRlci10ZXh0IHsKICAgICAgICAgICAgdGV4dC1hbGlnbjogY2VudGVyOwogICAgICAgIH0KICAgIDwvc3R5bGU+CjwvaGVhZD4KPGJvZHk+CiAgICA8IS0tIEhlYWRlciBTZWN0aW9uIC0tPgogICAgPHNlY3Rpb24gY2xhc3M9Imhlcm8gaXMtcHJpbWFyeSI+CiAgICAgICAgPGRpdiBjbGFzcz0iaGVyby1ib2R5Ij4KICAgICAgICAgICAgPHAgY2xhc3M9InRpdGxlIGNlbnRlci10ZXh0Ij4KICAgICAgICAgICAgICAgIFdlbGNvbWUgdG8gdGhlIEJ1bG1hIEV4YW1wbGUKICAgICAgICAgICAgPC9wPgogICAgICAgICAgICA8cCBjbGFzcz0ic3VidGl0bGUgY2VudGVyLXRleHQiPgogICAgICAgICAgICAgICAgVGhpcyBpcyBhIGRlbW9uc3RyYXRpb24gb2YgdGhlIEJ1bG1hIENTUyBmcmFtZXdvcmsgaW4gYWN0aW9uLgogICAgICAgICAgICA8L3A+CiAgICAgICAgPC9kaXY+CiAgICA8L3NlY3Rpb24+CgogICAgPCEtLSBFeGFtcGxlIGNvbnRlbnQgc2VjdGlvbiAtLT4KICAgIDxzZWN0aW9uIGNsYXNzPSJzZWN0aW9uIj4KICAgICAgICA8ZGl2IGNsYXNzPSJjb250YWluZXIiPgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJjdXN0b20tYm94Ij4KICAgICAgICAgICAgICAgIDxoMiBjbGFzcz0idGl0bGUgaXMtNCI+U3R5bGlzaCBCb3g8L2gyPgogICAgICAgICAgICAgICAgPHA+VGhpcyBib3ggdXNlcyBlbWJlZGRlZCBzdHlsZXMgZm9yIGN1c3RvbSBwYWRkaW5nLCBiYWNrZ3JvdW5kLCBhbmQgc2hhZG93LjwvcD4KICAgICAgICAgICAgPC9kaXY+CgogICAgICAgICAgICA8YnI+CgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJjb2x1bW5zIj4KICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9ImNvbHVtbiBpcy1vbmUtdGhpcmQiPgogICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9Im5vdGlmaWNhdGlvbiBpcy1pbmZvIj4KICAgICAgICAgICAgICAgICAgICAgICAgVGhpcyBpcyBhbiBpbmZvIG5vdGlmaWNhdGlvbi4KICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICAgICAgPGRpdiBjbGFzcz0iY29sdW1uIGlzLW9uZS10aGlyZCI+CiAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz0ibm90aWZpY2F0aW9uIGlzLXN1Y2Nlc3MiPgogICAgICAgICAgICAgICAgICAgICAgICBUaGlzIGlzIGEgc3VjY2VzcyBub3RpZmljYXRpb24uCiAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9ImNvbHVtbiBpcy1vbmUtdGhpcmQiPgogICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9Im5vdGlmaWNhdGlvbiBpcy1kYW5nZXIiPgogICAgICAgICAgICAgICAgICAgICAgICBUaGlzIGlzIGEgZGFuZ2VyIG5vdGlmaWNhdGlvbi4KICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICA8L2Rpdj4KICAgICAgICA8L2Rpdj4KICAgIDwvc2VjdGlvbj4KPC9ib2R5Pgo8L2h0bWw+';
+const SIDEBAR_SCRIPTING = 'PHNjcmlwdD5jb25zb2xlLmxvZygnaGknKTwvc2NyaXB0Pgo8bm9zY3JpcHQ+SmF2YXNjcmlwdCBvZmY8L25vc2NyaXB0Pgk=';
+const SIDEBAR_SECTIONING = 'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KICA8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiIC8+CiAgICA8dGl0bGU+U2VjdGlvbmluZzwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgIG1haW4gewogICAgICAgIHdpZHRoOiAxMDAlOwogICAgICAgIG1hcmdpbjogYXV0bzsKICAgICAgfQogICAgICBoZWFkZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0cGluazsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIG5hdiB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogbGlnaHRncmVlbjsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIHNlY3Rpb24gewogICAgICAgIGRpc3BsYXk6IGZsZXg7CiAgICAgIH0KCQkJYXJ0aWNsZSB7CiAgICAgICAgZmxleDogMCAwIDYwJTsKICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgIH0KICAgICAgYXJ0aWNsZSBoZWFkZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0Ymx1ZTsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIGFydGljbGUgc2VjdGlvbiB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogbWVkaXVtcHVycGxlOwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgICAgYXJ0aWNsZSBmb290ZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0Z3JheTsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9IAogICAgICBhc2lkZSB7CiAgICAgICAgZmxleDogMCAwIDQwJTsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBsaWdodHllbGxvdzsKICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgIH0KICAgICAgZm9vdGVyIHsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBncmF5OwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9oZWFkPgogIDxib2R5PgogICAgPG1haW4+CiAgICAgIDxoZWFkZXI+SGVhZGVyPC9oZWFkZXI+CiAgICAgIDxuYXY+TmF2aWdhdGlvbjwvbmF2PgogICAgICA8c2VjdGlvbj4KICAgICAgICA8YXJ0aWNsZT4KICAgICAgICAgIDxoZWFkZXI+QXJ0aWNsZSBIZWFkZXI8L2hlYWRlcj4KICAgICAgICAgIDxzZWN0aW9uPkFydGljbGUgU2VjdGlvbiAxPC9zZWN0aW9uPgogICAgICAgICAgPHNlY3Rpb24+QXJ0aWNsZSBTZWN0aW9uIDI8L3NlY3Rpb24+CiAgICAgICAgICA8Zm9vdGVyPkFydGljbGUgRm9vdGVyPC9mb290ZXI+CiAgICAgICAgPC9hcnRpY2xlPgogICAgICAgIDxhc2lkZT4KICAgICAgICAgIDxhc2lkZT5Bc2lkZTwvYXNpZGU+CiAgICAgICAgICA8YXNpZGU+QXNpZGU8L2FzaWRlPgogICAgICAgIDwvYXNpZGU+CiAgICAgIDwvc2VjdGlvbj4KICAgICAgPGZvb3Rlcj5Gb290ZXI8L2Zvb3Rlcj4KICAgIDwvbWFpbj4KICA8L2JvZHk+CjwvaHRtbD4K';   
+const SIDEBAR_HEADINGS = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5IZWFkaW5nczwvdGl0bGU+CiAgPC9oZWFkPgogIDxib2R5PgoJCTxoMT5Cb29rIFRpdGxlOiBUaGUgV29ybGQgb2YgUHJvZ3JhbW1pbmc8L2gxPgoJCTxoMj5QYXJ0IDE6IEludHJvZHVjdGlvbiB0byBQcm9ncmFtbWluZzwvaDI+CgkJCgkJPGgzPkNoYXB0ZXIgMTogV2hhdCBpcyBQcm9ncmFtbWluZz88L2gzPgoJCTxoND5TZWN0aW9uIDEuMTogRGVmaW5pdGlvbnMgYW5kIENvbmNlcHRzPC9oND4KCQk8aDU+U3Vic2VjdGlvbiAxLjEuMTogV2hhdCBpcyBhIFByb2dyYW0/PC9oNT4KCQk8aDY+RGV0YWlsIDEuMS4xLjE6IEJhc2ljIHByb2dyYW0gc3RydWN0dXJlIGFuZCBleGFtcGxlczwvaDY+CgoJCTxoMz5DaGFwdGVyIDI6IFByb2dyYW1taW5nIExhbmd1YWdlczwvaDM+CgkJPGg0PlNlY3Rpb24gMi4xOiBUeXBlcyBvZiBQcm9ncmFtbWluZyBMYW5ndWFnZXM8L2g0PgoJCTxoNT5TdWJzZWN0aW9uIDIuMS4xOiBIaWdoLUxldmVsIHZzIExvdy1MZXZlbCBMYW5ndWFnZXM8L2g1PgoJCTxoNj5EZXRhaWwgMi4xLjEuMTogRXhhbXBsZXMgb2YgaGlnaC1sZXZlbCBsYW5ndWFnZXMgKFB5dGhvbiwgSmF2YSwgZXRjLik8L2g2PgogIDwvYm9keT4KPC9odG1sPgo=';
+const SIDEBAR_TEXT_CONTENT = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5UZXh0IENvbnRlbnQ8L3RpdGxlPgogIDwvaGVhZD4KICA8Ym9keT4KCQk8cD5UaGlzIGlzIGFuIGV4YW1wbGUgb2YgYSBwYXJhZ3JhcGggdGhhdCBnaXZlcyBjb250ZXh0IHRvIHRoZSByZXN0IG9mIHRoZSBjb250ZW50IG9uIHRoaXMgcGFnZS48L3A+CgoJCTxocj4KCgkJPHByZT4KCQlUaGlzIGlzIGFuIGV4YW1wbGUgb2YgcHJlZm9ybWF0dGVkIHRleHQuCgkJSXQgbWFpbnRhaW5zIHRoZSBleGFjdCBzcGFjaW5nIGFuZCBsaW5lIGJyZWFrcy4KCQk8L3ByZT4KCgkJPGJsb2NrcXVvdGU+CgkJVGhpcyBpcyBhbiBleGFtcGxlIG9mIGEgYmxvY2sgcXVvdGF0aW9uLiBJdCdzIHVzdWFsbHkgdXNlZCB0byBjaXRlIGV4dGVybmFsIHNvdXJjZXMgb3IgaGlnaGxpZ2h0IGltcG9ydGFudCBjb250ZW50LgoJCTwvYmxvY2txdW90ZT4KCgkJPG9sPgoJCQk8bGk+Rmlyc3Qgb3JkZXJlZCBpdGVtPC9saT4KCQkJPGxpPlNlY29uZCBvcmRlcmVkIGl0ZW08L2xpPgoJCQk8bGk+VGhpcmQgb3JkZXJlZCBpdGVtPC9saT4KCQk8L29sPgoKCQk8dWw+CgkJCTxsaT5GaXJzdCB1bm9yZGVyZWQgaXRlbTwvbGk+CgkJCTxsaT5TZWNvbmQgdW5vcmRlcmVkIGl0ZW08L2xpPgoJCQk8bGk+VGhpcmQgdW5vcmRlcmVkIGl0ZW08L2xpPgoJCTwvdWw+CgoJCTxkbD4KCQkJPGR0PkhUTUw8L2R0PgoJCQk8ZGQ+QSBtYXJrdXAgbGFuZ3VhZ2UgZm9yIGNyZWF0aW5nIHdlYiBwYWdlcy48L2RkPgoKCQkJPGR0PkNTUzwvZHQ+CgkJCTxkZD5BIHN0eWxlc2hlZXQgbGFuZ3VhZ2UgdXNlZCB0byBzdHlsZSB3ZWIgcGFnZXMuPC9kZD4KCQk8L2RsPgoKCQk8ZmlndXJlPgoJCQk8aW1nIHNyYz0iaW1hZ2UuanBnIiBhbHQ9IkV4YW1wbGUgaW1hZ2UiPgoJCQk8ZmlnY2FwdGlvbj5UaGlzIGlzIGEgY2FwdGlvbiBkZXNjcmliaW5nIHRoZSBmaWd1cmUgYWJvdmUuPC9maWdjYXB0aW9uPgoJCTwvZmlndXJlPgoKCQk8ZGl2PgoJCQlUaGlzIGlzIGEgZ2VuZXJpYyBibG9jayBjb250YWluZXIgKGRpdikgdGhhdCBjb3VsZCBob2xkIHZhcmlvdXMgZWxlbWVudHMgb3IgY29udGVudC4KCQk8L2Rpdj4KCgkJPGFkZHJlc3M+CgkJCUpvaG4gRG9lPGJyPgoJCQkxMjM0IFdlYiBTdC48YnI+CgkJCUludGVybmV0IENpdHksIDU2Nzg5CgkJPC9hZGRyZXNzPgoKCQk8aW5zPlRoaXMgaXMgc29tZSBpbnNlcnRlZCB0ZXh0LjwvaW5zPiA8ZGVsPlRoaXMgaXMgc29tZSBkZWxldGVkIHRleHQuPC9kZWw+CgogIDwvYm9keT4KPC9odG1sPgo=';
+
+
+GRAPHICS_AND_EMBEDED_CONTENT = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgo8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KICAgIDx0aXRsZT5HcmFwaGljcyBhbmQgRW1iZWRkZWQgQ29udGVudDwvdGl0bGU+CjwvaGVhZD4KPGJvZHk+CiAgICA8aDI+RXF1YXRpb24gb2YgYSBTaW5lIFdhdmU6PC9oMj4KICAgIDwhLS0gTWF0aE1MIHRvIGRpc3BsYXkgdGhlIGVxdWF0aW9uIHkgPSBzaW4oeCkgLS0+CiAgICA8bWF0aCB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OC9NYXRoL01hdGhNTCI+CiAgICAgICAgPG1pPnk8L21pPgogICAgICAgIDxtbz49PC9tbz4KICAgICAgICA8bWk+c2luPC9taT4KICAgICAgICA8bW8+JiN4MjA2MTs8L21vPgogICAgICAgIDxtaT54PC9taT4KICAgIDwvbWF0aD4KCiAgICA8IS0tIFNWRyB0byBwbG90IHRoZSBzaW5lIHdhdmUgLS0+CiAgICA8c3ZnIHdpZHRoPSI2MDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIC0xLjUgNi4yOCAzIj4KICAgICAgICA8IS0tIFggYW5kIFkgYXhlcyAtLT4KICAgICAgICA8bGluZSB4MT0iMCIgeTE9IjAiIHgyPSI2LjI4IiB5Mj0iMCIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIwLjAxIi8+CiAgICAgICAgPGxpbmUgeDE9IjAiIHkxPSItMSIgeDI9IjAiIHkyPSIxIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjAuMDEiLz4KICAgICAgICAKICAgICAgICA8IS0tIFNpbmUgd2F2ZSBwYXRoIC0tPgogICAgICAgIDxwYXRoIGlkPSJzaW5lV2F2ZSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJibHVlIiBzdHJva2Utd2lkdGg9IjAuMDIiLz4KICAgICAgICAKICAgICAgICA8IS0tIEphdmFTY3JpcHQgdG8gZ2VuZXJhdGUgdGhlIHNpbmUgd2F2ZSAtLT4KICAgICAgICA8c2NyaXB0IHR5cGU9ImFwcGxpY2F0aW9uL2VjbWFzY3JpcHQiPjwhW0NEQVRBWwogICAgICAgICAgICBjb25zdCBwYXRoID0gZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ3NpbmVXYXZlJyk7CiAgICAgICAgICAgIGxldCBkID0gJyc7CiAgICAgICAgICAgIGZvciAobGV0IHggPSAwOyB4IDw9IDYuMjg7IHggKz0gMC4wMSkgewogICAgICAgICAgICAgICAgY29uc3QgeSA9IE1hdGguc2luKHgpOwogICAgICAgICAgICAgICAgZCArPSAoeCA9PT0gMCA/ICdNJyA6ICdMJykgKyB4ICsgJyAnICsgeSArICcgJzsKICAgICAgICAgICAgfQogICAgICAgICAgICBwYXRoLnNldEF0dHJpYnV0ZSgnZCcsIGQpOwogICAgICAgIF1dPjwvc2NyaXB0PgogICAgPC9zdmc+CgogICAgPHA+VGhpcyBTVkcgZ3JhcGggcGxvdHMgdGhlIHNpbmUgZnVuY3Rpb24gcmVwcmVzZW50ZWQgYnkgdGhlIE1hdGhNTCBlcXVhdGlvbiBhYm92ZS48L3A+CjwvYm9keT4KPC9odG1sPgo=';
+const SIDEBAR_TABLE_CONTENT = 
+'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5UYWJsZSBDb250ZW50PC90aXRsZT4KCQk8c3R5bGU+CiAgICAgIHRhYmxlIHsKICAgICAgICB3aWR0aDogMTAwJTsKICAgICAgICBtYXJnaW46IGF1dG87CiAgICAgIH0JCQkKY2FwdGlvbiB7CQkJCiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7CgkgIGJhY2tncm91bmQtY29sb3I6IHdoaXRlOwp9CnRhYmxlIHsKICAgIGJvcmRlci1jb2xsYXBzZTogY29sbGFwc2U7CiAgICBmb250LXNpemU6IDAuOWVtOwogICAgZm9udC1mYW1pbHk6IHNhbnMtc2VyaWY7CiAgICBtaW4td2lkdGg6IDQwMHB4OwogICAgYm94LXNoYWRvdzogMCAwIDIwcHggcmdiYSgwLCAwLCAwLCAwLjE1KTsKfQp0YWJsZSB0aGVhZCB0ciB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA5ODc5OwogICAgY29sb3I6ICNmZmZmZmY7CiAgICB0ZXh0LWFsaWduOiBsZWZ0Owp9CnRhYmxlIHRoLAp0YWJsZSB0ZCB7CiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7Cn0KCnRhYmxlIHRib2R5IHRyIHsKICAgIGJvcmRlci1ib3R0b206IDFweCBzb2xpZCAjZGRkZGRkOwp9Cgp0YWJsZSB0Ym9keSB0cjpudGgtb2YtdHlwZShldmVuKSB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjZjNmM2YzOwp9Cgp0YWJsZSB0Ym9keSB0cjpsYXN0LW9mLXR5cGUgewogICAgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICMwMDk4Nzk7Cn0KdGFibGUgdGZvb3QgewogICAgYmFja2dyb3VuZC1jb2xvcjogZ3JheTsKfQkJCQoJCQkKPC9zdHlsZT4KICA8L2hlYWQ+CiAgPGJvZHk+CiAgICA8dGFibGUgYm9yZGVyPSIxIj4KICA8Y2FwdGlvbj5FbXBsb3llZSBEZXRhaWxzPC9jYXB0aW9uPgogIAogIDxjb2xncm91cD4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmMGYwZjA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNlMGUwZTA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNkMGQwZDA7Ij4KICA8L2NvbGdyb3VwPgoKICA8dGhlYWQ+CiAgICA8dHI+CiAgICAgIDx0aD5JRDwvdGg+CiAgICAgIDx0aD5OYW1lPC90aD4KICAgICAgPHRoPkRlcGFydG1lbnQ8L3RoPgogICAgPC90cj4KICA8L3RoZWFkPgoKICA8dGJvZHk+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDE8L3RkPgogICAgICA8dGQ+QWxpY2U8L3RkPgogICAgICA8dGQ+RW5naW5lZXJpbmc8L3RkPgogICAgPC90cj4KICAgIDx0cj4KICAgICAgPHRkPjAwMjwvdGQ+CiAgICAgIDx0ZD5Cb2I8L3RkPgogICAgICA8dGQ+TWFya2V0aW5nPC90ZD4KICAgIDwvdHI+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDM8L3RkPgogICAgICA8dGQ+Q2Fyb2w8L3RkPgogICAgICA8dGQ+U2FsZXM8L3RkPgogICAgPC90cj4KICA8L3Rib2R5PgoKICA8dGZvb3Q+CiAgICA8dHI+CiAgICAgIDx0ZCBjb2xzcGFuPSIzIj5FbmQgb2YgRW1wbG95ZWUgRGV0YWlsczwvdGQ+CiAgICA8L3RyPgogIDwvdGZvb3Q+CjwvdGFibGU+CiAgPC9ib2R5Pgo8L2h0bWw+Cg==';
+const SIDEBAR_FORM_CONTENT = 
+'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CiAgICA8dGl0bGU+Rm9ybXM8L3RpdGxlPgogICAgPHN0eWxlPgogICAgICBib2R5IHsKCQkJCWZvbnQtZmFtaWx5OiBBcmlhbCwgc2Fucy1zZXJpZjsKCQkJCW1hcmdpbjogMjBweDsKCQkJCXBhZGRpbmc6IDEwcHg7CgkJCQliYWNrZ3JvdW5kLWNvbG9yOiAjZjRmNGY0OwoJCQkJYm9yZGVyLXJhZGl1czogOHB4OwogICAgICB9CiAgICAgIGgxIHsKICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7CiAgICAgIH0KICAgICAgbGFiZWwgewogICAgICAgIGRpc3BsYXk6IGJsb2NrOwogICAgICAgIG1hcmdpbjogMTBweCAwIDVweDsKICAgICAgfQoJCQlpbnB1dFt0eXBlPSJidXR0b24iXSwKCQkJaW5wdXRbdHlwZT0ic3VibWl0Il0sCgkJCWlucHV0W3R5cGU9InJlc2V0Il0gewoJCQkgIHdpZHRoOiAxMDAlOwoJCQkgIHBhZGRpbmc6IDhweDsKCQkJCWJvcmRlcjogMXB4IHNvbGlkICNjY2M7CgkJCX0KCQkJdGV4dGFyZWEgewoJCQkJd2lkdGg6IDk5JTsKCQkJCW1hcmdpbi1ib3R0b206IDE1cHg7CgkJCQlib3JkZXI6IDFweCBzb2xpZCAjY2NjOwoJCQkJYm9yZGVyLXJhZGl1czogNHB4OwoJCSAgfQoJCQkuY29udGFpbmVyIHsKCQkJCW1heC13aWR0aDogNjAwcHg7CgkJCQltYXJnaW46IGF1dG87CgkJCQliYWNrZ3JvdW5kOiAjZmZmOwoJCQkJcGFkZGluZzogMjBweDsKCQkJCWJvcmRlci1yYWRpdXM6IDhweDsKCQkJCWJveC1zaGFkb3c6IDAgMnB4IDEwcHggcmdiYSgwLCAwLCAwLCAwLjEpOwoJCQl9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogIDxkaXYgY2xhc3M9ImNvbnRhaW5lciI+CiAgICA8aDE+Q3VycmljdWx1bSBWaXRhZTwvaDE+CiAgICA8Zm9ybT4KICAgICAgPGxhYmVsPklucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJoaWRkZW4iIHZhbHVlPSIzNDY1NyIgLz4KICAgICAgPGxhYmVsPkZ1bGwgbmFtZTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0idGV4dCIgbmFtZT0ibmFtZSIgdmFsdWU9IkpvaG4gRG9lIiAvPgogICAgICA8bGFiZWw+TnVtYmVyIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJudW1iZXIiIG5hbWU9Im51bWJlciIgLz4KICAgICAgPGxhYmVsPlNhbGFyeTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0ibnVtYmVyIiBuYW1lPSJmbG9hdCIgcGxhY2Vob2xkZXI9IjEuMDAwLDAwIiBzdGVwPSIwLjAxIiAvPgogICAgICA8bGFiZWw+UGFzc3dvcmQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InBhc3N3b3JkIiBuYW1lPSJwYXNzd29yZCIgLz4KICAgICAgPGxhYmVsPkJvcm4gZGF0ZTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iZGF0ZSIgbmFtZT0iZGF0ZSIgLz4KICAgICAgPGxhYmVsPlVSTDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0idXJsIiBuYW1lPSJ1cmwiIHBsYWNlaG9sZGVyPSJ3d3cudGVzdC5jb20iIC8+CiAgICAgIDxsYWJlbD5FbWFpbCBJbnB1dDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iZW1haWwiIG5hbWU9ICJlbWFpbCIgcGxhY2Vob2xkZXI9InRlc3RAdGVzdC5jb20iIC8+CiAgICAgIDxsYWJlbD5UZWxlcGhvbmUgSW5wdXQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InRlbCIgbmFtZT0gInBob25lIiBwbGFjZWhvbGRlcj0iKDk5KSA5OTk5OS05OTk5IiAvPgogICAgICA8bGFiZWw+U2VhcmNoIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJzZWFyY2giIG5hbWU9InNlYXJjaCIgdmFsdWU9IlRlc3Qgc2VhcmNoIiAvPgogICAgICA8bGFiZWw+R2VuZGVyOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIj5NYWxlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9InJhZGlvIiBuYW1lPSJnZW5kZXIiPkZlbWFsZTwvaW5wdXQ+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIj5PdGhlcjwvaW5wdXQ+CiAgICAgIDxsYWJlbD5FeHRyYTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iY2hlY2tib3giIG5hbWU9Imhhcy1saWNlbnNlIj5IYXMgYSBkcml2ZXIncyBsaWNlbnNlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9ImNoZWNrYm94IiBuYW1lPSJoYXMtY2FyIj5IYXMgYSBjYXI8L2lucHV0PgogICAgICA8bGFiZWw+UmF0aW5nIG9mIHlvdXQgbGFzdCBqb2I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InJhbmdlIiBuYW1lPSJyYW5nZSIgdmFsdWU9IjEiIG1pbj0iMSIgbWF4PSI1IiAvPgogICAgICA8bGFiZWw+UHJvZmlsZSBQaWN0dXJlOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJmaWxlIiBuYW1lPSJmaWxlIiAvPgogICAgICA8bGFiZWw+RmF2b3JpdGUgQ29sb3I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImNvbG9yIiBuYW1lPSJjb2xvciIgdmFsdWU9IiNlNjY0NjUiIC8+CiAgICAgIDxsYWJlbD5TaG9ydCBCaW86PC9sYWJlbD4KICAgICAgPHRleHRhcmVhIG5hbWU9ImJpbyIgcGxhY2Vob2xkZXI9IkVudGVyIHRleHQgaGVyZS4uLiI+PC90ZXh0YXJlYT4KICAgICAgPGlucHV0IHR5cGU9ImJ1dHRvbiIgbmFtZT0iYnV0dG9uIiB2YWx1ZT0iQnV0dG9uIiAvPgogICAgICA8aW5wdXQgdHlwZT0ic3VibWl0IiBuYW1lPSJzdWJtaXQiIHZhbHVlPSJTdWJtaXQiIC8+CiAgICAgIDxpbnB1dCB0eXBlPSJyZXNldCIgbmFtZT0icmVzZXQiIC8+CiAgICA8L2Zvcm0+CiAgPC9kaXY+CjwvYm9keT4KCjwvaHRtbD4=';
+
+const categoryLinks = {
+    "Element 1" : BLANK_PAGE + SIDEBAR_DOCUMENT_STRUCTURE,
+    "Element 2" : BLANK_PAGE + SIDEBAR_METADATA,
+    "Element 3" : BLANK_PAGE + SIDEBAR_SCRIPTING,
+    "Element 4" : BLANK_PAGE + SIDEBAR_SECTIONING,
+    "Element 5" : BLANK_PAGE + SIDEBAR_HEADINGS,
+    "Element 6" : BLANK_PAGE + SIDEBAR_TEXT_CONTENT,
+    "Element 7" : "/",
+    "Element 8" : "/",
+    "Element 9" : BLANK_PAGE + GRAPHICS_AND_EMBEDED_CONTENT,
+    "Element 10": BLANK_PAGE + SIDEBAR_TABLE_CONTENT,
+    "Element 11": BLANK_PAGE + SIDEBAR_FORM_CONTENT
+};
+
+const elementsList = [
+  {
+    "category": "Document Structure",
+    "elements": [
+      { "tag": "html", "use": "Root element of an HTML document" },
+      { "tag": "head", "use": "Container for document metadata" },
+      { "tag": "body", "use": "Document body" }
+    ]
+  },
+  {
+    "category": "Metadata",
+    "elements": [
+      { "tag": "title", "use": "Document title" },
+   // { "tag": "base", "use": "Base URL for all relative URLs" },
+      { "tag": "link", "use": "External resource link" },
+      { "tag": "meta", "use": "Metadata about the document" },
+      { "tag": "style", "use": "Embedded CSS styles" }
+    ]
+  },
+  {
+    "category": "Scripting",
+    "elements": [
+      { "tag": "script", "use": "Embedded script" },
+      { "tag": "noscript", "use": "Alternative content if scripting is disabled" }
+    ]
+  },
+  {
+    "category": "Sectioning",
+    "elements": [
+      { "tag": "main", "use": "Main content of the document (Use only once)" },
+      { "tag": "header", "use": "Introductory content for a section" },
+      { "tag": "nav", "use": "Section of navigation links" },
+      { "tag": "article", "use": "Independent, self-contained content" },
+      { "tag": "section", "use": "Section of content" },
+      { "tag": "aside", "use": "Sidebar content" },
+      { "tag": "footer", "use": "Concluding content for a section" }
+    ]
+  },
+  {
+    "category": "Headings",
+    "elements": [
+      { "tag": "h1", "use": "Heading level 1" },
+      { "tag": "h2", "use": "Heading level 2" },
+      { "tag": "h3", "use": "Heading level 3" },
+      { "tag": "h4", "use": "Heading level 4" },
+      { "tag": "h5", "use": "Heading level 5" },
+      { "tag": "h6", "use": "Heading level 6" }
+    ]
+  },
+  {
+    "category": "Text Content",
+    "elements": [
+      { "tag": "p", "use": "Paragraph" },
+      { "tag": "hr", "use": "Thematic break" },
+      { "tag": "pre", "use": "Preformatted text" },
+      { "tag": "blockquote", "use": "Block quotation" },
+      { "tag": "ol", "use": "Ordered list" },
+      { "tag": "ul", "use": "Unordered list" },
+      { "tag": "li", "use": "List item" },
+      { "tag": "dl", "use": "Description list" },
+      { "tag": "dt", "use": "Term in a description list" },
+      { "tag": "dd", "use": "Description of a term in a description list" },
+      { "tag": "figure", "use": "Figure with optional caption" },
+      { "tag": "figcaption", "use": "Caption for a figure" },
+      { "tag": "div", "use": "Generic block container" },
+      { "tag": "address", "use": "Contact information" },
+      { "tag": "ins", "use": "Inserted text" },
+      { "tag": "del", "use": "Deleted text" }
+    ]
+  },
+  {
+    "category": "Inline Text Semantics",
+    "elements": [
+      { "tag": "a", "use": "Hyperlink" },
+      { "tag": "em", "use": "Emphasized text" },
+      { "tag": "strong", "use": "Important text" },
+      { "tag": "small", "use": "Smaller text" },
+      { "tag": "s", "use": "Strikethrough text" },
+      { "tag": "cite", "use": "Cited title" },
+      { "tag": "q", "use": "Inline quotation" },
+      { "tag": "dfn", "use": "Defining instance of a term" },
+      { "tag": "abbr", "use": "Abbreviation" },
+      { "tag": "data", "use": "Machine-readable data" },
+      { "tag": "time", "use": "Date and time" },
+      { "tag": "code", "use": "Computer code fragment" },
+      { "tag": "var", "use": "Variable" },
+      { "tag": "samp", "use": "Sample output from a program" },
+      { "tag": "kbd", "use": "User input (typically keyboard input)" },
+      { "tag": "sub", "use": "Subscript text" },
+      { "tag": "sup", "use": "Superscript text" },
+      { "tag": "i", "use": "Text in an alternate voice or mood" },
+      { "tag": "b", "use": "Stylistically offset text (bold)" },
+      { "tag": "u", "use": "Unarticulated annotation (underline)" },
+      { "tag": "mark", "use": "Marked or highlighted text" },
+      { "tag": "bdi", "use": "Isolate text direction" },
+      { "tag": "bdo", "use": "Override text direction" },
+      { "tag": "span", "use": "Generic inline container" },
+      { "tag": "br", "use": "Line break" },
+      { "tag": "wbr", "use": "Optional line break opportunity" },
+      { "tag": "ruby", "use": "Ruby annotation (for East Asian typography)" },
+      { "tag": "rt", "use": "Ruby text (annotation)" },
+      { "tag": "rp", "use": "Fallback parentheses for ruby text" }
+    ]
+  },
+  {
+    "category": "Image and Multimedia",
+    "elements": [
+      { "tag": "img", "use": "Image (use 'alt' attribute for accessibility)" },
+      { "tag": "picture", "use": "Container for multiple image sources" },
+      { "tag": "iframe", "use": "Inline frame (embedded browsing context)" },
+      { "tag": "embed", "use": "Embedded external content" },
+      { "tag": "object", "use": "Embedded object" },
+   // { "tag": "param", "use": "Parameters for an object" },
+      { "tag": "video", "use": "Video content" },
+      { "tag": "audio", "use": "Audio content" },
+      { "tag": "source", "use": "Media source for video or audio" },
+      { "tag": "track", "use": "Timed text tracks for media elements" },
+      { "tag": "map", "use": "Image map" },
+      { "tag": "area", "use": "Clickable area within an image map" },
+      { "tag": "canvas", "use": "Canvas for dynamic graphics" }
+    ]
+  },
+  {
+    "category": "Graphics and Embedded Content",
+    "elements": [
+      { "tag": "svg", "use": "SVG (Scalable Vector Graphics) content" },
+      { "tag": "math", "use": "Mathematical markup" }
+    ]
+  },
+  {
+    "category": "Table Content",
+    "elements": [
+      { "tag": "table", "use": "Table container" },
+      { "tag": "caption", "use": "Table caption" },
+      { "tag": "colgroup", "use": "Grouping of table columns" },
+      { "tag": "col", "use": "Column within a colgroup" },
+      { "tag": "tbody", "use": "Table body section" },
+      { "tag": "thead", "use": "Table header section" },
+      { "tag": "tfoot", "use": "Table footer section" },
+      { "tag": "tr", "use": "Table row" },
+      { "tag": "td", "use": "Table data cell" },
+      { "tag": "th", "use": "Table header cell" }
+    ]
+  },
+  {
+    "category": "Forms",
+    "elements": [
+      { "tag": "form", "use": "Form container" },
+      { "tag": "label", "use": "Caption for a form control" },
+      { "tag": "input", "use": "Form input control" },
+      { "tag": "button", "use": "Clickable button" },
+      { "tag": "select", "use": "Drop-down list control" },
+      { "tag": "datalist", "use": "List of predefined options for input controls" },
+      { "tag": "optgroup", "use": "Group of options within a select element" },
+      { "tag": "option", "use": "Option in a select element or datalist" },
+      { "tag": "textarea", "use": "Multiline text input control" },
+      { "tag": "output", "use": "Result of a calculation or user action" },
+      { "tag": "progress", "use": "Progress indicator" },
+      { "tag": "meter", "use": "Scalar measurement within a known range" },
+      { "tag": "fieldset", "use": "Group of form controls" },
+      { "tag": "legend", "use": "Caption for a fieldset" }
+    ]
+  },
+  {
+    "category": "Interactive Elements",
+    "elements": [
+      { "tag": "details", "use": "Disclosure widget for additional information" },
+      { "tag": "summary", "use": "Summary or caption for a details element" },
+      { "tag": "dialog", "use": "Dialog box or window" },
+      { "tag": "menu", "use": "Menu of commands or options" }
+    ]
+  },
+  {
+    "category": "Web Components",
+    "elements": [
+      { "tag": "template", "use": "Container for client-side content that is not rendered" },
+      { "tag": "slot", "use": "Placeholder inside a web component for external content" }
+    ]
+  }
+];
+
+//]]>
+</script>
+<!-- SIDEBAR -->
+<script async='async' type='text/javascript'>
+//<![CDATA[
+const content = document.getElementById('content');
+const sidebar = document.getElementById('sidebar');
+
+const fragment = document.createDocumentFragment();  // Create the fragment
+
+elementsList.forEach(({ category, elements }, index) => {
+    const key = `Element ${index + 1}`; // Construct the key to access categoryLinks
+    
+    const rootContainer = document.createElement('div');
+    rootContainer.classList.add('tag-container', 'root-element');
+	rootContainer.id = category.toLowerCase().replace(/\s+/g, '-');
+
+	const rootTagName = document.createElement('div');
+	rootTagName.classList.add('tag-name');
+	rootTagName.innerText = category;
+ 
+    const rootTagLink = document.createElement('a');
+    rootTagLink.classList.add('tag-link');
+    	
+    rootTagLink.href = categoryLinks[key] || "#";
+    rootTagLink.innerText = "Example"; 
+    rootTagLink.target = "_blank"; 
+
+	rootContainer.appendChild(rootTagName);
+	rootContainer.appendChild(rootTagLink);
+	fragment.appendChild(rootContainer); // content.appendChild(rootContainer);
+
+	/*
+	// Create list item for the category
+	const categoryItem = document.createElement('li');
+	const categoryLink = document.createElement('a');
+	categoryLink.href = `#${rootContainer.id}`;
+	categoryLink.textContent = category;
+	categoryItem.appendChild(categoryLink);
+	*/
+
+	const sublist = document.createElement('ul');
+	sublist.id = `${category.toLowerCase().replace(/\s+/g, '-')}-elements`;
+	elements.forEach(({ tag, use }) => {
+		const listItem = document.createElement('li');
+		const link = document.createElement('a');
+		link.href = `#${tag}`;
+		link.textContent = tag;
+		listItem.appendChild(link);
+		sublist.appendChild(listItem);
+
+		const container = document.createElement('div');
+		container.classList.add('tag-container');
+		container.id = `${tag}`;
+
+		const tagName = document.createElement('div');
+		tagName.classList.add('tag-name');
+		
+        const tagLink = document.createElement('a');
+
+        tagLink.classList.add('tag-link');
+		tagLink.href = `${HELP_URL}${tag}`;
+		tagLink.target = '_blank';
+		tagLink.innerHTML = `<b>&lt;${tag}&gt;</b>`; // 'More about'+` ${tag}`; 
+		tagLink.setAttribute('aria-label', 'More information about'+` ${tag}`);
+        tagLink.setAttribute('title', 'More information about'+` ${tag}`);
+		
+		// Create a temporary element to determine its type
+		const tempElement = document.createElement(tag);
+		const elementType = tempElement.constructor.name;
+		const displayType = elementType === 'HTMLElement' ? 'element' : elementType.replace('HTML', '').replace('Element', '');
+
+		const detailsContainer = document.createElement('div');
+		detailsContainer.classList.add('details-container');
+
+		const detailElement = document.createElement('details');
+		detailElement.classList.add('tag-type');
+		detailElement.innerHTML = `<summary title="Type: ${elementType}">Example of ${displayType.toLowerCase()}:</summary>`;
+
+		const renderedElement = document.createElement(tag);
+		renderedElement.innerText = `${tag}`;
+
+		const renderedContainer = document.createElement('div');
+		renderedContainer.classList.add('example-render');
+		renderedContainer.appendChild(renderedElement);
+		
+		const addToEditor = document.createElement('div');
+		addToEditor.classList.add('add-editor');
+		addToEditor.innerText = 'Add'; // 'More about'+` ${tag}`; 
+        
+        cursorRefresh();
+  		addToEditor.onclick = function() {
+            editorInsert(LinePosition, ColumnPosition, `<${tag}></${tag}>`);
+        };
+
+		/* 
+		const readMoreLink = document.createElement('a');
+		readMoreLink.href = `${HELP_URL}${tag}`;
+		readMoreLink.classList.add('example-link');
+		readMoreLink.target = '_blank';
+		readMoreLink.innerText = 'Details'; // 'More about'+` ${tag}`; 
+		readMoreLink.setAttribute('aria-label', 'More information about'+` ${tag}`);
+        readMoreLink.setAttribute('title', 'More information about'+` ${tag}`);
+        */ 
+		
+		detailElement.appendChild(renderedContainer);
+		detailsContainer.appendChild(detailElement);
+		// detailsContainer.appendChild(readMoreLink);
+		detailsContainer.appendChild(addToEditor);
+
+		const tagUse = document.createElement('details');
+		tagUse.classList.add('tag-use');
+		tagUse.innerHTML = `<summary class="tag-summary">${use.toLowerCase()}:</summary>`;
+		//tagUse.innerText = use;
+
+		container.appendChild(tagName);
+		container.appendChild(detailsContainer);
+		container.appendChild(tagUse);
+        tagName.appendChild(tagLink);
+		fragment.appendChild(container); // content.appendChild(container);
+
+		tagUse.addEventListener('toggle', () => {
+			tagUse.open 
+				? (summaryElement.textContent = summaries[randomIndex], contentElement.textContent = details[randomIndex].slice(0, 500) + '...')
+				: (summaryElement.textContent = summaries[randomIndex].slice(0, 70) + '...', contentElement.textContent = '');
+		});
+
+	});
+    content.appendChild(fragment);
+});
+
+// Add event listeners with passive option
+document.querySelectorAll('#element-list a').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        const offset = 60; // Adjust this value to match the height of your sticky elements
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = target.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+
+        // Open the details element
+        const detailsElement = target.querySelector('details');
+        if (detailsElement) {
+            detailsElement.open = true;
+        }
+    }, { passive: true }); // Mark the listener as passive
+});
+
+//]]>
+</script>
+<!-- TESTS 2 -->
+<script async='async' type='text/javascript'>
+//<![CDATA[  
+function decodeBase64(base64) {
+    // Decode the Base64 string
+    const binaryString = atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    
+    // Convert the binary string to a Uint8Array
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    
+    // Create a Blob from the Uint8Array and return the decoded string
+    const blob = new Blob([bytes], { type: 'text/html' });
+    return URL.createObjectURL(blob); // This can be used as an object URL
+}
+
+// Function to encode a string into Base64 (handling special characters)
+function encodeBase64(string) {
+    // Convert the string into a UTF-8 encoded array of characters
+    const utf8Bytes = new TextEncoder().encode(string);
+    
+    // Convert the UTF-8 array to a Base64 encoded string
+    let binaryString = '';
+    for (let i = 0; i < utf8Bytes.length; i++) {
+        binaryString += String.fromCharCode(utf8Bytes[i]);
+    }
+    
+    // Return the Base64 encoded string
+    return btoa(binaryString);
+}  
 
 //]]>
 </script>
