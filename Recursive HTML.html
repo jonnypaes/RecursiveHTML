@@ -243,6 +243,15 @@ display: none !important;
 <script async='async' type='text/javascript'>
 //<![CDATA[
 
+const calendar = document.getElementById('calendar');
+const calendarGrid = document.getElementById('calendarGrid');
+const monthName = document.getElementById('monthName');
+const holidayList = document.getElementById('holidayList');
+const importantDatesList = document.getElementById('importantDatesList');
+const stateCodes = document.getElementById('stateCodes');
+
+let currentMonth = 0; // let currentMonth = new Date().getMonth();
+
 // Brazil (BR)
 const nationalHolidays = [
     { dia: 1,  mes: 1,  uf: 'BR', tipo: 'Nacional', nome: 'Ano Novo' },
@@ -363,15 +372,6 @@ const importantDates = [
 ];
 
 let holidays = [...nationalHolidays, ...regionalHolidays];
-
-const calendar = document.getElementById('calendar');
-const calendarGrid = document.getElementById('calendarGrid');
-const monthName = document.getElementById('monthName');
-const holidayList = document.getElementById('holidayList');
-const importantDatesList = document.getElementById('importantDatesList');
-const stateCodes = document.getElementById('stateCodes');
-
-let currentMonth = 0; // let currentMonth = new Date().getMonth();
 
 function calculateHolidays() {
     loadMonth(currentMonth);
