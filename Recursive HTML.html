@@ -152,6 +152,7 @@ function getUrlParameters(parameter, staticURL, decode) {
 }
 
 const MAXIMIZED = getUrlParameters('m', '', true);
+const RENDERER = getUrlParameters('render', '', true);
 var PARAM_HTML = getUrlParameters('HTML', '', true); // limit: 8.192 bytes
 var dataBase64 = window.atob(PARAM_HTML);
 
@@ -170,6 +171,10 @@ const DEFAULT_THEME = 'dark-mode'; // white-mode
 const DEFAULT_PAGE = (window.location.protocol + '//' + window.location.hostname + window.location.pathname);
 const BLANK_PAGE = DEFAULT_PAGE + '?' + 'm=0' + '&' + 'HTML=';
 const HELP_URL = `https://developer.mozilla.org/${languagesMatched}/docs/Web/HTML/Element/`;
+
+// var editorBody = editor.getValue();
+editorRender = RENDERER ? RENDERER : 'shadow';
+var editorRender = editorRender; // iframe | shadow | light | virtual | fragment | template | embed | object
 
 var storedLinePosition = localStorage.getItem("position-line");
 var storedColumnPosition = localStorage.getItem("position-column");
@@ -361,10 +366,7 @@ background: #ccc;
 }
 .menu label.control {
 user-select: none;
-margin-right: 7px;
-min-width: 40px;
-padding: 2px 2px;
-text-align: center;
+padding: 2px 4px;
 }
 .menu label.disabled {
 background: #eee !important;
@@ -506,7 +508,7 @@ color: var(--rh-dm-cm-text-color);
 .dark-mode .CodeMirror-gutters,
 .dark-mode .CodeMirror-cursor,
 .dark-mode .CodeMirror-activeline-background {
-filter: invert(100%);
+background-color: var(--rh-dm-hb-bg-color);
 }
 .dark-mode #positionCodemirror {
 filter: invert(100%);
@@ -831,9 +833,11 @@ justify-content: space-between;
 }
 .root-element:nth-child(odd) {
 background-color: var(--rh-wm-if-red-color);
+color: white;
 }
 .root-element:nth-child(even) {
 background-color: var(--rh-wm-if-blue-color);
+color: white;
 }
 .root-element .tag-container {
 margin: 0; /* Remove margin from root element */
@@ -989,6 +993,42 @@ document.querySelector('form').addEventListener('submit', function(event) {
 
 //]]>
 </script>
+<!-- TESTS 2 -->
+<script async='async' type='text/javascript'>
+//<![CDATA[  
+function decodeBase64(base64) {
+    // Decode the Base64 string
+    const binaryString = atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    
+    // Convert the binary string to a Uint8Array
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    
+    // Create a Blob from the Uint8Array and return the decoded string
+    const blob = new Blob([bytes], { type: 'text/html' });
+    return URL.createObjectURL(blob); // This can be used as an object URL
+}
+
+// Function to encode a string into Base64 (handling special characters)
+function encodeBase64(string) {
+    // Convert the string into a UTF-8 encoded array of characters
+    const utf8Bytes = new TextEncoder().encode(string);
+    
+    // Convert the UTF-8 array to a Base64 encoded string
+    let binaryString = '';
+    for (let i = 0; i < utf8Bytes.length; i++) {
+        binaryString += String.fromCharCode(utf8Bytes[i]);
+    }
+    
+    // Return the Base64 encoded string
+    return btoa(binaryString);
+}  
+
+//]]>
+</script>
 <script defer='defer' type='text/javascript'>
 //<![CDATA[
     document.addEventListener('click', function(event) {
@@ -1023,8 +1063,22 @@ if (!window.EyeDropper) {
 <!-- Canvas functions -->
 <script defer='defer' type='text/javascript'>
 //<![CDATA[
-function handleRender(event) {
 
+// Helper function to get the x and y coordinates from the event
+function getEventCoordinates(event) {
+  return {
+    x: event.clientX,
+    y: event.clientY
+  };
+}
+
+// Helper function to position an element at (x, y)
+function positionElement(element, x, y) {
+  element.style.left = `${x}px`;
+  element.style.top = `${y}px`;
+}
+
+function handleRender(event) {
   event.preventDefault();
 
   try {
@@ -1035,16 +1089,14 @@ function handleRender(event) {
 	}
 
 	// Get the event coordinates
-	const x = event.clientX;
-	const y = event.clientY;
+	 const { x, y } = getEventCoordinates(event);
 
 	// Create the floating menu div
 	const menu = document.createElement('div');
 	menu.classList.add('floating-menu');
 
 	// Position the menu at the event location
-	menu.style.left = `${x}px`;
-	menu.style.top = `${y}px`;
+	positionElement(menu, x, y);
 
 	// Create the select element with options
 	const select = document.createElement('select');
@@ -1056,26 +1108,39 @@ function handleRender(event) {
 
 	// Define the options
     const options = [
-      { value: 'shadow', text: 'shadow DOM' },
-      { value: 'light', text: 'light DOM' },
-      { value: 'iframe', text: 'iframe' },
+      { value: '', text: 'None' }, 
+      { value: 'shadow', text: 'Shadow DOM' },
+      { value: 'light', text: 'Light DOM' },
+      { value: 'virtual', text: 'Virtual DOM' },
+      { value: 'iframe', text: 'Iframe' },
+      { value: 'frame', text: 'Frame' },
+      { value: 'template', text: 'Template' },
+      { value: 'embed', text: 'Embed' },
+      { value: 'fragment', text: 'Fragment' },
+      { value: 'object', text: 'Object' }
     ];
 
     options.forEach(optionData => {
       const option = document.createElement('option');
       option.value = optionData.value;
       option.textContent = optionData.text;
+
+      if (optionData.value === editorRender) {
+        option.selected = true;
+      }
+
       optGroup.appendChild(option);
     });
 
 	select.appendChild(optGroup);
 	menu.appendChild(select);
 	document.body.appendChild(menu);
-
+     
 	// Handle the selection
 	select.addEventListener('change', async function() {
       const renderMethod = this.value;
-	  renderContent(data, renderMethod);
+      editorRender = renderMethod;
+	  renderContent(dataArea.value, renderMethod);
 	  menu.remove();
 	});
 
@@ -1094,6 +1159,10 @@ output.addEventListener('click', e => {
     handleRender(e);
   }
 });
+
+output.addEventListener('input', () => {
+        editor.setValue(output.innerHTML);
+    });
 
 output.addEventListener('contextmenu', function(event) {
   event.preventDefault();
@@ -1146,8 +1215,7 @@ async function change(e) {
     dataArea.value = editor.getValue();
 
   try {  
-    var data = editor.getValue();
-	await renderContent(data, 'shadow');
+	await renderContent(dataArea.value, editorRender);
 
     editCounter++;
     if (editCounter > 1) window.editStarted = true;
@@ -1157,8 +1225,11 @@ async function change(e) {
   }
 }
 
-// script.js
 async function renderContent(data, renderMethod = 'shadow') {
+  if (typeof data !== 'string') {
+    console.error('renderContent expects a string. Received:', data);
+    return;
+  }
   const frame = document.querySelector('.canvas'); // document.getElementById('output');
   const footer = document.querySelector('.footer');
 
@@ -1171,44 +1242,168 @@ async function renderContent(data, renderMethod = 'shadow') {
   // Create a new temporary child element called 'frameCanvas'
   const frameCanvas = document.createElement('div');
   frameCanvas.classList.add('frameCanvas');
+
   frame.style.position = 'relative';  // Optional styling to fit the frameCanvas in the frame
   frame.appendChild(frameCanvas);
 
   try {
-    if (renderMethod === 'iframe') {
-      frameCanvas.innerHTML = '';  // Clear existing content in 'frameCanvas'
+    switch (renderMethod) {
 
-      const iframe = document.createElement('iframe');
-      iframe.style.width = '100%';
-      iframe.style.height = '100%';
-      iframe.style.border = 'none';
-      frameCanvas.appendChild(iframe);
+      case 'shadow':
+        // Clear existing content
+        frameCanvas.innerHTML = '';
 
-      const frameDocument = iframe.contentWindow.document;
-      frameDocument.open();
-      frameDocument.write(data);  // Write HTML content into iframe
-      frameDocument.close();
+        // Attach a shadow DOM and insert the HTML content
+        const shadowRoot = frameCanvas.attachShadow({ mode: 'open' });
+        shadowRoot.innerHTML = data;
 
-      if (window.outWin) {
-        const outFrame = window.outWin.document;
-        outFrame.open();
-        outFrame.write(data);
-        outFrame.close();
-      }
-    } else if (renderMethod === 'shadow') {
-      frameCanvas.innerHTML = '';  // Clear existing content
+        // Execute any scripts within the shadow DOM
+        await executeScriptsSequentially(shadowRoot); // executeScripts(shadowRoot);
+        break;
 
-      const shadowRoot = frameCanvas.attachShadow({ mode: 'open' });
-      shadowRoot.innerHTML = data;  // Insert HTML content into shadow DOM
-      executeScripts(shadowRoot);
-    } else if (renderMethod === 'light') {
-      frameCanvas.innerHTML = '';  // Clear existing content
+      case 'iframe':
+        frameCanvas.innerHTML = '';
 
-      frameCanvas.innerHTML = data;  // Insert HTML content directly into Light DOM
-      executeScripts(frameCanvas);
-    } else if (renderMethod === 'virtual') {
-      frameCanvas.innerHTML = '';  // Clear existing content
-      renderVirtualDOM(frameCanvas, data);
+        // Create and configure the iframe
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        iframe.style.position = 'absolute';
+        iframe.srcdoc = data;
+        frameCanvas.appendChild(iframe);
+
+        // Write HTML content into the iframe
+        const iframeDocument = iframe.contentWindow.document;
+        iframeDocument.open();
+        iframeDocument.write(data);
+        iframeDocument.close();
+
+        // If window.outWin exists, write the data there as well
+        if (window.outWin) {
+          const outFrame = window.outWin.document;
+          outFrame.open();
+          outFrame.write(data);
+          outFrame.close();
+        }
+        break;
+
+    case 'frame':
+        frameCanvas.innerHTML = '';
+
+        // Create and configure the frameset
+        const frameset = document.createElement('frameset');
+        // frameset.setAttribute('cols', '100%');
+        frameset.setAttribute('style', 'width: 100%; height: auto');
+// Assuming one frame takes up the full width
+        frameCanvas.appendChild(frameset);
+
+        // Create and configure the frame
+        const frame = document.createElement('frame');
+        frame.setAttribute('name', 'mainFrame');
+        frameset.appendChild(frame);
+
+        // Write HTML content into the frame
+        const frameDocument = frame.contentWindow.document;
+        frameDocument.open();
+        frameDocument.write(data);
+        frameDocument.close();
+
+        // If window.outWin exists, write the data there as well
+        if (window.outWin) {
+          const outFrame = window.outWin.document;
+          outFrame.open();
+          outFrame.write(data);
+          outFrame.close();
+        }
+        break;
+
+      case 'light':
+        // Clear existing content
+        frameCanvas.innerHTML = '';
+
+        // Insert HTML content directly into the Light DOM
+        frameCanvas.innerHTML = data;
+
+        // Execute any scripts within the Light DOM
+        executeScripts(frameCanvas);
+        break;
+
+      case 'virtual':
+        // Clear existing content
+        frameCanvas.innerHTML = '';
+        // Render the virtual DOM with the provided data
+        frameCanvas.innerHTML = data; // renderVirtualDOM(frameCanvas, data);
+        executeScripts(frameCanvas);
+        break;
+
+    case 'fragment':
+      // Clear existing content
+      frameCanvas.innerHTML = '';
+
+      // Create a DocumentFragment
+      const fragment = document.createDocumentFragment();
+
+      // Create and append elements to the DocumentFragment
+      const fragmentContent = document.createElement('div');
+      fragmentContent.innerHTML = data; // 'data' contains the HTML content to insert
+      fragment.appendChild(fragmentContent);
+
+      // Append the DocumentFragment to the DOM (frameCanvas)
+      frameCanvas.appendChild(fragment);
+
+      // Optional: Execute any scripts in the inserted content if necessary
+      executeScripts(frameCanvas); // Assuming you have executeScripts defined
+      break;
+
+    case 'template':
+      // Clear existing content
+      frameCanvas.innerHTML = '';
+
+      // Create and configure the template element
+      const template = document.createElement('template');
+      template.innerHTML = data;
+
+      // Clone the template content and append to frameCanvas
+      const clone = document.importNode(template.content, true);
+      frameCanvas.appendChild(clone);
+
+      // Execute any scripts if necessary
+      executeScripts(frameCanvas); // Assume executeScripts is a function you defined
+      break;
+
+    case 'embed':
+      // Clear existing content
+      frameCanvas.innerHTML = '';
+
+      // Create and configure the embed element
+      const embed = document.createElement('embed');
+      embed.style.width = '100%';
+      embed.style.height = '100%';
+      embed.innerHTML = data;
+      //embed.src = data.url; // 'data' should contain the URL to embed
+      embed.type = data.type || 'text/html'; // Specify the MIME type if available
+      frameCanvas.appendChild(embed);
+      break;
+    
+    case 'object':
+      // Clear existing content
+      frameCanvas.innerHTML = '';
+
+      // Create and configure the object element
+      const obj = document.createElement('object');
+      obj.style.width = '100%';
+      obj.style.height = '100%';
+      // obj.setAttribute('data', data.url); // 'data' should contain the URL to embed
+      obj.setAttribute('innerHTML', data);
+      obj.type = data.type || 'text/html'; // Specify the MIME type if available
+      frameCanvas.appendChild(obj);
+      break;
+
+      default:
+        // Optional: Handle unexpected renderMethod values
+        console.warn(`Unknown render method: ${renderMethod}`);
+        break;
     }
 
     const titleElement = frameCanvas.querySelector('title') || frameCanvas.shadowRoot?.querySelector('title');
@@ -1222,10 +1417,43 @@ async function renderContent(data, renderMethod = 'shadow') {
 
   } catch (error) {
     handleErrors(error);
+  } finally {
+    editorRender = renderMethod;
+    // frameCanvas.contentEditable = true;  
   }
 }
 
-/*
+async function executeScriptsSequentially(context) {
+  const scripts = Array.from(context.querySelectorAll('script'));
+  
+  for (const script of scripts) {
+    const newScript = document.createElement('script');
+    
+    // Copy all attributes (e.g., src, type) from the original script
+    Array.from(script.attributes).forEach(attr => {
+      newScript.setAttribute(attr.name, attr.value);
+    });
+
+    if (script.src) {
+      // External script
+      newScript.src = script.src;
+      newScript.async = false; // Maintain execution order
+      await new Promise((resolve, reject) => {
+        newScript.onload = resolve;
+        newScript.onerror = () => reject(new Error(`Failed to load script: ${script.src}`));
+        context.appendChild(newScript);
+      });
+    } else {
+      // Inline script
+      newScript.textContent = script.textContent;
+      context.appendChild(newScript);
+    }
+    
+    // Remove the original script to prevent duplicate execution
+    script.remove();
+  }
+}
+
 function executeScripts(context) {
   var scripts = context.querySelectorAll('script');
   scripts.forEach((script) => {
@@ -1235,8 +1463,9 @@ function executeScripts(context) {
     script.remove();
   });
 };
-*/
 
+/*
+// New
 function executeScripts(context) {
   const scripts = context.querySelectorAll('script');
   scripts.forEach((oldScript) => {
@@ -1246,8 +1475,7 @@ function executeScripts(context) {
     oldScript.parentNode.replaceChild(newScript, oldScript);
   });
 }
-
-
+*/
 
 //]]>
 </script>
@@ -1518,7 +1746,7 @@ const SIDEBAR_TEXT_CONTENT = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aX
 const SIDEBAR_TABLE_CONTENT = 
 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5UYWJsZSBDb250ZW50PC90aXRsZT4KCQk8c3R5bGU+CiAgICAgIHRhYmxlIHsKICAgICAgICB3aWR0aDogMTAwJTsKICAgICAgICBtYXJnaW46IGF1dG87CiAgICAgIH0JCQkKY2FwdGlvbiB7CQkJCiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7CgkgIGJhY2tncm91bmQtY29sb3I6IHdoaXRlOwp9CnRhYmxlIHsKICAgIGJvcmRlci1jb2xsYXBzZTogY29sbGFwc2U7CiAgICBmb250LXNpemU6IDAuOWVtOwogICAgZm9udC1mYW1pbHk6IHNhbnMtc2VyaWY7CiAgICBtaW4td2lkdGg6IDQwMHB4OwogICAgYm94LXNoYWRvdzogMCAwIDIwcHggcmdiYSgwLCAwLCAwLCAwLjE1KTsKfQp0YWJsZSB0aGVhZCB0ciB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA5ODc5OwogICAgY29sb3I6ICNmZmZmZmY7CiAgICB0ZXh0LWFsaWduOiBsZWZ0Owp9CnRhYmxlIHRoLAp0YWJsZSB0ZCB7CiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7Cn0KCnRhYmxlIHRib2R5IHRyIHsKICAgIGJvcmRlci1ib3R0b206IDFweCBzb2xpZCAjZGRkZGRkOwp9Cgp0YWJsZSB0Ym9keSB0cjpudGgtb2YtdHlwZShldmVuKSB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjZjNmM2YzOwp9Cgp0YWJsZSB0Ym9keSB0cjpsYXN0LW9mLXR5cGUgewogICAgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICMwMDk4Nzk7Cn0KdGFibGUgdGZvb3QgewogICAgYmFja2dyb3VuZC1jb2xvcjogZ3JheTsKfQkJCQoJCQkKPC9zdHlsZT4KICA8L2hlYWQ+CiAgPGJvZHk+CiAgICA8dGFibGUgYm9yZGVyPSIxIj4KICA8Y2FwdGlvbj5FbXBsb3llZSBEZXRhaWxzPC9jYXB0aW9uPgogIAogIDxjb2xncm91cD4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmMGYwZjA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNlMGUwZTA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNkMGQwZDA7Ij4KICA8L2NvbGdyb3VwPgoKICA8dGhlYWQ+CiAgICA8dHI+CiAgICAgIDx0aD5JRDwvdGg+CiAgICAgIDx0aD5OYW1lPC90aD4KICAgICAgPHRoPkRlcGFydG1lbnQ8L3RoPgogICAgPC90cj4KICA8L3RoZWFkPgoKICA8dGJvZHk+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDE8L3RkPgogICAgICA8dGQ+QWxpY2U8L3RkPgogICAgICA8dGQ+RW5naW5lZXJpbmc8L3RkPgogICAgPC90cj4KICAgIDx0cj4KICAgICAgPHRkPjAwMjwvdGQ+CiAgICAgIDx0ZD5Cb2I8L3RkPgogICAgICA8dGQ+TWFya2V0aW5nPC90ZD4KICAgIDwvdHI+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDM8L3RkPgogICAgICA8dGQ+Q2Fyb2w8L3RkPgogICAgICA8dGQ+U2FsZXM8L3RkPgogICAgPC90cj4KICA8L3Rib2R5PgoKICA8dGZvb3Q+CiAgICA8dHI+CiAgICAgIDx0ZCBjb2xzcGFuPSIzIj5FbmQgb2YgRW1wbG95ZWUgRGV0YWlsczwvdGQ+CiAgICA8L3RyPgogIDwvdGZvb3Q+CjwvdGFibGU+CiAgPC9ib2R5Pgo8L2h0bWw+Cg==';
 const SIDEBAR_FORM_CONTENT = 
-'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CiAgICA8dGl0bGU+Rm9ybXM8L3RpdGxlPgogICAgPHN0eWxlPgogICAgICBib2R5IHsKCQkJCWZvbnQtZmFtaWx5OiBBcmlhbCwgc2Fucy1zZXJpZjsKCQkJCW1hcmdpbjogMjBweDsKCQkJCXBhZGRpbmc6IDEwcHg7CgkJCQliYWNrZ3JvdW5kLWNvbG9yOiAjZjRmNGY0OwoJCQkJYm9yZGVyLXJhZGl1czogOHB4OwogICAgICB9CiAgICAgIGgxIHsKICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7CiAgICAgIH0KICAgICAgbGFiZWwgewogICAgICAgIGRpc3BsYXk6IGJsb2NrOwogICAgICAgIG1hcmdpbjogMTBweCAwIDVweDsKICAgICAgfQoJCQlpbnB1dFt0eXBlPSJidXR0b24iXSwKCQkJaW5wdXRbdHlwZT0ic3VibWl0Il0sCgkJCWlucHV0W3R5cGU9InJlc2V0Il0gewoJCQkgIHdpZHRoOiAxMDAlOwoJCQkgIHBhZGRpbmc6IDhweDsKCQkJCWJvcmRlcjogMXB4IHNvbGlkICNjY2M7CgkJCX0KCQkJdGV4dGFyZWEgewoJCQkJd2lkdGg6IDk5JTsKCQkJCW1hcmdpbi1ib3R0b206IDE1cHg7CgkJCQlib3JkZXI6IDFweCBzb2xpZCAjY2NjOwoJCQkJYm9yZGVyLXJhZGl1czogNHB4OwoJCSAgfQoJCQkuY29udGFpbmVyIHsKCQkJCW1heC13aWR0aDogNjAwcHg7CgkJCQltYXJnaW46IGF1dG87CgkJCQliYWNrZ3JvdW5kOiAjZmZmOwoJCQkJcGFkZGluZzogMjBweDsKCQkJCWJvcmRlci1yYWRpdXM6IDhweDsKCQkJCWJveC1zaGFkb3c6IDAgMnB4IDEwcHggcmdiYSgwLCAwLCAwLCAwLjEpOwoJCQl9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogIDxkaXYgY2xhc3M9ImNvbnRhaW5lciI+CiAgICA8aDE+Q3VycmljdWx1bSBWaXRhZTwvaDE+CiAgICA8Zm9ybT4KICAgICAgPGxhYmVsPkhpZGRlbiBJbnB1dDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iaGlkZGVuIiB2YWx1ZT0iMzQ2NTciIC8+CiAgICAgIDxsYWJlbD5GdWxsIG5hbWU6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InRleHQiIHZhbHVlPSJKb2huIERvZSIvPgogICAgICA8bGFiZWw+TnVtYmVyIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJudW1iZXIiIC8+CiAgICAgIDxsYWJlbD5TYWxhcnk6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9Im51bWJlciIgcGxhY2Vob2xkZXI9IjEuMDAwLDAwIiBzdGVwPSIwLjAxIi8+CiAgICAgIDxsYWJlbD5QYXNzd29yZDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0icGFzc3dvcmQiIC8+CiAgICAgIDxsYWJlbD5Cb3JuIGRhdGU6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImRhdGUiIC8+CiAgICAgIDxsYWJlbD5VUkw6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InVybCIgcGxhY2Vob2xkZXI9Ind3dy50ZXN0LmNvbSIgLz4KICAgICAgPGxhYmVsPkVtYWlsIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJlbWFpbCIgcGxhY2Vob2xkZXI9InRlc3RAdGVzdC5jb20iIC8+CiAgICAgIDxsYWJlbD5UZWxlcGhvbmUgSW5wdXQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InRlbCIgcGxhY2Vob2xkZXI9Iig5OSkgOTk5OTktOTk5OSIgLz4KICAgICAgPGxhYmVsPlNlYXJjaCBJbnB1dDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0ic2VhcmNoIiB2YWx1ZT0iVGVzdCBzZWFyY2giIC8+CiAgICAgIDxsYWJlbD5SYWRpbyBCdXR0b246PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InJhZGlvIj5NYWxlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9InJhZGlvIj5GZW1hbGU8L2lucHV0PgogICAgICA8bGFiZWw+Q2hlY2tib3g6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImNoZWNrYm94Ij5IYXMgYSBkcml2ZXIncyBsaWNlbnNlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9ImNoZWNrYm94Ij5IYXMgYSBjYXI8L2lucHV0PgogICAgICA8bGFiZWw+UmF0aW5nIG9mIHRoZSBsYXN0IGpvYjo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0icmFuZ2UiIC8+CiAgICAgIDxsYWJlbD5Qcm9maWxlIFBpY3R1cmU6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImZpbGUiIC8+CiAgICAgIDxsYWJlbD5GYXZvcml0ZSBDb2xvcjo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iY29sb3IiIHZhbHVlPSIjZTY2NDY1IiAvPgogICAgICA8bGFiZWw+U2hvcnQgQmlvOjwvbGFiZWw+CiAgICAgIDx0ZXh0YXJlYSBwbGFjZWhvbGRlcj0iRW50ZXIgdGV4dCBoZXJlLi4uIj48L3RleHRhcmVhPgogICAgICA8aW5wdXQgdHlwZT0iYnV0dG9uIiB2YWx1ZT0iQnV0dG9uIiAvPgogICAgICA8aW5wdXQgdHlwZT0ic3VibWl0IiB2YWx1ZT0iU3VibWl0IiAvPgogICAgICA8aW5wdXQgdHlwZT0icmVzZXQiIC8+CiAgICA8L2Zvcm0+CiAgPC9kaXY+CjwvYm9keT4KCjwvaHRtbD4=';
+'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CiAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CiAgICA8dGl0bGU+Rm9ybXM8L3RpdGxlPgogICAgPHN0eWxlPgogICAgICBib2R5IHsKCQkJCWZvbnQtZmFtaWx5OiBBcmlhbCwgc2Fucy1zZXJpZjsKCQkJCW1hcmdpbjogMjBweDsKCQkJCXBhZGRpbmc6IDEwcHg7CgkJCQliYWNrZ3JvdW5kLWNvbG9yOiAjZjRmNGY0OwoJCQkJYm9yZGVyLXJhZGl1czogOHB4OwogICAgICB9CiAgICAgIGgxIHsKICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7CiAgICAgIH0KICAgICAgbGFiZWwgewogICAgICAgIGRpc3BsYXk6IGJsb2NrOwogICAgICAgIG1hcmdpbjogMTBweCAwIDVweDsKICAgICAgfQoJCQlpbnB1dFt0eXBlPSJidXR0b24iXSwKCQkJaW5wdXRbdHlwZT0ic3VibWl0Il0sCgkJCWlucHV0W3R5cGU9InJlc2V0Il0gewoJCQkgIHdpZHRoOiAxMDAlOwoJCQkgIHBhZGRpbmc6IDhweDsKCQkJCWJvcmRlcjogMXB4IHNvbGlkICNjY2M7CgkJCX0KCQkJdGV4dGFyZWEgewoJCQkJd2lkdGg6IDk5JTsKCQkJCW1hcmdpbi1ib3R0b206IDE1cHg7CgkJCQlib3JkZXI6IDFweCBzb2xpZCAjY2NjOwoJCQkJYm9yZGVyLXJhZGl1czogNHB4OwoJCSAgfQoJCQkuY29udGFpbmVyIHsKCQkJCW1heC13aWR0aDogNjAwcHg7CgkJCQltYXJnaW46IGF1dG87CgkJCQliYWNrZ3JvdW5kOiAjZmZmOwoJCQkJcGFkZGluZzogMjBweDsKCQkJCWJvcmRlci1yYWRpdXM6IDhweDsKCQkJCWJveC1zaGFkb3c6IDAgMnB4IDEwcHggcmdiYSgwLCAwLCAwLCAwLjEpOwoJCQl9CiAgICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogIDxkaXYgY2xhc3M9ImNvbnRhaW5lciI+CiAgICA8aDE+Q3VycmljdWx1bSBWaXRhZTwvaDE+CiAgICA8Zm9ybT4KICAgICAgPGxhYmVsPklucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJoaWRkZW4iIHZhbHVlPSIzNDY1NyIgLz4KICAgICAgPGxhYmVsPkZ1bGwgbmFtZTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0idGV4dCIgbmFtZT0ibmFtZSIgdmFsdWU9IkpvaG4gRG9lIiAvPgogICAgICA8bGFiZWw+TnVtYmVyIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJudW1iZXIiIG5hbWU9Im51bWJlciIgLz4KICAgICAgPGxhYmVsPlNhbGFyeTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0ibnVtYmVyIiBuYW1lPSJmbG9hdCIgcGxhY2Vob2xkZXI9IjEuMDAwLDAwIiBzdGVwPSIwLjAxIiAvPgogICAgICA8bGFiZWw+UGFzc3dvcmQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InBhc3N3b3JkIiBuYW1lPSJwYXNzd29yZCIgLz4KICAgICAgPGxhYmVsPkJvcm4gZGF0ZTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iZGF0ZSIgbmFtZT0iZGF0ZSIgLz4KICAgICAgPGxhYmVsPlVSTDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0idXJsIiBuYW1lPSJ1cmwiIHBsYWNlaG9sZGVyPSJ3d3cudGVzdC5jb20iIC8+CiAgICAgIDxsYWJlbD5FbWFpbCBJbnB1dDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iZW1haWwiIG5hbWU9ICJlbWFpbCIgcGxhY2Vob2xkZXI9InRlc3RAdGVzdC5jb20iIC8+CiAgICAgIDxsYWJlbD5UZWxlcGhvbmUgSW5wdXQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InRlbCIgbmFtZT0gInBob25lIiBwbGFjZWhvbGRlcj0iKDk5KSA5OTk5OS05OTk5IiAvPgogICAgICA8bGFiZWw+U2VhcmNoIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJzZWFyY2giIG5hbWU9InNlYXJjaCIgdmFsdWU9IlRlc3Qgc2VhcmNoIiAvPgogICAgICA8bGFiZWw+R2VuZGVyOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIj5NYWxlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9InJhZGlvIiBuYW1lPSJnZW5kZXIiPkZlbWFsZTwvaW5wdXQ+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIj5PdGhlcjwvaW5wdXQ+CiAgICAgIDxsYWJlbD5FeHRyYTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iY2hlY2tib3giIG5hbWU9Imhhcy1saWNlbnNlIj5IYXMgYSBkcml2ZXIncyBsaWNlbnNlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9ImNoZWNrYm94IiBuYW1lPSJoYXMtY2FyIj5IYXMgYSBjYXI8L2lucHV0PgogICAgICA8bGFiZWw+UmF0aW5nIG9mIHlvdXQgbGFzdCBqb2I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InJhbmdlIiBuYW1lPSJyYW5nZSIgdmFsdWU9IjEiIG1pbj0iMSIgbWF4PSI1IiAvPgogICAgICA8bGFiZWw+UHJvZmlsZSBQaWN0dXJlOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJmaWxlIiBuYW1lPSJmaWxlIiAvPgogICAgICA8bGFiZWw+RmF2b3JpdGUgQ29sb3I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImNvbG9yIiBuYW1lPSJjb2xvciIgdmFsdWU9IiNlNjY0NjUiIC8+CiAgICAgIDxsYWJlbD5TaG9ydCBCaW86PC9sYWJlbD4KICAgICAgPHRleHRhcmVhIG5hbWU9ImJpbyIgcGxhY2Vob2xkZXI9IkVudGVyIHRleHQgaGVyZS4uLiI+PC90ZXh0YXJlYT4KICAgICAgPGlucHV0IHR5cGU9ImJ1dHRvbiIgbmFtZT0iYnV0dG9uIiB2YWx1ZT0iQnV0dG9uIiAvPgogICAgICA8aW5wdXQgdHlwZT0ic3VibWl0IiBuYW1lPSJzdWJtaXQiIHZhbHVlPSJTdWJtaXQiIC8+CiAgICAgIDxpbnB1dCB0eXBlPSJyZXNldCIgbmFtZT0icmVzZXQiIC8+CiAgICA8L2Zvcm0+CiAgPC9kaXY+CjwvYm9keT4KCjwvaHRtbD4=';
 
 const categoryLinks = {
     "Element 1": BLANK_PAGE + SIDEBAR_DOCUMENT_STRUCTURE,
@@ -1933,6 +2161,16 @@ document.addEventListener('keydown', e => {
     }
 });
 
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'h') {
+    e.preventDefault();
+    var value = "document.querySelector('.canvas').children[0].children[0];";
+    editor.setValue(value);
+    }
+});
+
+
 /*
   if (e.ctrlKey && e.key === 'c') {
     e.preventDefault();
@@ -2069,40 +2307,6 @@ function toggleElement() {
 <script async='async' type='text/javascript'>
 //<![CDATA[
  let touchCount = 0;
-
- function createOptions(event) {
-   const optionsDiv = document.createElement('div');
-   optionsDiv.id = 'options';
-   optionsDiv.style.position = 'absolute';
-   optionsDiv.style.top = `${event.clientY}px`;
-   optionsDiv.style.left = `${event.clientX}px`;
-
-   const shadowOption = document.createElement('label');
-   shadowOption.innerHTML = '<input type="radio" name="dom" value="shadow"> Shadow DOM (key: shadow)<br>';
-   optionsDiv.appendChild(shadowOption);
-
-   const lightOption = document.createElement('label');
-   lightOption.innerHTML = '<input type="radio" name="dom" value="light"> Light DOM (key: light)<br>';
-   optionsDiv.appendChild(lightOption);
-
-   const virtualOption = document.createElement('label');
-   virtualOption.innerHTML = '<input type="radio" name="dom" value="virtual"> Virtual DOM (key: virtual)';
-   optionsDiv.appendChild(virtualOption);
-
-   document.body.appendChild(optionsDiv);
-
-   optionsDiv.addEventListener('change', function(event) {
-     alert(`You selected: ${event.target.value}`);
-     document.body.removeChild(optionsDiv);
-   });
- }
-
- function showOptions(event) {
-   if (document.getElementById('options')) {
-     document.body.removeChild(document.getElementById('options'));
-   }
-   createOptions(event);
- }
 
  function createOptions(event) {
    const optionsDiv = document.createElement('div');
