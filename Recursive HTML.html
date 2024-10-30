@@ -122,37 +122,37 @@
 <script async='async' type='text/javascript'>
 //<![CDATA[  
 function getUrlParameters(parameter, staticURL, decode) {
-    var currLocation = staticURL && staticURL.length ? staticURL : window.location.search;
+  var currLocation = staticURL && staticURL.length ? staticURL : window.location.search;
 
-    // Attempt to get the substring after '?' and safely split it into 'key=value' parts
-    var parArr = currLocation.split("?")[1]?.split("&");
-    if (!parArr) {
-        return null; // Return null if there are no parameters at all
+  // Attempt to get the substring after '?' and safely split it into 'key=value' parts
+  var parArr = currLocation.split("?")[1]?.split("&");
+  if (!parArr) {
+    return null; // Return null if there are no parameters at all
+  }
+
+  // Iterate over each 'key=value' pair
+  for (var i = 0; i < parArr.length; i++) {
+    var parr = parArr[i].split("=");
+
+    // Check if the current parameter name matches the one we're looking for
+    if (parr[0] === parameter) {
+      // Return an empty string if the parameter is present but has no value after '='
+      // This handles cases like 'key='
+      if (parr.length === 1 || parr[1] === '') {
+        return "";
+      } else {
+        // If the parameter has a value, return it (decoded if necessary)
+        return decode ? decodeURIComponent(parr[1]) : parr[1];
+      }
     }
+  }
 
-    // Iterate over each 'key=value' pair
-    for (var i = 0; i < parArr.length; i++) {
-        var parr = parArr[i].split("=");
-
-        // Check if the current parameter name matches the one we're looking for
-        if (parr[0] === parameter) {
-            // Return an empty string if the parameter is present but has no value after '='
-            // This handles cases like 'key='
-            if (parr.length === 1 || parr[1] === '') {
-                return "";
-            } else {
-                // If the parameter has a value, return it (decoded if necessary)
-                return decode ? decodeURIComponent(parr[1]) : parr[1];
-            }
-        }
-    }
-
-    // Return null if the parameter is not found
-    return null;
+  // Return null if the parameter is not found
+  return null;
 }
 
 const MAXIMIZED = getUrlParameters('m', '', true);
-var PARAM_HTML = getUrlParameters('HTML', '', true);
+var PARAM_HTML = getUrlParameters('HTML', '', true); // limit: 8.192 bytes
 var dataBase64 = window.atob(PARAM_HTML);
 
 MAXIMIZED === '1' && PARAM_HTML !== null && alert('Maximized.');
@@ -816,7 +816,7 @@ flex-direction: column;
 .tag-name {
 font-weight: bold;
 }
-.tag-link {
+.tag-link, .tag-summary, .tag-name {
 list-style: none;
 text-decoration: none;
 color: inherit;
@@ -858,6 +858,17 @@ color: inherit;
 }
 a.example-link:hover, a.example-link:focus {
 text-decoration: underline;
+}
+.floating-menu {
+position: absolute;
+border: 1px solid #ccc;
+z-index: 1000;
+padding: 5px;
+border-radius: 4px;
+box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.floating-menu select {
+width: 100%;
 }
 
 --></style>
@@ -913,7 +924,7 @@ text-decoration: underline;
 <path d='M14 3.414L9.414 8 14 12.586v-2.583h2V16h-6v-1.996h2.59L8 9.414l-4.59 4.59H6V16H0v-5.997h2v2.583L6.586 8 2 3.414v2.588H0V0h16v6.002h-2V3.414zm-1.415-1.413H10V0H6v2H3.415L8 6.586 12.585 2z' fill-rule='evenodd'></path>
 </svg>
 </label>
-<div id='toast'>
+<div id='toast' onclick='navigator.clipboard.writeText(this.lastElementChild.innerText)'>
 <div id='icon'>
 <svg fill='none' height='50px' stroke='#000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' version='1.1' viewBox='0 0 16 16' width='35px' xmlns='http://www.w3.org/2000/svg'>
 <rect height='9.5' width='12.5' x='1.75' y='3.50'></rect>
@@ -952,6 +963,12 @@ text-decoration: underline;
    }
 }, { passive: true });
 
+output.addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevent form submission
+   alert('captured');
+}, { passive: true });
+
+/*
 document.querySelector('form').addEventListener('submit', function(event) {
 	  alert('0');
     event.preventDefault(); // Prevents default form submission
@@ -968,6 +985,7 @@ document.querySelector('form').addEventListener('submit', function(event) {
     // Call function to create optgroup and options
     createOptgroupAndOptions(formObject);
 });
+*/
 
 //]]>
 </script>
@@ -1002,6 +1020,105 @@ if (!window.EyeDropper) {
 
 //]]>
 </script>
+<!-- Canvas functions -->
+<script defer='defer' type='text/javascript'>
+//<![CDATA[
+function handleRender(event) {
+
+  event.preventDefault();
+
+  try {
+	// Remove any existing floating menu
+	const existingMenu = document.querySelector('.floating-menu');
+	if (existingMenu) {
+	  existingMenu.remove();
+	}
+
+	// Get the event coordinates
+	const x = event.clientX;
+	const y = event.clientY;
+
+	// Create the floating menu div
+	const menu = document.createElement('div');
+	menu.classList.add('floating-menu');
+
+	// Position the menu at the event location
+	menu.style.left = `${x}px`;
+	menu.style.top = `${y}px`;
+
+	// Create the select element with options
+	const select = document.createElement('select');
+	select.classList.add('select-class'); 
+
+	// Create an optgroup
+	const optGroup = document.createElement('optgroup');
+	optGroup.label = 'Render select';
+
+	// Define the options
+    const options = [
+      { value: 'shadow', text: 'shadow DOM' },
+      { value: 'light', text: 'light DOM' },
+      { value: 'iframe', text: 'iframe' },
+    ];
+
+    options.forEach(optionData => {
+      const option = document.createElement('option');
+      option.value = optionData.value;
+      option.textContent = optionData.text;
+      optGroup.appendChild(option);
+    });
+
+	select.appendChild(optGroup);
+	menu.appendChild(select);
+	document.body.appendChild(menu);
+
+	// Handle the selection
+	select.addEventListener('change', async function() {
+      const renderMethod = this.value;
+	  renderContent(data, renderMethod);
+	  menu.remove();
+	});
+
+	// Prevent the click event from propagating to the body
+	menu.addEventListener('click', function(event) {
+	  event.stopPropagation();
+	});
+  } catch (error) {
+	alert(`Error: ${error.message}`);
+  }
+}
+
+output.addEventListener('click', e => {
+  if (e.ctrlKey && e.button === 0) {
+    e.preventDefault();
+    handleRender(e);
+  }
+});
+
+output.addEventListener('contextmenu', function(event) {
+  event.preventDefault();
+  handleRender(event);
+});
+
+document.addEventListener('DOMContentLoaded', (event) => {
+   // output.addEventListener('touchstart', handleTouchStart, { passive: true });
+   // output.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+   function handleTouchStart(event) {
+      if (event.touches.length === 3) {
+         launchToast('info', 'locked');
+         // handleRender(event); // alert('Three fingers detected!');
+         
+      }
+   }
+
+   function handleTouchEnd(event) {
+      // todo: render changer?
+   }
+});
+
+//]]>
+</script>
 <!-- ON PAGE LOAD -->
 <script defer='defer' type='text/javascript'>
 //<![CDATA[
@@ -1019,21 +1136,6 @@ var logoElement = document.getElementById('logo');
 logoElement.setAttribute('href', BLANK_PAGE);
 })();
 
-document.addEventListener('DOMContentLoaded', (event) => {
-   // output.addEventListener('touchstart', handleTouchStart, { passive: true });
-   // output.addEventListener('touchend', handleTouchEnd, { passive: true });
-
-   function handleTouchStart(event) {
-      if (event.touches.length === 3) {
-         alert('Three fingers detected!');
-      }
-   }
-
-   function handleTouchEnd(event) {
-      // todo: render changer?
-   }
-});
-
 //]]>
 </script>
 <!-- UPDATE (frame on change) FUNCTION -->
@@ -1045,9 +1147,7 @@ async function change(e) {
 
   try {  
     var data = editor.getValue();
-    // var frame = document.getElementById('output');
-
-	await renderContent(frame.tagName, data, 'shadow');
+	await renderContent(data, 'shadow');
 
     editCounter++;
     if (editCounter > 1) window.editStarted = true;
@@ -1057,65 +1157,75 @@ async function change(e) {
   }
 }
 
-async function renderContent(tagName, data, renderMethod = 'shadow') {
-  frame = document.querySelector('.canvas'); // document.getElementById('output');
-  footer = document.querySelector('.footer');
+// script.js
+async function renderContent(data, renderMethod = 'shadow') {
+  const frame = document.querySelector('.canvas'); // document.getElementById('output');
+  const footer = document.querySelector('.footer');
+
+  // Remove any existing 'frameCanvas' before creating a new one
+  const existingFrameCanvas = frame.querySelector('.frameCanvas');
+  if (existingFrameCanvas) {
+    frame.removeChild(existingFrameCanvas);
+  }
+
+  // Create a new temporary child element called 'frameCanvas'
+  const frameCanvas = document.createElement('div');
+  frameCanvas.classList.add('frameCanvas');
+  frame.style.position = 'relative';  // Optional styling to fit the frameCanvas in the frame
+  frame.appendChild(frameCanvas);
 
   try {
-    if (tagName === 'IFRAME') {
-      var frameDocument = frame.contentWindow.document;
+    if (renderMethod === 'iframe') {
+      frameCanvas.innerHTML = '';  // Clear existing content in 'frameCanvas'
+
+      const iframe = document.createElement('iframe');
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = 'none';
+      frameCanvas.appendChild(iframe);
+
+      const frameDocument = iframe.contentWindow.document;
       frameDocument.open();
-      frameDocument.write(data);
+      frameDocument.write(data);  // Write HTML content into iframe
       frameDocument.close();
 
       if (window.outWin) {
-        var outFrame = outWin.document;
+        const outFrame = window.outWin.document;
         outFrame.open();
         outFrame.write(data);
         outFrame.close();
       }
-    } else if (tagName === 'DIV') {
-      if (renderMethod === 'shadow') {
-        if (!frame.shadowRoot) {
-          frame.attachShadow({ mode: 'open' });
-        } else {
-          frame.shadowRoot.innerHTML = '';
-        }
-        frame.shadowRoot.innerHTML = data;
+    } else if (renderMethod === 'shadow') {
+      frameCanvas.innerHTML = '';  // Clear existing content
 
-        var titleElement = frame.shadowRoot.querySelector('title');
-        var script = frame.shadowRoot.querySelector('script');
-        var noScript = frame.shadowRoot.querySelector('noscript');
+      const shadowRoot = frameCanvas.attachShadow({ mode: 'open' });
+      shadowRoot.innerHTML = data;  // Insert HTML content into shadow DOM
+      executeScripts(shadowRoot);
+    } else if (renderMethod === 'light') {
+      frameCanvas.innerHTML = '';  // Clear existing content
 
-        executeScripts(frame.shadowRoot);
-      } else if (renderMethod === 'light') {
-        frame.innerHTML = '';
-        frame.innerHTML = data;
-
-        var titleElement = frame.querySelector('title');
-        var script = frame.shadowRoot.querySelector('script');
-        var noScript = frame.shadowRoot.querySelector('noscript');
-        executeScripts(frame);
-
-      } else if (renderMethod === 'virtual') {
-        frame.innerHTML = '';
-        renderVirtualDOM(frame, data);
-        var titleElement = frame.querySelector('title');
-      }
-
-      var pageTitle = (titleElement && titleElement.textContent.trim().length > 0) 
-                ? `${titleElement.textContent} - ${DEFAULT_TITLE}` 
-                : `Untitled - ${DEFAULT_TITLE}`;
-
-      document.title = pageTitle;
-      footer.innerText = noScript ? noScript.innerText : '';
-
+      frameCanvas.innerHTML = data;  // Insert HTML content directly into Light DOM
+      executeScripts(frameCanvas);
+    } else if (renderMethod === 'virtual') {
+      frameCanvas.innerHTML = '';  // Clear existing content
+      renderVirtualDOM(frameCanvas, data);
     }
+
+    const titleElement = frameCanvas.querySelector('title') || frameCanvas.shadowRoot?.querySelector('title');
+    const noScript = frameCanvas.querySelector('noscript') || frameCanvas.shadowRoot?.querySelector('noscript');
+
+    const pageTitle = (titleElement && titleElement.textContent.trim().length > 0)
+      ? `${titleElement.textContent} - ${DEFAULT_TITLE}`
+      : `Untitled - ${DEFAULT_TITLE}`;
+    document.title = pageTitle;
+    footer.innerText = noScript ? noScript.innerText : '';
+
   } catch (error) {
     handleErrors(error);
   }
-};
+}
 
+/*
 function executeScripts(context) {
   var scripts = context.querySelectorAll('script');
   scripts.forEach((script) => {
@@ -1125,6 +1235,19 @@ function executeScripts(context) {
     script.remove();
   });
 };
+*/
+
+function executeScripts(context) {
+  const scripts = context.querySelectorAll('script');
+  scripts.forEach((oldScript) => {
+    const newScript = document.createElement('script');
+    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+    newScript.textContent = oldScript.textContent;
+    oldScript.parentNode.replaceChild(newScript, oldScript);
+  });
+}
+
+
 
 //]]>
 </script>
@@ -1250,14 +1373,12 @@ function handleDown(event) {
 
 function handleUp(event) {
   isInteracting = false;
-  // navigator.vibrate(0);
   toggleElement();
 };
 
 function handleMove(event) {
   if (isInteracting) {
-    // navigator.vibrate(1000);
-    getProportions; //event.preventDefault()
+    getProportions;
   }
 };
 
@@ -1389,6 +1510,7 @@ var splitInstance = Split(['.CodeMirror', '.canvas'], {
 //<![CDATA[  
 
 const SIDEBAR_DOCUMENT_STRUCTURE = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5Eb2N1bWVudCBTdHJ1Y3R1cmU8L3RpdGxlPgogIDwvaGVhZD4KICA8Ym9keT4KICAgIC4uLgogIDwvYm9keT4KPC9odG1sPgo=';
+const SIDEBAR_METADATA = 'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+CiAgICA8IS0tIEV4YW1wbGUgb2YgdGl0bGUgLS0+CiAgICA8dGl0bGU+QnVsbWEgQ1NTIEV4YW1wbGU8L3RpdGxlPgoKICAgIDwhLS0gQWRkIGRvY3VtZW50IHRpdGxlIG1ldGFkYXRhIC0tPgogICAgPG1ldGEgY2hhcnNldD0iVVRGLTgiPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgogICAgPG1ldGEgbmFtZT0iZGVzY3JpcHRpb24iIGNvbnRlbnQ9IkV4YW1wbGUgZG9jdW1lbnQgdXNpbmcgQnVsbWEgQ1NTIGZyYW1ld29yay4iPgoKICAgIDwhLS0gRXhhbXBsZSBvZiBsaW5rOiBBZGQgZXh0ZXJuYWwgcmVzb3VyY2UgbGluayAtLT4KICAgIDxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iaHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9idWxtYUAwLjkuNC9jc3MvYnVsbWEubWluLmNzcyI+CgogICAgPCEtLSBFeGFtcGxlIG9mIGVtYmVkZGVkIENTUyBzdHlsZXMgLS0+CiAgICA8c3R5bGU+CiAgICAgICAgYm9keSB7CiAgICAgICAgICAgIGJhY2tncm91bmQtY29sb3I6ICNmNWY1ZjU7CiAgICAgICAgfQogICAgICAgIC5jdXN0b20tYm94IHsKICAgICAgICAgICAgcGFkZGluZzogMjBweDsKICAgICAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7CiAgICAgICAgICAgIGJvcmRlci1yYWRpdXM6IDVweDsKICAgICAgICAgICAgYm94LXNoYWRvdzogMHB4IDJweCAxMHB4IHJnYmEoMCwwLDAsMC4xKTsKICAgICAgICB9CiAgICAgICAgLmNlbnRlci10ZXh0IHsKICAgICAgICAgICAgdGV4dC1hbGlnbjogY2VudGVyOwogICAgICAgIH0KICAgIDwvc3R5bGU+CjwvaGVhZD4KPGJvZHk+CiAgICA8IS0tIEhlYWRlciBTZWN0aW9uIC0tPgogICAgPHNlY3Rpb24gY2xhc3M9Imhlcm8gaXMtcHJpbWFyeSI+CiAgICAgICAgPGRpdiBjbGFzcz0iaGVyby1ib2R5Ij4KICAgICAgICAgICAgPHAgY2xhc3M9InRpdGxlIGNlbnRlci10ZXh0Ij4KICAgICAgICAgICAgICAgIFdlbGNvbWUgdG8gdGhlIEJ1bG1hIEV4YW1wbGUKICAgICAgICAgICAgPC9wPgogICAgICAgICAgICA8cCBjbGFzcz0ic3VidGl0bGUgY2VudGVyLXRleHQiPgogICAgICAgICAgICAgICAgVGhpcyBpcyBhIGRlbW9uc3RyYXRpb24gb2YgdGhlIEJ1bG1hIENTUyBmcmFtZXdvcmsgaW4gYWN0aW9uLgogICAgICAgICAgICA8L3A+CiAgICAgICAgPC9kaXY+CiAgICA8L3NlY3Rpb24+CgogICAgPCEtLSBFeGFtcGxlIGNvbnRlbnQgc2VjdGlvbiAtLT4KICAgIDxzZWN0aW9uIGNsYXNzPSJzZWN0aW9uIj4KICAgICAgICA8ZGl2IGNsYXNzPSJjb250YWluZXIiPgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJjdXN0b20tYm94Ij4KICAgICAgICAgICAgICAgIDxoMiBjbGFzcz0idGl0bGUgaXMtNCI+U3R5bGlzaCBCb3g8L2gyPgogICAgICAgICAgICAgICAgPHA+VGhpcyBib3ggdXNlcyBlbWJlZGRlZCBzdHlsZXMgZm9yIGN1c3RvbSBwYWRkaW5nLCBiYWNrZ3JvdW5kLCBhbmQgc2hhZG93LjwvcD4KICAgICAgICAgICAgPC9kaXY+CgogICAgICAgICAgICA8YnI+CgogICAgICAgICAgICA8ZGl2IGNsYXNzPSJjb2x1bW5zIj4KICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9ImNvbHVtbiBpcy1vbmUtdGhpcmQiPgogICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9Im5vdGlmaWNhdGlvbiBpcy1pbmZvIj4KICAgICAgICAgICAgICAgICAgICAgICAgVGhpcyBpcyBhbiBpbmZvIG5vdGlmaWNhdGlvbi4KICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICAgICAgPGRpdiBjbGFzcz0iY29sdW1uIGlzLW9uZS10aGlyZCI+CiAgICAgICAgICAgICAgICAgICAgPGRpdiBjbGFzcz0ibm90aWZpY2F0aW9uIGlzLXN1Y2Nlc3MiPgogICAgICAgICAgICAgICAgICAgICAgICBUaGlzIGlzIGEgc3VjY2VzcyBub3RpZmljYXRpb24uCiAgICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9ImNvbHVtbiBpcy1vbmUtdGhpcmQiPgogICAgICAgICAgICAgICAgICAgIDxkaXYgY2xhc3M9Im5vdGlmaWNhdGlvbiBpcy1kYW5nZXIiPgogICAgICAgICAgICAgICAgICAgICAgICBUaGlzIGlzIGEgZGFuZ2VyIG5vdGlmaWNhdGlvbi4KICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICA8L2Rpdj4KICAgICAgICA8L2Rpdj4KICAgIDwvc2VjdGlvbj4KPC9ib2R5Pgo8L2h0bWw+';
 const SIDEBAR_SCRIPTING = 'PHNjcmlwdD5jb25zb2xlLmxvZygnaGknKTwvc2NyaXB0Pgo8bm9zY3JpcHQ+SmF2YXNjcmlwdCBvZmY8L25vc2NyaXB0Pgk=';
 const SIDEBAR_SECTIONING = 'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KICA8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiIC8+CiAgICA8dGl0bGU+U2VjdGlvbmluZzwvdGl0bGU+CiAgICA8c3R5bGU+CiAgICAgIG1haW4gewogICAgICAgIHdpZHRoOiAxMDAlOwogICAgICAgIG1hcmdpbjogYXV0bzsKICAgICAgfQogICAgICBoZWFkZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0cGluazsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIG5hdiB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogbGlnaHRncmVlbjsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIHNlY3Rpb24gewogICAgICAgIGRpc3BsYXk6IGZsZXg7CiAgICAgIH0KCQkJYXJ0aWNsZSB7CiAgICAgICAgZmxleDogMCAwIDYwJTsKICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgIH0KICAgICAgYXJ0aWNsZSBoZWFkZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0Ymx1ZTsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9CiAgICAgIGFydGljbGUgc2VjdGlvbiB7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogbWVkaXVtcHVycGxlOwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgICAgYXJ0aWNsZSBmb290ZXIgewogICAgICAgIGJhY2tncm91bmQtY29sb3I6IGxpZ2h0Z3JheTsKICAgICAgICBwYWRkaW5nOiAxMnB4OwogICAgICB9IAogICAgICBhc2lkZSB7CiAgICAgICAgZmxleDogMCAwIDQwJTsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBsaWdodHllbGxvdzsKICAgICAgICBkaXNwbGF5OiBmbGV4OwogICAgICAgIGZsZXgtZGlyZWN0aW9uOiBjb2x1bW47CiAgICAgIH0KICAgICAgZm9vdGVyIHsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiBncmF5OwogICAgICAgIHBhZGRpbmc6IDEycHg7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9oZWFkPgogIDxib2R5PgogICAgPG1haW4+CiAgICAgIDxoZWFkZXI+SGVhZGVyPC9oZWFkZXI+CiAgICAgIDxuYXY+TmF2aWdhdGlvbjwvbmF2PgogICAgICA8c2VjdGlvbj4KICAgICAgICA8YXJ0aWNsZT4KICAgICAgICAgIDxoZWFkZXI+QXJ0aWNsZSBIZWFkZXI8L2hlYWRlcj4KICAgICAgICAgIDxzZWN0aW9uPkFydGljbGUgU2VjdGlvbiAxPC9zZWN0aW9uPgogICAgICAgICAgPHNlY3Rpb24+QXJ0aWNsZSBTZWN0aW9uIDI8L3NlY3Rpb24+CiAgICAgICAgICA8Zm9vdGVyPkFydGljbGUgRm9vdGVyPC9mb290ZXI+CiAgICAgICAgPC9hcnRpY2xlPgogICAgICAgIDxhc2lkZT4KICAgICAgICAgIDxhc2lkZT5Bc2lkZTwvYXNpZGU+CiAgICAgICAgICA8YXNpZGU+QXNpZGU8L2FzaWRlPgogICAgICAgIDwvYXNpZGU+CiAgICAgIDwvc2VjdGlvbj4KICAgICAgPGZvb3Rlcj5Gb290ZXI8L2Zvb3Rlcj4KICAgIDwvbWFpbj4KICA8L2JvZHk+CjwvaHRtbD4K';   
 const SIDEBAR_HEADINGS = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5IZWFkaW5nczwvdGl0bGU+CiAgPC9oZWFkPgogIDxib2R5PgoJCTxoMT5Cb29rIFRpdGxlOiBUaGUgV29ybGQgb2YgUHJvZ3JhbW1pbmc8L2gxPgoJCTxoMj5QYXJ0IDE6IEludHJvZHVjdGlvbiB0byBQcm9ncmFtbWluZzwvaDI+CgkJCgkJPGgzPkNoYXB0ZXIgMTogV2hhdCBpcyBQcm9ncmFtbWluZz88L2gzPgoJCTxoND5TZWN0aW9uIDEuMTogRGVmaW5pdGlvbnMgYW5kIENvbmNlcHRzPC9oND4KCQk8aDU+U3Vic2VjdGlvbiAxLjEuMTogV2hhdCBpcyBhIFByb2dyYW0/PC9oNT4KCQk8aDY+RGV0YWlsIDEuMS4xLjE6IEJhc2ljIHByb2dyYW0gc3RydWN0dXJlIGFuZCBleGFtcGxlczwvaDY+CgoJCTxoMz5DaGFwdGVyIDI6IFByb2dyYW1taW5nIExhbmd1YWdlczwvaDM+CgkJPGg0PlNlY3Rpb24gMi4xOiBUeXBlcyBvZiBQcm9ncmFtbWluZyBMYW5ndWFnZXM8L2g0PgoJCTxoNT5TdWJzZWN0aW9uIDIuMS4xOiBIaWdoLUxldmVsIHZzIExvdy1MZXZlbCBMYW5ndWFnZXM8L2g1PgoJCTxoNj5EZXRhaWwgMi4xLjEuMTogRXhhbXBsZXMgb2YgaGlnaC1sZXZlbCBsYW5ndWFnZXMgKFB5dGhvbiwgSmF2YSwgZXRjLik8L2g2PgogIDwvYm9keT4KPC9odG1sPgo=';
@@ -1400,7 +1522,7 @@ const SIDEBAR_FORM_CONTENT =
 
 const categoryLinks = {
     "Element 1": BLANK_PAGE + SIDEBAR_DOCUMENT_STRUCTURE,
-    "Element 2": "/",
+    "Element 2": BLANK_PAGE + SIDEBAR_METADATA,
     "Element 3": BLANK_PAGE + SIDEBAR_SCRIPTING,
     "Element 4": BLANK_PAGE + SIDEBAR_SECTIONING,
     "Element 5": BLANK_PAGE + SIDEBAR_HEADINGS,
@@ -1601,6 +1723,8 @@ const elementsList = [
 const content = document.getElementById('content');
 const sidebar = document.getElementById('sidebar');
 
+const fragment = document.createDocumentFragment();  // Create the fragment
+
 elementsList.forEach(({ category, elements }, index) => {
     const key = `Element ${index + 1}`; // Construct the key to access categoryLinks
     
@@ -1621,7 +1745,7 @@ elementsList.forEach(({ category, elements }, index) => {
 
 	rootContainer.appendChild(rootTagName);
 	rootContainer.appendChild(rootTagLink);
-	content.appendChild(rootContainer);
+	fragment.appendChild(rootContainer); // content.appendChild(rootContainer);
 
 	/*
 	// Create list item for the category
@@ -1646,14 +1770,17 @@ elementsList.forEach(({ category, elements }, index) => {
 		container.classList.add('tag-container');
 		container.id = `${tag}`;
 
-		const tagName = document.createElement('a');
+		const tagName = document.createElement('div');
 		tagName.classList.add('tag-name');
-		tagName.href = `${HELP_URL}${tag}`;
-		tagName.classList.add('example-link');
-		tagName.target = '_blank';
-		tagName.innerHTML = `<b>&lt;${tag}&gt;</b>`; // 'More about'+` ${tag}`; 
-		tagName.setAttribute('aria-label', 'More information about'+` ${tag}`);
-        tagName.setAttribute('title', 'More information about'+` ${tag}`);
+		
+        const tagLink = document.createElement('a');
+
+        tagLink.classList.add('tag-link');
+		tagLink.href = `${HELP_URL}${tag}`;
+		tagLink.target = '_blank';
+		tagLink.innerHTML = `<b>&lt;${tag}&gt;</b>`; // 'More about'+` ${tag}`; 
+		tagLink.setAttribute('aria-label', 'More information about'+` ${tag}`);
+        tagLink.setAttribute('title', 'More information about'+` ${tag}`);
 		
 		// Create a temporary element to determine its type
 		const tempElement = document.createElement(tag);
@@ -1700,13 +1827,14 @@ elementsList.forEach(({ category, elements }, index) => {
 
 		const tagUse = document.createElement('details');
 		tagUse.classList.add('tag-use');
-		tagUse.innerHTML = `<summary class="tag-summary" title="Type: ${use}">${use.toLowerCase()}:</summary>`;
+		tagUse.innerHTML = `<summary class="tag-summary">${use.toLowerCase()}:</summary>`;
 		//tagUse.innerText = use;
 
 		container.appendChild(tagName);
 		container.appendChild(detailsContainer);
 		container.appendChild(tagUse);
-		content.appendChild(container);
+        tagName.appendChild(tagLink);
+		fragment.appendChild(container); // content.appendChild(container);
 
 		tagUse.addEventListener('toggle', () => {
 			tagUse.open 
@@ -1715,7 +1843,7 @@ elementsList.forEach(({ category, elements }, index) => {
 		});
 
 	});
-
+    content.appendChild(fragment);
 });
 
 // Add event listeners with passive option
@@ -1767,13 +1895,14 @@ document.querySelectorAll('#element-list a').forEach(anchor => {
   // Function to handle errors
   function handleErrors(error) {
     if (!(error instanceof ReferenceError) && !(error instanceof SyntaxError)) {
-      launchToast('Caught Exception: ', error.message);
+      launchToast('Caught Exception: ', error.name + error.message + error.stack);
     }
   }
 
   // Override global error handling
   window.onerror = function(message, source, lineno, colno, error) {
     handleErrors(error);
+  launchToast('Global Exception: ', error.name + error.message + error.stack );
   };
 //]]>
 </script>
@@ -1868,7 +1997,7 @@ function getProportions() {
   const frameTop = document.getElementById('vertical-top');
   const frameBottom = document.getElementById('vertical-bottom');
   
-  // const innerDiv = frame.shadowRoot.querySelector('div'); // frame.contentWindow.document.querySelector('div');
+  const innerDiv = document.querySelector('.canvas').children[0]; // frame.contentWindow.document.querySelector('div');
 
   let frameY = frame.scrollHeight; //  frame.contentWindow.document.body.scrollHeight;
   let frameX = frame.scrollWidth; // frame.contentWindow.document.body.scrollWidth;
