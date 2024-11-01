@@ -157,7 +157,7 @@ const DEBUG = getUrlParameters('DEBUG', '', true);
 var PARAM_HTML = getUrlParameters('HTML', '', true); // limit: 8.192 bytes
 var dataBase64 = window.atob(PARAM_HTML);
 
-MAXIMIZED === '1' && PARAM_HTML !== null && alert('Maximized.');
+//MAXIMIZED === '1' && PARAM_HTML !== null && alert('Maximized.');
 
 //]]>
 </script>
@@ -302,11 +302,11 @@ function showCookies() {
 
 //]]>
 </script>
-<!-- 3. CSS -->
-<!-- CODEMIRROR CSS -->
+<!-- 3. HEAD CSS -->
+<!-- 3.1 CSS - CODEMIRROR -->
 <style id='page-skin-1' type='text/css'><!--
 /* CODEMIRROR: https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css */
-.CodeMirror{font-family:monospace;width:auto;height:300px;color:#000;position:relative;overflow:hidden;background:#fff}.CodeMirror-lines{padding:4px 0;cursor:text;min-height:1px}.CodeMirror pre.CodeMirror-line,.CodeMirror pre.CodeMirror-line-like{padding:0 4px;border-radius:0;border-width:0;background:none;font-family:inherit;font-size:inherit;margin:0;white-space:pre;overflow-wrap: normal;line-height:inherit;color:inherit;z-index:2;position:relative;overflow:visible;font-variant-ligatures:contextual}.CodeMirror-gutter-filler,.CodeMirror-scrollbar-filler{background-color:transparent}.CodeMirror-gutters{border-right:1px solid gray;background-color:#f8f8f8;white-space:nowrap;position:absolute;left:0;top:0;min-height:100%;z-index:3}.CodeMirror-linenumber{padding:0 3px 0 5px;min-width:20px;text-align:right;color:#595959;white-space:nowrap}.CodeMirror-guttermarker{color:#000}.CodeMirror-guttermarker-subtle,.cm-s-default .cm-hr{color:#999}.CodeMirror-cursor{border-left:1px solid #000;border-right:none;width:0;position:absolute;pointer-events:none}.CodeMirror div.CodeMirror-secondarycursor{border-left:1px solid silver}.cm-fat-cursor .CodeMirror-cursor{width:auto;border:0!important;background:#7e7}.cm-fat-cursor div.CodeMirror-cursors{z-index:1}.cm-fat-cursor .CodeMirror-line::selection,.cm-fat-cursor .CodeMirror-line>span::selection,.cm-fat-cursor .CodeMirror-line>span>span::selection{background:0 0}.cm-fat-cursor .CodeMirror-line::-moz-selection,.cm-fat-cursor .CodeMirror-line>span::-moz-selection,.cm-fat-cursor .CodeMirror-line>span>span::-moz-selection{background:0 0}.cm-fat-cursor{caret-color:transparent}@keyframes blink{50%{background-color:transparent}}.cm-tab{display:inline-block;text-decoration:inherit}.CodeMirror-rulers{position:absolute;left:0;right:0;top:-50px;bottom:0;overflow:hidden}.CodeMirror-ruler{border-left:1px solid #ccc;top:0;bottom:0;position:absolute}.cm-s-default .cm-def,.cm-s-default .cm-header{color:#00f}.cm-s-default .cm-quote{color:#090}.cm-negative{color:#d44}.cm-positive{color:#292}.cm-header,.cm-strong{font-weight:700}.cm-em{font-style:italic}.cm-link{text-decoration:underline}.cm-strikethrough{text-decoration:line-through}.cm-s-default .cm-keyword{color:#ea4dff}.cm-s-default .cm-atom{color:#219}.cm-s-default .cm-number{color:#21ab74}.cm-s-default .cm-variable-2{color:#05a}.cm-s-default .cm-type,.cm-s-default .cm-variable-3{color:#085}.cm-s-default .cm-comment{color:#969696}.cm-s-default .cm-string{color:#a11}.cm-s-default .cm-string-2{color:#f50}.cm-s-default .cm-meta{color:#969696;font-style:italic}.cm-s-default .cm-qualifier{color:#555}.cm-s-default .cm-builtin{color:#30a}.cm-s-default .cm-bracket{color:#997}.cm-s-default .cm-tag{color:#0e6600}.cm-s-default .cm-attribute,.cm-s-default .cm-link{color:#00c}.cm-invalidchar,.cm-s-default .cm-error{color:red}.CodeMirror-composing{border-bottom:2px solid}div.CodeMirror span.CodeMirror-matchingbracket{color:#0b0}div.CodeMirror span.CodeMirror-nonmatchingbracket{color:#a22}.CodeMirror-matchingtag{background:rgba(255, 0, 0, 0.3)}.CodeMirror-activeline-background{background:#0052C221}.CodeMirror-scroll{overflow:scroll!important;margin-bottom:-50px;margin-right:-50px;padding-bottom:50px;height:100%;outline:0;position:relative}.CodeMirror-sizer{margin-top:5px;position:relative;border-right:50px solid transparent}.CodeMirror-gutter-filler,.CodeMirror-hscrollbar,.CodeMirror-scrollbar-filler,.CodeMirror-vscrollbar{position:absolute;z-index:6;display:none;outline:0}.CodeMirror-vscrollbar{right:0;top:0;overflow-x:hidden;overflow-y:scroll}.CodeMirror-hscrollbar{bottom:0;left:0;overflow-y:hidden;overflow-x:scroll}.CodeMirror-scrollbar-filler{right:0;bottom:0}.CodeMirror-gutter-filler{left:0;bottom:0}.CodeMirror-gutter{white-space:normal;height:100%;display:inline-block;vertical-align:top;margin-bottom:-50px}.CodeMirror-gutter-wrapper{position:absolute;z-index:4;background:0 0!important;border:none!important}.CodeMirror-gutter-background{position:absolute;top:0;bottom:0;z-index:4}.CodeMirror-gutter-elt{position:absolute;cursor:default;z-index:4}.CodeMirror-gutter-wrapper ::selection{background-color:transparent}.CodeMirror-linebackground{position:absolute;left:0;right:0;top:0;bottom:0;z-index:0}.CodeMirror-linewidget{position:relative;z-index:2;padding:.1px}.CodeMirror-rtl pre{direction:rtl}.CodeMirror-code{outline:0}.CodeMirror-gutter,.CodeMirror-gutters,.CodeMirror-linenumber,.CodeMirror-scroll,.CodeMirror-sizer{box-sizing:content-box}.CodeMirror-measure{position:absolute;width:100%;height:0;overflow:hidden;visibility:hidden}.CodeMirror-measure pre{position:static}div.CodeMirror-cursors{visibility:hidden;position:relative;z-index:1}.CodeMirror-focused div.CodeMirror-cursors,div.CodeMirror-dragcursors{visibility:visible}.CodeMirror-selected{background:#d9d9d9}.CodeMirror-focused .CodeMirror-selected{background:#d7d4f0}.CodeMirror-crosshair{cursor:crosshair}.CodeMirror-line::selection,.CodeMirror-line>span::selection,.CodeMirror-line>span>span::selection{background:#d7d4f0}.cm-searching{background-color:rgba(255,255,0,.4)}.cm-force-border{padding-right:.1px}@media print{.CodeMirror div.CodeMirror-cursors{visibility:hidden}}.cm-tab-wrap-hack:after{content:''}span.CodeMirror-selectedtext{background:0 0}.CodeMirror-matchingbracket{outline:grey solid 1px;color:red!important}.CodeMirror-foldmarker{color: #f00;text-shadow: #f99 1px 1px 2px,#fff -1px -1px 2px,#f99 1px -1px 2px,#f99 -1px 1px 2px;font-family:arial;line-height:.3;cursor:pointer}.CodeMirror-foldgutter{width:.7em}.CodeMirror-foldgutter-folded,.CodeMirror-foldgutter-open{cursor:pointer}.CodeMirror-foldgutter-open:after{content:"\25BE"}.CodeMirror-foldgutter-folded:after{content:"\25B8"}
+.CodeMirror{font-family:monospace;width:auto;height:300px;color:#000;position:relative;overflow:hidden;background:#fff}.CodeMirror-lines{padding:4px 0;cursor:text;min-height:1px}.CodeMirror pre.CodeMirror-line,.CodeMirror pre.CodeMirror-line-like{padding:0 4px;border-radius:0;border-width:0;background:none;font-family:inherit;font-size:inherit;margin:0;white-space:pre;overflow-wrap: normal;line-height:inherit;color:inherit;z-index:2;position:relative;overflow:visible;font-variant-ligatures:contextual}.CodeMirror-gutter-filler,.CodeMirror-scrollbar-filler{background-color:transparent}.CodeMirror-gutters{border-right:1px solid gray;background-color:#f8f8f8;white-space:nowrap;position:absolute;left:0;top:0;min-height:100%;z-index:3}.CodeMirror-linenumber{padding:0 3px 0 5px;min-width:20px;text-align:right;color:#969696;white-space:nowrap}.CodeMirror-guttermarker{color:#000}.CodeMirror-guttermarker-subtle,.cm-s-default .cm-hr{color:#999}.CodeMirror-cursor{border-left:1px solid #000;border-right:none;width:0;position:absolute;pointer-events:none}.CodeMirror div.CodeMirror-secondarycursor{border-left:1px solid silver}.cm-fat-cursor .CodeMirror-cursor{width:auto;border:0!important;background:#7e7}.cm-fat-cursor div.CodeMirror-cursors{z-index:1}.cm-fat-cursor .CodeMirror-line::selection,.cm-fat-cursor .CodeMirror-line>span::selection,.cm-fat-cursor .CodeMirror-line>span>span::selection{background:0 0}.cm-fat-cursor .CodeMirror-line::-moz-selection,.cm-fat-cursor .CodeMirror-line>span::-moz-selection,.cm-fat-cursor .CodeMirror-line>span>span::-moz-selection{background:0 0}.cm-fat-cursor{caret-color:transparent}@keyframes blink{50%{background-color:transparent}}.cm-tab{display:inline-block;text-decoration:inherit}.CodeMirror-rulers{position:absolute;left:0;right:0;top:-50px;bottom:0;overflow:hidden}.CodeMirror-ruler{border-left:1px solid #ccc;top:0;bottom:0;position:absolute}.cm-s-default .cm-def,.cm-s-default .cm-header{color:#00f}.cm-s-default .cm-quote{color:#090}.cm-negative{color:#d44}.cm-positive{color:#292}.cm-header,.cm-strong{font-weight:700}.cm-em{font-style:italic}.cm-link{text-decoration:underline}.cm-strikethrough{text-decoration:line-through}.cm-s-default .cm-keyword{color:#ea4dff}.cm-s-default .cm-atom{color:#219}.cm-s-default .cm-number{color:#21ab74}.cm-s-default .cm-variable-2{color:#05a}.cm-s-default .cm-type,.cm-s-default .cm-variable-3{color:#085}.cm-s-default .cm-comment{color:#969696}.cm-s-default .cm-string{color:#a11}.cm-s-default .cm-string-2{color:#f50}.cm-s-default .cm-meta{color:#969696;font-style:italic}.cm-s-default .cm-qualifier{color:#555}.cm-s-default .cm-builtin{color:#30a}.cm-s-default .cm-bracket{color:#997}.cm-s-default .cm-tag{color:#0e6600}.cm-s-default .cm-attribute,.cm-s-default .cm-link{color:#00c}.cm-invalidchar,.cm-s-default .cm-error{color:red}.CodeMirror-composing{border-bottom:2px solid}div.CodeMirror span.CodeMirror-matchingbracket{color:#0b0}div.CodeMirror span.CodeMirror-nonmatchingbracket{color:#a22}.CodeMirror-matchingtag{background:rgba(255, 0, 0, 0.3)}.CodeMirror-activeline-background{background:#0052C221}.CodeMirror-scroll{overflow:scroll!important;margin-bottom:-50px;margin-right:-50px;padding-bottom:50px;height:100%;outline:0;position:relative}.CodeMirror-sizer{margin-top:5px;position:relative;border-right:50px solid transparent}.CodeMirror-gutter-filler,.CodeMirror-hscrollbar,.CodeMirror-scrollbar-filler,.CodeMirror-vscrollbar{position:absolute;z-index:6;display:none;outline:0}.CodeMirror-vscrollbar{right:0;top:0;overflow-x:hidden;overflow-y:scroll}.CodeMirror-hscrollbar{bottom:0;left:0;overflow-y:hidden;overflow-x:scroll}.CodeMirror-scrollbar-filler{right:0;bottom:0}.CodeMirror-gutter-filler{left:0;bottom:0}.CodeMirror-gutter{white-space:normal;height:100%;display:inline-block;vertical-align:top;margin-bottom:-50px}.CodeMirror-gutter-wrapper{position:absolute;z-index:4;background:0 0!important;border:none!important}.CodeMirror-gutter-background{position:absolute;top:0;bottom:0;z-index:4}.CodeMirror-gutter-elt{position:absolute;cursor:default;z-index:4}.CodeMirror-gutter-wrapper ::selection{background-color:transparent}.CodeMirror-linebackground{position:absolute;left:0;right:0;top:0;bottom:0;z-index:0}.CodeMirror-linewidget{position:relative;z-index:2;padding:.1px}.CodeMirror-rtl pre{direction:rtl}.CodeMirror-code{outline:0}.CodeMirror-gutter,.CodeMirror-gutters,.CodeMirror-linenumber,.CodeMirror-scroll,.CodeMirror-sizer{box-sizing:content-box}.CodeMirror-measure{position:absolute;width:100%;height:0;overflow:hidden;visibility:hidden}.CodeMirror-measure pre{position:static}div.CodeMirror-cursors{visibility:hidden;position:relative;z-index:1}.CodeMirror-focused div.CodeMirror-cursors,div.CodeMirror-dragcursors{visibility:visible}.CodeMirror-selected{background:#d9d9d9}.CodeMirror-focused .CodeMirror-selected{background:#d7d4f0}.CodeMirror-crosshair{cursor:crosshair}.CodeMirror-line::selection,.CodeMirror-line>span::selection,.CodeMirror-line>span>span::selection{background:#d7d4f0}.cm-searching{background-color:rgba(255,255,0,.4)}.cm-force-border{padding-right:.1px}@media print{.CodeMirror div.CodeMirror-cursors{visibility:hidden}}.cm-tab-wrap-hack:after{content:''}span.CodeMirror-selectedtext{background:0 0}.CodeMirror-matchingbracket{outline:grey solid 1px;color:red!important}.CodeMirror-foldmarker{color: #f00;text-shadow: #f99 1px 1px 2px,#fff -1px -1px 2px,#f99 1px -1px 2px,#f99 -1px 1px 2px;font-family:arial;line-height:.3;cursor:pointer}.CodeMirror-foldgutter{width:.7em}.CodeMirror-foldgutter-folded,.CodeMirror-foldgutter-open{cursor:pointer}.CodeMirror-foldgutter-open:after{content:"\25BE"}.CodeMirror-foldgutter-folded:after{content:"\25B8"}
 
 --></style>
 <!-- MAIN CSS -->
@@ -982,209 +982,6 @@ a.example-link {
 a.example-link:hover, a.example-link:focus {
 	text-decoration: underline;
 }
-.floating-menu {
-  position: absolute;
-  border: 1px solid #ccc;
-  z-index: 10;
-  padding: 5px;
-  border-radius: 4px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  background-color: #000000b5;
-  color: white;
-}
-.floating-menu select {
-  width: 100%;
-}
-</style>
-<!-- PROPERTIES -->
-<style>
-
-/* Styles for the properties panel */
-#properties-panel {
-	font-family: Arial, sans-serif;
-	position: fixed;
-	top: 10px;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 500px; /* Default width */
-	height: 400px; /* Default height */
-	max-width: 90%;
-	max-height: 80%;
-	background: #ffffff; /* Panel background color */
-	border: 1px solid #ccc;
-	z-index: 1000;
-	box-sizing: border-box;
-	resize: both; /* Enables resizing */
-	overflow: hidden; /* Hides overflow to maintain layout */
-	margin: 0;
-	min-width: 300px;
-	min-height: 200px;
-	max-width: 800px;
-	max-height: 600px;
-	display: none; /* Hidden by default */
-	display: flex; /* Enables flex layout */
-	flex-direction: column; /* Stack children vertically */
-}
-
-/* Header styling */
-#properties-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	background: #f9f9f9;
-	border-bottom: 1px solid #ccc;
-	padding: 10px;
-	flex-shrink: 0; /* Prevents shrinking when content grows */
-}
-
-#properties-header h3 {
-	margin: 0;
-	font-size: 18px;
-}
-
-/* Controls container */
-#controls {
-	display: flex;
-	align-items: center;
-}
-
-/* Checkbox styling */
-#toggle-readonly-null {
-	width: 16px;
-	height: 16px;
-	margin-right: 10px;
-	cursor: pointer;
-}
-
-/* Close button styling */
-#close-panel {
-	width: 24px;
-	height: 24px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	font-size: 20px;
-	color: #333;
-	user-select: none;
-}
-
-#close-panel:hover {
-	color: #000;
-}
-
-/* Tabs styling */
-.tab-container {
-	display: flex;
-	border-bottom: 1px solid #ccc;
-	background: #f1f1f1;
-	flex-shrink: 0;
-	z-index: 9; /* Below the header */
-}
-
-.tab {
-	flex: 1;
-	text-align: center;
-	padding: 10px 0;
-	cursor: pointer;
-	font-weight: bold;
-	border-right: 1px solid #ccc;
-	user-select: none;
-	background-color: #f1f1f1; /* Default background for tabs */
-	transition: background-color 0.3s, border-bottom 0.3s;
-}
-
-.tab:last-child {
-	border-right: none;
-}
-
-.tab.active {
-	background: #ffffff; /* Active tab background color */
-	border-bottom: 2px solid #000;
-}
-
-/* Active CSS tab background color */
-.tab[data-category="css"].active {
-	background-color: #e0f7fa; /* Distinct background for active CSS tab */
-}
-
-/* Reset background color when not active */
-.tab[data-category="css"]:not(.active) {
-	background-color: #f1f1f1; /* Default background for inactive tabs */
-}
-
-/* Style for the property list */
-.property-list {
-	list-style-type: none;
-	padding: 0;
-	margin: 0;
-	overflow-y: auto; /* Enables vertical scrolling */
-	flex: 1; /* Allows the list to grow and fill available space */
-	background-color: #ffffff; /* Ensure background consistency */
-}
-
-.property-list li {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 8px 12px;
-	border-bottom: 1px solid #f0f0f0;
-}
-
-.property-name {
-	width: 45%;
-	word-break: break-word;
-}
-
-.property-input {
-	width: 50%;
-	box-sizing: border-box; /* Ensures padding and borders are included */
-	padding: 4px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	cursor: pointer; /* Indicate clickable inputs */
-}
-
-/* Styling for the property name link */
-.property-name a {
-	color: inherit;
-	text-decoration: none;
-}
-
-.property-name a:hover {
-	text-decoration: underline;
-}
-
-/* Read-only input styling */
-.property-input[readonly] {
-	background-color: #f9f9f9;
-	color: #555;
-	cursor: not-allowed;
-}
-
-/* Overlay for highlighting selected element */
-#highlight-overlay {
-	position: absolute;
-	border: 2px dashed rgba(0, 255, 0, 0.8); /* 2px lime border with 80% opacity */
-	background-color: rgba(0, 255, 0, 0.2); /* Lime background with 20% opacity */
-	pointer-events: none; /* Allows clicks to pass through */
-	z-index: 3; /* Just below the properties panel */
-	display: none; /* Hidden by default */
-}
-
-/* Responsive adjustments */
-@media (max-width: 600px) {
-	#properties-panel {
-		width: 95%;
-		height: 90%;
-	}
-	#properties-header h3 {
-		font-size: 16px;
-	}
-	.tab {
-		font-size: 16px;
-	}
-}
 </style>
 <meta name='google-adsense-platform-account' content='ca-host-pub-1556223355139109'/>
 <meta name='google-adsense-platform-domain' content='blogspot.com'/>
@@ -1192,6 +989,7 @@ a.example-link:hover, a.example-link:focus {
 </head>
 <body id='base'>
 <!-- <div id='app'> -->
+<main id='main'>
 <header class='menu' id='menu'>
 <a href='/' id='logo' style='text-decoration: none;'>
 <label alt='Recursive HTML' style='font-weight:bold;font-size:19px;' tabindex='0' title='Blank Page'>Recursive HTML</label>
@@ -1205,10 +1003,8 @@ a.example-link:hover, a.example-link:focus {
 <div id='content' style='overflow-y: auto;'></div>
 </div>
 <div class='overlay' id='overlay' onclick='toggleSidebar();return false;'></div>
-<!-- <label class='scroll' id='mode' onClick='allowCookies();return false;' style='display:none;float: right; padding: 7px;' title='Allow Cookies'>🍪</label> -->
 <ul id='element-list' style='display:none'></ul>
 </header>
-<main id='main'>
 <textarea aria-label='Code Editor' autocapitalize='off' id='data' spellcheck='false'></textarea>
 <!-- <label for='data' id='positionCodemirror' style='margin-block: -17px;'>Code Editor</label> -->
 <div id='positionCodemirror' style='margin-block: -17px;'></div>
@@ -1232,7 +1028,6 @@ a.example-link:hover, a.example-link:focus {
 </div>
 </div>
 <div class='canvas' id='output' name='output' style='width: 100%; height: auto'><div class='renderer'></div></div>
-</main>
 <label class='fab' id='fab' title='Alternate / Save'>
 <!-- onClick='switchRender();return false;' onTouchEnd='saveShortcut()' -->
 <svg height='35px' style='padding:14px 0 0 0' viewBox='0 0 16 16' width='35px' xmlns='http://www.w3.org/2000/svg'>
@@ -1248,6 +1043,8 @@ a.example-link:hover, a.example-link:focus {
 </div>
 <div id='desc'></div>
 </div>
+<footer class='footer'></footer>
+</main>
 <div class='messageBox'>
 <h2 id='messageTitle'></h2>
 <div id='messageBody'></div>
@@ -1281,7 +1078,6 @@ a.example-link:hover, a.example-link:focus {
 <!-- Properties will be dynamically inserted here -->
 </ul>
 </div>
-<footer class='footer'></footer>
 <!-- IIFE | BODY INIT -->
 <script defer='defer' type='text/javascript'>
 //<![CDATA[
@@ -1301,164 +1097,6 @@ if (!window.EyeDropper) {
 		}
 	});
 }      
-//]]>
-</script>
-<!-- Canvas functions -->
-<script defer='defer' type='text/javascript'>
-//<![CDATA[
-
-// Helper function to get the x and y coordinates from the event
-function getEventCoordinates(event) {
-  return {
-    x: event.clientX,
-    y: event.clientY
-  };
-}
-
-// Helper function to position an element at (x, y)
-function positionElement(element, x, y) {
-  element.style.left = `${x}px`;
-  element.style.top = `${y}px`;
-}
-   function handleRender(event) {
-      event.preventDefault();
-
-      try {
-         // Remove any existing floating menu
-         const existingMenu = document.querySelector('.floating-menu');
-         if (existingMenu) {
-            existingMenu.remove();
-         }
-
-         // Get the event coordinates (touch-based)
-         const { x, y } = getEventCoordinates(event);
-
-         // Create the floating menu div
-         const menu = document.createElement('div');
-         menu.classList.add('floating-menu');
-         menu.innerText = 'Renderer';
-
-         // Position the menu at the event location
-         positionElement(menu, x, y);
-
-         // Create the select element with options
-         const select = document.createElement('select');
-         select.classList.add('select-class'); 
-
-         // Create an optgroup
-         const optGroup = document.createElement('optgroup');
-         optGroup.label = 'Render select';
-
-         // Define the options
-         const options = [
-            { value: '', text: 'None' }, 
-            { value: 'shadow', text: 'Shadow DOM' },
-            { value: 'light', text: 'Light DOM' },
-            { value: 'virtual', text: 'Virtual DOM' },
-            { value: 'iframe', text: 'Iframe' },
-            { value: 'frame', text: 'Frame' },
-            //{ value: 'template', text: 'Template' },
-            //{ value: 'embed', text: 'Embed' },
-            //{ value: 'fragment', text: 'Fragment' },
-            //{ value: 'object', text: 'Object' }
-         ];
-
-         options.forEach(optionData => {
-            const option = document.createElement('option');
-            option.value = optionData.value;
-            option.textContent = optionData.text;
-
-            if (optionData.value === editorRender) {
-               option.selected = true;
-            }
-
-            optGroup.appendChild(option);
-         });
-
-         select.appendChild(optGroup);
-         menu.appendChild(select);
-         document.body.appendChild(menu);
-
-         // Handle the selection
-         select.addEventListener('change', async function() {
-            const renderMethod = this.value;
-            editorRender = renderMethod;
-            renderContent(dataArea.value, renderMethod);
-            menu.remove();
-         });
-
-         // Prevent the click event from propagating to the body
-         menu.addEventListener('click', function(event) {
-            event.stopPropagation();
-         });
-      } catch (error) {
-         alert(`Error: ${error.message}`);
-      }
-   }
-
-   // Utility function to get event coordinates (adapt for touch events)
-   function getEventCoordinates(event) {
-      let x = 0, y = 0;
-
-      if (event.touches && event.touches.length > 0) {
-         x = event.touches[0].clientX;
-         y = event.touches[0].clientY;
-      } else if (event.clientX && event.clientY) {
-         x = event.clientX;
-         y = event.clientY;
-      }
-
-      return { x, y };
-   }
-
-   // Utility function to position the menu at the event coordinates
-   function positionElement(element, x, y) {
-      element.style.position = 'absolute';
-      element.style.left = `${x}px`;
-      element.style.top = `${y}px`;
-   }
-
-output.addEventListener('click', e => {
-  if (e.ctrlKey && e.button === 0) {
-    e.preventDefault();
-    // handleRender(e);
-  }
-});
-
-output.addEventListener('input', () => {
-        editor.setValue(output.innerHTML);
-    });
-
-output.addEventListener('contextmenu', function(event) {
-  event.preventDefault();
-  
-  if (event.ctrlKey) {
-    handleRender(event);
-  }
-});
-
-
-document.addEventListener('DOMContentLoaded', (event) => {
-   const output = document.querySelector('.canvas');
-
-   if (output) {
-      output.addEventListener('touchstart', handleTouchStart, { passive: true });
-      output.addEventListener('touchend', handleTouchEnd, { passive: true });
-   }
-
-   function handleTouchStart(event) {
-      if (event.touches.length === 3) {
-        // launchToast('info', 'locked');
-         handleRender(event); 
-      }
-   }
-
-   function handleTouchEnd(event) {
-      // todo: render changer?
-   }
-});
-
-
 //]]>
 </script>
 <!-- ON PAGE LOAD -->
@@ -1502,7 +1140,7 @@ function handleMove(event) {
 };
 
 function getProportions() {
-  navigator.vibrate && navigator.vibrate(200);
+  // navigator.vibrate && navigator.vibrate(200);
   var gutterPosition = splitInstance.getSizes()[0];
   localStorage.setItem('position-wrap', Math.round(gutterPosition) );
   document.getElementById('gutter').textContent = Math.round(gutterPosition) + '%' + ' ' + Math.round(100 - gutterPosition) + '%';
@@ -1589,14 +1227,12 @@ function toggleElement() {
 <script async='async' type='text/javascript'>
 //<![CDATA[  
 var select = document.querySelector.bind(document);
-var editCounter = 0;
 var cookiesAllowed = false;
-var editStarted = false;
 const dataArea = document.getElementById('data');
 const gutter = document.getElementById('gutter');
 const canvas = document.querySelector('.canvas');
+const footer = document.getElementsByClassName('footer');
 const lightDOM = document.createElement('div');
-const footer = document.querySelector('.footer');
 
 //dataArea.focus();
 //editor.focus();
@@ -1709,6 +1345,7 @@ initializeCanvas();
 
 dataArea.value = editor.getValue();
 lightDOM.innerHTML = dataArea.value;
+MAXIMIZED === '1' && PARAM_HTML !== null && (document.body.innerHTML = dataBase64);
 //]]>
 </script>
 <!-- UI FUNCTION CALLS -->
@@ -2310,8 +1947,8 @@ function executeScripts(context) {
     localStorage.setItem("position-x-scroll", frame.scrollLeft);
     localStorage.setItem("position-y-scroll", frame.scrollTop);
 
-    storedXPosition = canvas.scrollLeft;
-    storedYPosition = canvas.scrollTop;
+    storedXPosition = Math.round(canvas.scrollLeft);
+    storedYPosition = Math.round(canvas.scrollTop);
    
     scrollXSpan.textContent = `X: ${storedXPosition}`;
     scrollYSpan.textContent = `Y: ${storedYPosition}`;
@@ -2323,7 +1960,7 @@ function executeScripts(context) {
   }
 }, { passive: true });
 
-output.addEventListener("submit", function(event) {
+canvas.addEventListener("submit", function(event) {
     event.preventDefault(); // Prevent form submission
    alert('captured');
 }, { passive: true });
@@ -2523,7 +2160,7 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
     element.addEventListener('mouseleave', cancelPress);
 
     // Attach Touch Event Listeners
-    element.addEventListener('touchstart', startPress);
+    element.addEventListener('touchstart', startPress, { passive: true });
     element.addEventListener('touchend', endPress);
     element.addEventListener('touchcancel', cancelPress);
 
@@ -3292,9 +2929,11 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
 		// Assign the toggleCheckbox to the global variable
 		toggleCheckbox = toggleCheckboxElem;
 
-		// Attach event listeners for context menu (right-click) and touchstart (long press)
-		shadowRoot.addEventListener('contextmenu', handleElementSelection); // Desktop: Right-click
-		shadowRoot.addEventListener('touchstart', handleLongPress); // Mobile: Touch and hold
+        const eventTarget = DEBUG ? document : shadowRoot;
+
+        // Attach event listeners for context menu (right-click) and touchstart (long press)
+        eventTarget.addEventListener('contextmenu', handleElementSelection); // Desktop: Right-click
+        eventTarget.addEventListener('touchstart', handleLongPress, { passive: true }); // Mobile: Touch and hold
 
 		// Close button functionality
 		closePanel.addEventListener('click', closePropertiesPanel);
@@ -3644,17 +3283,28 @@ elementsList.forEach(({ category, elements }, index) => {
 		detailElement.classList.add('tag-type');
 		detailElement.innerHTML = `<summary title="Type: ${elementType}">Example of ${displayType.toLowerCase()}:</summary>`;
 
-		const renderedElement = document.createElement(tag);
-		renderedElement.innerText = `${tag}`;
+        // Create the rendered element but skip if the tag is 'a'
+        if (tag.toLowerCase() !== 'a') {  // Skip <a> tags
+            const renderedElement = document.createElement(tag);
+            renderedElement.innerText = `${tag}`;
 
-		const renderedContainer = document.createElement('div');
-		renderedContainer.classList.add('example-render');
-		renderedContainer.appendChild(renderedElement);
+            const renderedContainer = document.createElement('div');
+            renderedContainer.classList.add('example-render');
+            renderedContainer.appendChild(renderedElement);
+            detailElement.appendChild(renderedContainer);
+        }
+
+		detailsContainer.appendChild(detailElement);
+		// detailsContainer.appendChild(readMoreLink);
+
 		
 		const addToEditor = document.createElement('div');
 		addToEditor.classList.add('add-editor');
 		addToEditor.innerText = 'Add'; // 'More about'+` ${tag}`; 
         
+		detailsContainer.appendChild(addToEditor);
+
+
         cursorRefresh();
   		addToEditor.onclick = function() {
             editorInsert(LinePosition, ColumnPosition, `<${tag}></${tag}>`);
@@ -3669,12 +3319,7 @@ elementsList.forEach(({ category, elements }, index) => {
 		readMoreLink.setAttribute('aria-label', 'More information about'+` ${tag}`);
         readMoreLink.setAttribute('title', 'More information about'+` ${tag}`);
         */ 
-		
-		detailElement.appendChild(renderedContainer);
-		detailsContainer.appendChild(detailElement);
-		// detailsContainer.appendChild(readMoreLink);
-		detailsContainer.appendChild(addToEditor);
-
+	
 		const tagUse = document.createElement('details');
 		tagUse.classList.add('tag-use');
 		tagUse.innerHTML = `<summary class="tag-summary">${use.toLowerCase()}:</summary>`;
@@ -3758,6 +3403,196 @@ function encodeBase64(string) {
 
 //]]>
 </script>
+<!-- 3 CSS - PROPERTIES -->
+<style>
+
+/* Styles for the properties panel */
+#properties-panel {
+	font-family: Arial, sans-serif;
+	position: fixed;
+	top: 10px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 500px; /* Default width */
+	height: 400px; /* Default height */
+	max-width: 90%;
+	max-height: 80%;
+	background: #ffffff; /* Panel background color */
+	border: 1px solid #ccc;
+	z-index: 1000;
+	box-sizing: border-box;
+	resize: both; /* Enables resizing */
+	overflow: hidden; /* Hides overflow to maintain layout */
+	margin: 0;
+	min-width: 300px;
+	min-height: 200px;
+	max-width: 800px;
+	max-height: 600px;
+	display: none; /* Hidden by default */
+	display: flex; /* Enables flex layout */
+	flex-direction: column; /* Stack children vertically */
+}
+
+/* Header styling */
+#properties-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: #f9f9f9;
+	border-bottom: 1px solid #ccc;
+	padding: 10px;
+	flex-shrink: 0; /* Prevents shrinking when content grows */
+}
+
+#properties-header h3 {
+	margin: 0;
+	font-size: 18px;
+}
+
+/* Controls container */
+#controls {
+	display: flex;
+	align-items: center;
+}
+
+/* Checkbox styling */
+#toggle-readonly-null {
+	width: 16px;
+	height: 16px;
+	margin-right: 10px;
+	cursor: pointer;
+}
+
+/* Close button styling */
+#close-panel {
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	font-size: 20px;
+	color: #333;
+	user-select: none;
+}
+
+#close-panel:hover {
+	color: #000;
+}
+
+/* Tabs styling */
+.tab-container {
+	display: flex;
+	border-bottom: 1px solid #ccc;
+	background: #f1f1f1;
+	flex-shrink: 0;
+	z-index: 9; /* Below the header */
+}
+
+.tab {
+	flex: 1;
+	text-align: center;
+	padding: 10px 0;
+	cursor: pointer;
+	font-weight: bold;
+	border-right: 1px solid #ccc;
+	user-select: none;
+	background-color: #f1f1f1; /* Default background for tabs */
+	transition: background-color 0.3s, border-bottom 0.3s;
+}
+
+.tab:last-child {
+	border-right: none;
+}
+
+.tab.active {
+	background: #ffffff; /* Active tab background color */
+	border-bottom: 2px solid #000;
+}
+
+/* Active CSS tab background color */
+.tab[data-category="css"].active {
+	background-color: #e0f7fa; /* Distinct background for active CSS tab */
+}
+
+/* Reset background color when not active */
+.tab[data-category="css"]:not(.active) {
+	background-color: #f1f1f1; /* Default background for inactive tabs */
+}
+
+/* Style for the property list */
+.property-list {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	overflow-y: auto; /* Enables vertical scrolling */
+	flex: 1; /* Allows the list to grow and fill available space */
+	background-color: #ffffff; /* Ensure background consistency */
+}
+
+.property-list li {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 12px;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.property-name {
+	width: 45%;
+	word-break: break-word;
+}
+
+.property-input {
+	width: 50%;
+	box-sizing: border-box; /* Ensures padding and borders are included */
+	padding: 4px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	cursor: pointer; /* Indicate clickable inputs */
+}
+
+/* Styling for the property name link */
+.property-name a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.property-name a:hover {
+	text-decoration: underline;
+}
+
+/* Read-only input styling */
+.property-input[readonly] {
+	background-color: #f9f9f9;
+	color: #555;
+	cursor: not-allowed;
+}
+
+/* Overlay for highlighting selected element */
+#highlight-overlay {
+	position: absolute;
+	border: 3px dashed rgba(0, 255, 0, 0.8); /* 2px lime border with 80% opacity */
+	background-color: rgba(0, 255, 0, 0.2); /* Lime background with 20% opacity */
+	pointer-events: none; /* Allows clicks to pass through */
+	z-index: 3; /* Just below the properties panel */
+	display: none; /* Hidden by default */
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+	#properties-panel {
+		width: 95%;
+		height: 90%;
+	}
+	#properties-header h3 {
+		font-size: 16px;
+	}
+	.tab {
+		font-size: 16px;
+	}
+}
+</style>
 <header class='centered-top-container' role='banner' style='display:none'>
 <div class='HTML ou JS no-items section' id='HTML ou JS'></div>
 </header>
