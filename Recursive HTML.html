@@ -1031,7 +1031,8 @@ a.example-link:hover, a.example-link:focus {
 <div id='properties-panel' style='display:none;'>
 <!-- Header with title and controls -->
 <div id='properties-header'>
-<h3 id='properties-title'>Properties of element: <span id='element-tag'></span></h3>
+<h3 id='element-path'></h3>
+<h3 id='properties-title'>Element: <span id='element-tag'></span></h3>
 <div id='controls'>
 <!-- Checkbox without label text -->
 <input aria-label='Show Readonly and Null Properties' id='toggle-readonly-null' type='checkbox'/>
@@ -2622,6 +2623,28 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
     return categories;
   }
 
+	/**
+	 * Calculates the index path of an element within the hierarchy.
+	 * @param {HTMLElement} element - The element to calculate the path for.
+	 * @returns {string} - The hierarchical index path (e.g., "1.2.1.4").
+	 */
+	function getElementIndexPath(element) {
+		let path = [];
+		let currentElement = element;
+
+		while (currentElement && currentElement.parentNode) {
+			let siblings = Array.from(currentElement.parentNode.children);
+			let index = siblings.indexOf(currentElement) + 1; // Indices start from 1
+			path.unshift(index);
+			currentElement = currentElement.parentNode;
+
+			// Stop when reaching the shadow root host
+			if (currentElement === shadowRoot.host) break;
+		}
+
+		return path.join('.');
+	}
+
   /**
    * Displays the properties in the properties panel.
    * @param {Object} categorized - The categorized properties.
@@ -2632,12 +2655,16 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
     const propertyList = panel.querySelector('.property-list');
     propertyList.innerHTML = ''; // Clear previous content
 
-    // Update the title with the tag name or object type
     const tagSpan = document.getElementById('element-tag');
     if (element instanceof HTMLElement) {
-      tagSpan.textContent = element.tagName.toLowerCase();
+        tagSpan.textContent = element.tagName.toLowerCase();
+
+        // Display the element's index path
+        const elementPath = getElementIndexPath(element);
+        const elementPathSpan = document.getElementById('element-path');
+        elementPathSpan.textContent = `${elementPath}`;
     } else {
-      tagSpan.textContent = element.toString();
+        tagSpan.textContent = element.toString();
     }
 
     console.debug(`Displaying properties for ${activeTab} category`);
@@ -2756,7 +2783,7 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
     }
 
     selectedElement = element; // Track the selected element
-    console.debug('Selected element:', element); // Debugging
+    console.info('Selected element:', element); // Debugging
     const categorized = categorizeProperties(element);
     displayProperties(categorized, element);
   }
@@ -3433,8 +3460,8 @@ function encodeBase64(string) {
 
 /* Close button styling */
 #close-panel {
-	width: 24px;
-	height: 24px;
+	width: 15px;
+	height: 20px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -3442,6 +3469,7 @@ function encodeBase64(string) {
 	font-size: 20px;
 	color: #333;
 	user-select: none;
+    margin-bottom: 4px;
 }
 
 #close-panel:hover {
