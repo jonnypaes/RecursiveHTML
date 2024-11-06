@@ -19,7 +19,7 @@
 <meta content='Recursive HTML is a client-site tool to test and debug little abstractions of code. You write the HTML code, and receive the output recursively' property='og:description'/>
 <meta content='width=device-width, initial-scale=1.0, interactive-widget=resizes-content' name='viewport'/>
 <meta content='#1f1f1f' media='(prefers-color-scheme: light)' name='theme-color'/>
-<meta content='#000000' media='(prefers-color-scheme: light dark)' name='theme-color'/>
+<meta content='#000000' media='(prefers-color-scheme: dark)' name='theme-color'/>
 <meta content='yes' name='mobile-web-app-capable'/>
 <meta content='yes' name='apple-mobile-web-app-capable'/>
 <meta content='Recursive HTML' name='application-name'/>
@@ -1063,7 +1063,7 @@ var cookiesAllowed = false;
 const dataArea = document.getElementById('data');
 const gutter = document.getElementById('gutter');
 const canvas = document.querySelector('.canvas');
-const footer = document.getElementsByClassName('footer');
+const footer = document.querySelector('.footer');
 
 const theme = systemPrefersDark ? "dark-mode" : "light-mode";
 //var shadowRoot = document.querySelector('.shadowFrame').shadowRoot;
@@ -1227,25 +1227,6 @@ function toggleElement() {
   }
 }, { passive: true });
 
-/*
-document.querySelector('form').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevents default form submission
-    alert('0');
-
-    // Capture all form data
-    const formData = new FormData(this);
-
-    // Convert FormData to an object
-    const formObject = {};
-    formData.forEach((value, key) => {
-        formObject[key] = value;
-    });
-
-    // Call function to create optgroup and options
-    createOptgroupAndOptions(formObject);
-});
-*/
-
 //]]>
 </script>
 <!-- UI INITIALIZER -->
@@ -1386,24 +1367,47 @@ function themeAlternate() {
 };
 
 function saveShortcut() {
-  launchToast('info', 'Saving');
-  window.open(BLANK_PAGE + window.btoa(dataArea.value), "_self");
+  if (window.btoa(dataArea.value).length > 8192) {
+    launchToast('info', 'Too big! Save as a file');
+  } else {
+    launchToast('info', 'Saving');
+    window.open(BLANK_PAGE + window.btoa(dataArea.value), "_self");
+  } 
 };
 
 function saveDiag() {
-  var myURL = BLANK_PAGE + window.btoa(dataArea.value);
-
   if (confirm('Confirm file download?\n(If you cancel, it will generate a link)')) {
       saveHTML();
   } else {
     try {
-      navigator.clipboard.writeText(myURL);
+      navigator.clipboard.writeText( BLANK_PAGE + window.btoa(dataArea.value) );
     } catch (error) {
       alert("Error: " + error);
     } finally {
       alert('URL copied: ' + myURL)
     }
   }
+};
+
+function saveHTML() {
+  let blob = new Blob([dataArea.value], {
+    type: 'text/html'
+  });
+
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = document.title + '.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
+
+function fullScreen() {
+  let blob = new Blob([dataArea.value], {
+    type: "text/html"
+  });
+  let blobUrl = URL.createObjectURL(blob);
+  window.open(blobUrl);
 };
 
 function toggleSidebar() {
@@ -1419,27 +1423,6 @@ function toggleSidebar() {
   } else {
 	hamburgerButton.textContent = '☰';
   }
-};
-
-function fullScreen() {
-  let blob = new Blob([dataArea.value], {
-    type: "text/html"
-  });
-  let blobUrl = URL.createObjectURL(blob);
-  window.open(blobUrl);
-};
-
-function saveHTML() {
-  let blob = new Blob([dataArea.value], {
-    type: 'text/html'
-  });
-
-  let a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = document.title + '.html';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
 };
 
 function launchToast(type, message) {
@@ -1688,8 +1671,6 @@ function updatePageMetadata(data, renderMethod) {
     : `Untitled - ${DEFAULT_TITLE}`;
   document.title = pageTitle;
 
-  // Update footer text
-  const footer = document.querySelector('footer');
   if (footer) {
     footer.innerText = noScript ? noScript.innerText : '';
   }
@@ -1931,6 +1912,14 @@ document.addEventListener('keydown', e => {
   if (e.ctrlKey && e.key === 'u') {
     e.preventDefault();
     launchToast('info', 'locked');
+    }
+});
+
+
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === ' ') {
+    e.preventDefault();
+    switchRender(); 
     }
 });
 
@@ -2451,9 +2440,8 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
               const categorized = categorizeProperties(value);
               displayProperties(categorized, value);
             } else {
-              // Optionally, provide feedback or simply do nothing
-              alert('Root element cannot be clicked')
-              console.debug('Element is outside the shadowRoot and cannot be selected.');
+                alert('Root element cannot be clicked')
+                console.debug('Element is outside the shadowRoot and cannot be selected.');
             }
           });
 
@@ -2760,10 +2748,13 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
   function handleElementSelection(event) {
     event.preventDefault(); // Prevent the default context menu
     const element = event.target;
-    if (element === document.body || element === shadowHost) {
-      // Do not select the body or shadow host itself
-      return;
+
+    if (!isDebugMode) {
+      if (element === document.body || element === shadowHost) {
+        return;
+      }
     }
+
     selectedElement = element; // Track the selected element
     console.debug('Selected element:', element); // Debugging
     const categorized = categorizeProperties(element);
@@ -2891,7 +2882,7 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
     // Assign the toggleCheckbox to the global variable
     toggleCheckbox = toggleCheckboxElem;
 
-    const eventTarget = DEBUG ? document : shadowRoot;
+    const eventTarget = isDebugMode ? document : shadowRoot;
 
     // Attach event listeners for context menu (right-click) and touchstart (long press)
     eventTarget.addEventListener('contextmenu', handleElementSelection); // Desktop: Right-click
@@ -2969,7 +2960,7 @@ GRAPHICS_AND_EMBEDED_CONTENT = 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgo8aGVhZD4KICAgIDxt
 const SIDEBAR_TABLE_CONTENT = 
 'PCFET0NUWVBFIGh0bWw+CjxodG1sPgogIDxoZWFkPgoJCTx0aXRsZT5UYWJsZSBDb250ZW50PC90aXRsZT4KCQk8c3R5bGU+CiAgICAgIHRhYmxlIHsKICAgICAgICB3aWR0aDogMTAwJTsKICAgICAgICBtYXJnaW46IGF1dG87CiAgICAgIH0JCQkKY2FwdGlvbiB7CQkJCiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7CgkgIGJhY2tncm91bmQtY29sb3I6IHdoaXRlOwp9CnRhYmxlIHsKICAgIGJvcmRlci1jb2xsYXBzZTogY29sbGFwc2U7CiAgICBmb250LXNpemU6IDAuOWVtOwogICAgZm9udC1mYW1pbHk6IHNhbnMtc2VyaWY7CiAgICBtaW4td2lkdGg6IDQwMHB4OwogICAgYm94LXNoYWRvdzogMCAwIDIwcHggcmdiYSgwLCAwLCAwLCAwLjE1KTsKfQp0YWJsZSB0aGVhZCB0ciB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA5ODc5OwogICAgY29sb3I6ICNmZmZmZmY7CiAgICB0ZXh0LWFsaWduOiBsZWZ0Owp9CnRhYmxlIHRoLAp0YWJsZSB0ZCB7CiAgICBwYWRkaW5nOiAxMnB4IDE1cHg7Cn0KCnRhYmxlIHRib2R5IHRyIHsKICAgIGJvcmRlci1ib3R0b206IDFweCBzb2xpZCAjZGRkZGRkOwp9Cgp0YWJsZSB0Ym9keSB0cjpudGgtb2YtdHlwZShldmVuKSB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjZjNmM2YzOwp9Cgp0YWJsZSB0Ym9keSB0cjpsYXN0LW9mLXR5cGUgewogICAgYm9yZGVyLWJvdHRvbTogMnB4IHNvbGlkICMwMDk4Nzk7Cn0KdGFibGUgdGZvb3QgewogICAgYmFja2dyb3VuZC1jb2xvcjogZ3JheTsKfQkJCQoJCQkKPC9zdHlsZT4KICA8L2hlYWQ+CiAgPGJvZHk+CiAgICA8dGFibGUgYm9yZGVyPSIxIj4KICA8Y2FwdGlvbj5FbXBsb3llZSBEZXRhaWxzPC9jYXB0aW9uPgogIAogIDxjb2xncm91cD4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmMGYwZjA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNlMGUwZTA7Ij4KICAgIDxjb2wgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNkMGQwZDA7Ij4KICA8L2NvbGdyb3VwPgoKICA8dGhlYWQ+CiAgICA8dHI+CiAgICAgIDx0aD5JRDwvdGg+CiAgICAgIDx0aD5OYW1lPC90aD4KICAgICAgPHRoPkRlcGFydG1lbnQ8L3RoPgogICAgPC90cj4KICA8L3RoZWFkPgoKICA8dGJvZHk+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDE8L3RkPgogICAgICA8dGQ+QWxpY2U8L3RkPgogICAgICA8dGQ+RW5naW5lZXJpbmc8L3RkPgogICAgPC90cj4KICAgIDx0cj4KICAgICAgPHRkPjAwMjwvdGQ+CiAgICAgIDx0ZD5Cb2I8L3RkPgogICAgICA8dGQ+TWFya2V0aW5nPC90ZD4KICAgIDwvdHI+CiAgICA8dHI+CiAgICAgIDx0ZD4wMDM8L3RkPgogICAgICA8dGQ+Q2Fyb2w8L3RkPgogICAgICA8dGQ+U2FsZXM8L3RkPgogICAgPC90cj4KICA8L3Rib2R5PgoKICA8dGZvb3Q+CiAgICA8dHI+CiAgICAgIDx0ZCBjb2xzcGFuPSIzIj5FbmQgb2YgRW1wbG95ZWUgRGV0YWlsczwvdGQ+CiAgICA8L3RyPgogIDwvdGZvb3Q+CjwvdGFibGU+CiAgPC9ib2R5Pgo8L2h0bWw+Cg==';
 const SIDEBAR_FORM_CONTENT = 
-'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+Cgk8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgogIDx0aXRsZT5Gb3JtczwvdGl0bGU+CiAgPHN0eWxlPgogICAgYm9keSB7CgkJZm9udC1mYW1pbHk6IEFyaWFsLCBzYW5zLXNlcmlmOwoJICBtYXJnaW46IDIwcHg7CgkJcGFkZGluZzogMTBweDsKCQliYWNrZ3JvdW5kLWNvbG9yOiAjZjRmNGY0OwoJCWJvcmRlci1yYWRpdXM6IDhweDsKICAgIH0KICAgIGgxIHsKICAgICAgdGV4dC1hbGlnbjogY2VudGVyOwogICAgfQogICAgbGFiZWwgewogICAgICBkaXNwbGF5OiBibG9jazsKICAgICAgbWFyZ2luOiAxMHB4IDAgNXB4OwogICAgfQoJCWlucHV0W3R5cGU9ImJ1dHRvbiJdLAoJCWlucHV0W3R5cGU9InN1Ym1pdCJdLAoJCWlucHV0W3R5cGU9InJlc2V0Il0gewoJICAJd2lkdGg6IDEwMCU7CgkgIAlwYWRkaW5nOiA4cHg7CgkgIAlib3JkZXI6IDFweCBzb2xpZCAjY2NjOwoJCX0KCQl0ZXh0YXJlYSB7CgkJCXdpZHRoOiA5OSU7CgkJCW1hcmdpbi1ib3R0b206IDE1cHg7CgkJCWJvcmRlcjogMXB4IHNvbGlkICNjY2M7CgkJCWJvcmRlci1yYWRpdXM6IDRweDsKCSAgfQoJCS5jb250YWluZXIgewoJCQltYXgtd2lkdGg6IDYwMHB4OwoJCQltYXJnaW46IGF1dG87CgkJCWJhY2tncm91bmQ6ICNmZmY7CgkJCXBhZGRpbmc6IDIwcHg7CgkJCWJvcmRlci1yYWRpdXM6IDhweDsKCQkJYm94LXNoYWRvdzogMCAycHggMTBweCByZ2JhKDAsIDAsIDAsIDAuMSk7CgkJfQogIDwvc3R5bGU+CjwvaGVhZD4KPGJvZHk+CiAgPGRpdiBjbGFzcz0iY29udGFpbmVyIj4KICAgIDxoMT5DdXJyaWN1bHVtIFZpdGFlPC9oMT4KCSAgPGJ1dHRvbiBvbmNsaWNrPSJ0aGlzLnBhcmVudE5vZGUuc3R5bGUuZmlsdGVyID0gdGhpcy5wYXJlbnROb2RlLnN0eWxlLmZpbHRlciA9PT0gJ2ludmVydCgxMDAlKScgPyAnaW52ZXJ0KDAlKScgOiAnaW52ZXJ0KDEwMCUpJyI+SW52ZXJ0PC9idXR0b24+CiAgCiAgICA8Zm9ybT4KICAgICAgPGxhYmVsPklucHV0IHR5cGVzOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJoaWRkZW4iIG5hbWU9ImhpZGRlbiIgdmFsdWU9IjM0NjU3IiAvPgogICAgICA8bGFiZWw+RnVsbCBuYW1lOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJ0ZXh0IiBuYW1lPSJuYW1lIiB2YWx1ZT0iSm9obiBEb2UiIC8+CiAgICAgIDxsYWJlbD5OdW1iZXIgSW5wdXQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9Im51bWJlciIgbmFtZT0ibnVtYmVyIiAvPgogICAgICA8bGFiZWw+U2FsYXJ5OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJudW1iZXIiIG5hbWU9ImZsb2F0IiBwbGFjZWhvbGRlcj0iMS4wMDAsMDAiIHN0ZXA9IjAuMDEiIC8+CiAgICAgIDxsYWJlbD5QYXNzd29yZDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0icGFzc3dvcmQiIG5hbWU9InBhc3N3b3JkIiAvPgogICAgICA8bGFiZWw+Qm9ybiBkYXRlOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJkYXRlIiBuYW1lPSJkYXRlIiAvPgogICAgICA8bGFiZWw+VVJMOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJ1cmwiIG5hbWU9InVybCIgcGxhY2Vob2xkZXI9Ind3dy50ZXN0LmNvbSIgLz4KICAgICAgPGxhYmVsPkVtYWlsIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJlbWFpbCIgbmFtZT0iZW1haWwiIHBsYWNlaG9sZGVyPSJ0ZXN0QHRlc3QuY29tIiAvPgogICAgICA8bGFiZWw+VGVsZXBob25lIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJ0ZWwiIG5hbWU9InBob25lIiBwbGFjZWhvbGRlcj0iKDk5KSA5OTk5OS05OTk5IiAvPgogICAgICA8bGFiZWw+U2VhcmNoIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJzZWFyY2giIG5hbWU9InNlYXJjaCIgdmFsdWU9IlRlc3Qgc2VhcmNoIiAvPgogICAgICA8bGFiZWw+R2VuZGVyOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIj5NYWxlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9InJhZGlvIiBuYW1lPSJnZW5kZXIiPkZlbWFsZTwvaW5wdXQ+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIj5PdGhlcjwvaW5wdXQ+CiAgICAgIDxsYWJlbD5FeHRyYTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iY2hlY2tib3giIG5hbWU9Imhhcy1saWNlbnNlIj5IYXMgYSBkcml2ZXIncyBsaWNlbnNlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9ImNoZWNrYm94IiBuYW1lPSJoYXMtY2FyIj5IYXMgYSBjYXI8L2lucHV0PgogICAgICA8bGFiZWw+UmF0aW5nIG9mIHlvdXIgbGFzdCBqb2I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InJhbmdlIiBuYW1lPSJyYW5nZSIgdmFsdWU9IjEiIG1pbj0iMSIgbWF4PSI1IiAvPgogICAgICA8bGFiZWw+UHJvZmlsZSBQaWN0dXJlOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJmaWxlIiBuYW1lPSJmaWxlIiAvPgogICAgICA8bGFiZWw+RmF2b3JpdGUgQ29sb3I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImNvbG9yIiBuYW1lPSJjb2xvciIgdmFsdWU9IiNlNjY0NjUiIC8+CiAgICAgIDxsYWJlbD5TaG9ydCBCaW86PC9sYWJlbD4KICAgICAgPHRleHRhcmVhIG5hbWU9ImJpbyIgcGxhY2Vob2xkZXI9IkVudGVyIHRleHQgaGVyZS4uLiI+PC90ZXh0YXJlYT4KICAgICAgPGlucHV0IHR5cGU9InN1Ym1pdCIgbmFtZT0ic3VibWl0IiB2YWx1ZT0iU3VibWl0IiAvPgogICAgICA8aW5wdXQgdHlwZT0icmVzZXQiIG5hbWU9InJlc2V0IiAvPgogICAgPC9mb3JtPgogIDwvZGl2Pgo8L2JvZHk+Cgo8L2h0bWw+';
+'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KPGhlYWQ+Cgk8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgogIDx0aXRsZT5Gb3JtczwvdGl0bGU+CiAgPHN0eWxlPgogICAgYm9keSB7CgkJZm9udC1mYW1pbHk6IEFyaWFsLCBzYW5zLXNlcmlmOwoJICBtYXJnaW46IDIwcHg7CgkJcGFkZGluZzogMTBweDsKCQliYWNrZ3JvdW5kLWNvbG9yOiAjZjRmNGY0OwoJCWJvcmRlci1yYWRpdXM6IDhweDsKICAgIH0KICAgIGgxIHsKICAgICAgdGV4dC1hbGlnbjogY2VudGVyOwogICAgfQogICAgbGFiZWwgewogICAgICBkaXNwbGF5OiBibG9jazsKICAgICAgbWFyZ2luOiAxMHB4IDAgNXB4OwogICAgfQoJCWlucHV0W3R5cGU9ImJ1dHRvbiJdLAoJCWlucHV0W3R5cGU9InN1Ym1pdCJdLAoJCWlucHV0W3R5cGU9InJlc2V0Il0gewoJICAJd2lkdGg6IDEwMCU7CgkgIAlwYWRkaW5nOiA4cHg7CgkgIAlib3JkZXI6IDFweCBzb2xpZCAjY2NjOwoJCX0KCQl0ZXh0YXJlYSB7CgkJCXdpZHRoOiA5OSU7CgkJCW1hcmdpbi1ib3R0b206IDE1cHg7CgkJCWJvcmRlcjogMXB4IHNvbGlkICNjY2M7CgkJCWJvcmRlci1yYWRpdXM6IDRweDsKCSAgfQoJCS5jb250YWluZXIgewoJCQltYXgtd2lkdGg6IDYwMHB4OwoJCQltYXJnaW46IGF1dG87CgkJCWJhY2tncm91bmQ6ICNmZmY7CgkJCXBhZGRpbmc6IDIwcHg7CgkJCWJvcmRlci1yYWRpdXM6IDhweDsKCQkJYm94LXNoYWRvdzogMCAycHggMTBweCByZ2JhKDAsIDAsIDAsIDAuMSk7CgkJfQogIDwvc3R5bGU+CjwvaGVhZD4KPGJvZHk+CiAgPGRpdiBjbGFzcz0iY29udGFpbmVyIj4KICAgIDxoMT5DdXJyaWN1bHVtIFZpdGFlPC9oMT4KCSAgPGJ1dHRvbiBvbmNsaWNrPSJ0aGlzLnBhcmVudE5vZGUuc3R5bGUuZmlsdGVyID0gdGhpcy5wYXJlbnROb2RlLnN0eWxlLmZpbHRlciA9PT0gJ2ludmVydCgxMDAlKScgPyAnaW52ZXJ0KDAlKScgOiAnaW52ZXJ0KDEwMCUpJyI+SW52ZXJ0PC9idXR0b24+CiAgCiAgICA8Zm9ybT4KICAgICAgPGxhYmVsPklucHV0IHR5cGVzOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJoaWRkZW4iIG5hbWU9ImhpZGRlbiIgdmFsdWU9IjM0NjU3IiAvPgogICAgICA8bGFiZWw+RnVsbCBuYW1lOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJ0ZXh0IiBuYW1lPSJuYW1lIiB2YWx1ZT0iSm9obiBEb2UiIC8+CiAgICAgIDxsYWJlbD5OdW1iZXIgSW5wdXQ6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9Im51bWJlciIgbmFtZT0ibnVtYmVyIiAvPgogICAgICA8bGFiZWw+U2FsYXJ5OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJudW1iZXIiIG5hbWU9ImZsb2F0IiBwbGFjZWhvbGRlcj0iMS4wMDAsMDAiIHN0ZXA9IjAuMDEiIC8+CiAgICAgIDxsYWJlbD5QYXNzd29yZDo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0icGFzc3dvcmQiIG5hbWU9InBhc3N3b3JkIiAvPgogICAgICA8bGFiZWw+Qm9ybiBkYXRlOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJkYXRlIiBuYW1lPSJkYXRlIiAvPgogICAgICA8bGFiZWw+VVJMOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJ1cmwiIG5hbWU9InVybCIgcGxhY2Vob2xkZXI9Ind3dy50ZXN0LmNvbSIgLz4KICAgICAgPGxhYmVsPkVtYWlsIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJlbWFpbCIgbmFtZT0iZW1haWwiIHBsYWNlaG9sZGVyPSJ0ZXN0QHRlc3QuY29tIiAvPgogICAgICA8bGFiZWw+VGVsZXBob25lIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJ0ZWwiIG5hbWU9InBob25lIiBwbGFjZWhvbGRlcj0iKDk5KSA5OTk5OS05OTk5IiAvPgogICAgICA8bGFiZWw+U2VhcmNoIElucHV0OjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJzZWFyY2giIG5hbWU9InNlYXJjaCIgdmFsdWU9IlRlc3Qgc2VhcmNoIiAvPgogICAgICA8bGFiZWw+R2VuZGVyOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIiB2YWx1ZT0ibWFsZSI+TWFsZTwvaW5wdXQ+CiAgICAgIDxpbnB1dCB0eXBlPSJyYWRpbyIgbmFtZT0iZ2VuZGVyIiB2YWx1ZT0iZmVtYWxlIj5GZW1hbGU8L2lucHV0PgogICAgICA8aW5wdXQgdHlwZT0icmFkaW8iIG5hbWU9ImdlbmRlciIgdmFsdWU9Im90aGVyIj5PdGhlcjwvaW5wdXQ+CiAgICAgIDxsYWJlbD5FeHRyYTo8L2xhYmVsPgogICAgICA8aW5wdXQgdHlwZT0iY2hlY2tib3giIG5hbWU9Imhhcy1saWNlbnNlIj5IYXMgYSBkcml2ZXIncyBsaWNlbnNlPC9pbnB1dD4KICAgICAgPGlucHV0IHR5cGU9ImNoZWNrYm94IiBuYW1lPSJoYXMtY2FyIj5IYXMgYSBjYXI8L2lucHV0PgogICAgICA8bGFiZWw+UmF0aW5nIG9mIHlvdXIgbGFzdCBqb2I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9InJhbmdlIiBuYW1lPSJyYW5nZSIgdmFsdWU9IjEiIG1pbj0iMSIgbWF4PSI1IiAvPgogICAgICA8bGFiZWw+UHJvZmlsZSBQaWN0dXJlOjwvbGFiZWw+CiAgICAgIDxpbnB1dCB0eXBlPSJmaWxlIiBuYW1lPSJmaWxlIiAvPgogICAgICA8bGFiZWw+RmF2b3JpdGUgQ29sb3I6PC9sYWJlbD4KICAgICAgPGlucHV0IHR5cGU9ImNvbG9yIiBuYW1lPSJjb2xvciIgdmFsdWU9IiNlNjY0NjUiIC8+CiAgICAgIDxsYWJlbD5TaG9ydCBCaW86PC9sYWJlbD4KICAgICAgPHRleHRhcmVhIG5hbWU9ImJpbyIgcGxhY2Vob2xkZXI9IkVudGVyIHRleHQgaGVyZS4uLiI+PC90ZXh0YXJlYT4KICAgICAgPGlucHV0IHR5cGU9InN1Ym1pdCIgbmFtZT0ic3VibWl0IiB2YWx1ZT0iU3VibWl0IiAvPgogICAgICA8aW5wdXQgdHlwZT0icmVzZXQiIG5hbWU9InJlc2V0IiAvPgogICAgPC9mb3JtPgogIDwvZGl2Pgo8L2JvZHk+Cgo8L2h0bWw+';
 
 const categoryLinks = {
     "Element 1" : BLANK_PAGE + SIDEBAR_DOCUMENT_STRUCTURE,
