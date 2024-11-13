@@ -402,7 +402,8 @@ a#livelink {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 1.5em;
-  color: var(--rh-wm-hb-item-color);
+  filter: invert(1);
+  mix-blend-mode: difference;
   opacity: 0;
   pointer-events: none;
   z-index: 4;
@@ -581,9 +582,6 @@ hr {
 .dark-mode .sidebar {
   background-color: #333;
   color: white;
-}
-.dark-mode .renderer {
-  color: var(--rh-dm-hb-item-color);
 }
 
 /* TOAST */
@@ -2239,7 +2237,7 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
   // Categorized properties arrays in single lines for readability
   const categorizedProperties = {
     css: ["color", "background-color", "font-size", "width", "height", "border-radius"/* add more as needed */],
-    html: ["accessKey", "align", "autocapitalize", "autofocus", "contentEditable", "dir", "draggable", "enterKeyHint", "hidden", "id", "inert", "inputMode", "lang", "nonce", "part", "popover", "role", "slot", "spellcheck", "tabIndex", "title", "translate"],
+    html: ["accessKey", "align", "alt", "autocapitalize", "autofocus", "contentEditable", "dir", "draggable", "enterKeyHint", "hidden", "id", "inert", "inputMode", "lang", "nonce", "part", "popover", "role", "slot", "spellcheck", "tabIndex", "title", "translate"],
     javascript: ["accessKeyLabel", "assignedSlot", "attributes", "baseURI", "childElementCount", "childNodes", "children", "classList", "className", "clientHeight", "clientLeft", "clientTop", "clientWidth", "dataset", "firstChild", "firstElementChild", "innerHTML", "innerText", "isConnected", "isContentEditable", "lastChild", "lastElementChild", "localName", "namespaceURI", "nextElementSibling", "nextSibling", "nodeName", "nodeType", "nodeValue", "offsetHeight", "offsetLeft", "offsetParent", "offsetTop", "offsetWidth", "outerHTML", "outerText", "ownerDocument", "parentElement", "parentNode", "prefix", "previousElementSibling", "previousSibling", "scrollHeight", "scrollLeft", "scrollTop", "scrollWidth", "shadowRoot", "tagName", "textContent"]
   };
 
