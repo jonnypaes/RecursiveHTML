@@ -277,7 +277,61 @@ console.debug = function(...args) {
 //]]>
 </script>
 <!-- FUNCTIONS -->
-<!-- <script async='async' type='text/javascript'> //<![CDATA[ function setLocalStorageParam(key, value) { localStorage.setItem(key, JSON.stringify(value)); } function getLocalStorageParam(key, defaultValue) { let storedValue = localStorage.getItem(key); return storedValue !== null ? JSON.parse(storedValue) : defaultValue; } function checkboxStatus() { checkState = checkbox.checked; if (checkState) { document.body.classList.remove('light'); document.body.classList.add('dark'); } else { document.body.classList.remove('dark'); document.body.classList.add('light'); } return checkState; } function getCookies() { obtainCookies(); //checkState = getLocalStorageParam('state', STORED_STATE); //checkbox.checked = checkState; // STORED_STATE = getLocalStorageParam('state', STORED_STATE); storedTheme = getLocalStorageParam('theme', DEFAULT_THEME); storedLinePosition = getLocalStorageParam('position-line', 1); storedColumnPosition = getLocalStorageParam('position-column', 1); storedGutterPosition = getLocalStorageParam('position-wrap', 40); storedXPosition = getLocalStorageParam('position-x-scroll', 0); storedYPosition = getLocalStorageParam('position-y-scroll', 0); } function setCookies() { // setLocalStorageParam('state', checkState); setLocalStorageParam('theme', storedTheme); setLocalStorageParam('position-line', storedLinePosition); setLocalStorageParam('position-column', storedColumnPosition); setLocalStorageParam('position-wrap', storedGutterPosition); setLocalStorageParam('position-x-scroll', storedXPosition); setLocalStorageParam('position-y-scroll', storedYPosition); } function obtainCookies() { if (localStorage.length === 0) { // messageBox('Cookies', 'Please, allow Cookies.'); // firstTime(); } else { let result = ''; for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); const value = localStorage.getItem(key); result += `<p>${key}: ${value}</p>`; } return result; } } function showCookies() { messageBox('Cookies', obtainCookies()); } //]]> </script> -->
+<script async='async' type='text/javascript'>
+//<![CDATA[
+function setLocalStorageParam(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+}
+
+function getLocalStorageParam(key, defaultValue) {
+    let storedValue = localStorage.getItem(key);
+    return storedValue !== null ? JSON.parse(storedValue) : defaultValue;
+}
+
+function getCookies() {
+    obtainCookies();
+    //checkState = getLocalStorageParam('state', STORED_STATE); 
+    //checkbox.checked = checkState;
+//  STORED_STATE = getLocalStorageParam('state', STORED_STATE);
+    storedTheme = getLocalStorageParam('theme', DEFAULT_THEME);
+    storedLinePosition = getLocalStorageParam('position-line', 1);
+    storedColumnPosition = getLocalStorageParam('position-column', 1);
+    storedGutterPosition = getLocalStorageParam('position-wrap', 40);
+    storedXPosition  = getLocalStorageParam('position-x-scroll', 0);
+    storedYPosition  = getLocalStorageParam('position-y-scroll', 0);
+}
+
+function setCookies() {
+    // setLocalStorageParam('state', checkState);
+    setLocalStorageParam('theme', storedTheme);
+    setLocalStorageParam('position-line', storedLinePosition);
+    setLocalStorageParam('position-column', storedColumnPosition);
+    setLocalStorageParam('position-wrap', storedGutterPosition);
+    setLocalStorageParam('position-x-scroll', storedXPosition);
+    setLocalStorageParam('position-y-scroll', storedYPosition);
+}
+
+function obtainCookies() {
+    if (localStorage.length === 0) {
+        // messageBox('Cookies', 'Please, allow Cookies.');
+        // firstTime();
+    } else {
+        let result = '';
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            const value = localStorage.getItem(key);
+            result += `<p>${key}: ${value}</p>`;
+        }
+        return result;
+    }
+}
+
+function showCookies() {
+	messageBox('Cookies', obtainCookies());
+}
+
+//]]>
+</script>
 <!-- 3. HEAD CSS -->
 <!-- 3.1 CSS - CODEMIRROR -->
 <style id='page-skin-1' type='text/css'><!--
@@ -637,8 +691,8 @@ hr {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 2;
-  width: 20%;
+  z-index: 4;
+  width: 35%;
   padding: 20px;
   text-align: center;
 }
@@ -1210,8 +1264,8 @@ function toggleElement() {
   const scrollOffsetContainer = document.getElementById('scrollOffsetContainer');
 
   canvas.addEventListener('scroll', () => {
-    localStorage.setItem("position-x-scroll", frame.scrollLeft);
-    localStorage.setItem("position-y-scroll", frame.scrollTop);
+    frame.scrollLeft > 0 && localStorage.setItem("position-x-scroll", frame.scrollLeft); // localStorage.setItem("position-x-scroll", frame.scrollLeft);
+    frame.scrollTop > 0 && localStorage.setItem("position-y-scroll", frame.scrollTop); //localStorage.setItem("position-y-scroll", frame.scrollTop);
 
     storedXPosition = Math.round(canvas.scrollLeft);
     storedYPosition = Math.round(canvas.scrollTop);
@@ -1323,7 +1377,10 @@ function initializeCanvas() {
   iframe = frameCanvas.querySelector('iframe');
   if (!iframe) {
     iframe = document.createElement('iframe');
+    iframe.sandbox = 'allow-scripts';
+    iframe.setAttribute('src', DEFAULT_PAGE);
     iframe.setAttribute('referrerpolicy', 'same-origin');
+    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
 
     // Styling for iframe
     iframe.style.width = '100%';
@@ -1344,6 +1401,9 @@ initializeCanvas();
 <script async='async' type='text/javascript'>
 //<![CDATA[  
 MAXIMIZED === '1' && PARAM_HTML !== null && (document.body.innerHTML = window.atob(PARAM_HTML));
+
+const hamburgerButton = document.getElementById('hamburger-button');
+
 //dataArea.focus();
 //editor.focus();
 //]]>
@@ -1412,7 +1472,6 @@ function fullScreen() {
 function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
-  const hamburgerButton = document.getElementById('hamburger-button');
 
   sidebar.classList.toggle('show');
   overlay.classList.toggle('show');
@@ -1425,13 +1484,13 @@ function toggleSidebar() {
 };
 
 function launchToast(type, message) {
-  const x = document.getElementById("toast")
-  let descElement = document.getElementById("desc");
-  let iconElement = document.getElementById("icon");
+  const x = document.getElementById('toast')
+  let descElement = document.getElementById('desc');
+  let iconElement = document.getElementById('icon');
 
   descElement.innerHTML = message;
    /*
-   if (type === "info") {
+   if (type === 'info') {
        iconElement.innerHTML = 'I:';
    } else if (type === "error") {
        iconElement.innerHTML = 'E:';
@@ -1440,9 +1499,9 @@ function launchToast(type, message) {
    }
    */
     
-   x.className = "show";
+   x.className = 'show';
    setTimeout(function() {
-      x.className = x.className.replace("show", "");
+      x.className = x.className.replace('show', '');
    }, 5000);
 };
 
@@ -1461,10 +1520,10 @@ function messageBox(title, body) {
 
   function handleKeyUp(e) {
     mbox.style.display = 'none';
-    document.removeEventListener('keyup', handleKeyUp);
+    //document.removeEventListener('keyup', handleKeyUp);
   }
 
-  document.addEventListener('keyup', handleKeyUp);
+  // document.addEventListener('keyup', handleKeyUp);
 };
 
 function allowCookies() {
@@ -1553,14 +1612,19 @@ function showTransientMessage(message) {
   }, 1500);
 };
 
-function handleTouchEnd(event) {
-  // Prevent default behavior to avoid unintended side effects
-  event.preventDefault();
+function handleHamburger(event) {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const hamburgerButton = document.getElementById('hamburger-button');
 
-  if (editorRender === 'iframe') {
-	alert('iframe');
-  } else if (editorRender === 'shadow') {
-	alert('shadow');
+  // Determine if it's a right-click or tap based on event type
+  const isRightClick = (event.type === 'mousedown' && event.button === 2);
+
+  if (isRightClick) { // Right-click on desktop
+    event.preventDefault(); // Prevent the default context menu
+    showCookies();
+  } else if (!sidebar.contains(event.target) && !hamburgerButton.contains(event.target) && sidebar.classList.contains('show')) {
+    toggleSidebar();
   }
 }
 
@@ -1599,8 +1663,6 @@ async function renderContent(data, renderMethod = 'shadow') {
     return;
   }
 
-  var tempXPosition = storedXPosition;
-  var tempYPosition = storedYPosition;
   lightDOM.innerHTML = data;
 
   try {
@@ -1618,12 +1680,16 @@ async function renderContent(data, renderMethod = 'shadow') {
 
         // Execute any scripts within the Shadow DOM
         executeScripts(shadowRoot);
+
+        //Assign form capture, if there is one
+        CaptureForm();
+        
+        // Restore scroll positioning after switch
+        frame.scrollTop = localStorage.getItem("position-x-scroll")
+        frame.scrollLeft = localStorage.getItem("position-y-scroll");
         break;
 
       case 'iframe':
-        tempXPosition = storedXPosition;
-        tempYPosition = storedYPosition;
-        
         // Show iframe and hide Shadow DOM
         iframe.style.display = 'block';
         shadowFrame.style.display = 'none';
@@ -1675,170 +1741,6 @@ function updatePageMetadata(data, renderMethod) {
   }
 }
 
-async function _renderContent(data, renderMethod = 'shadow') {
-  if (typeof data !== 'string') {
-    console.error('renderContent expects a string. Received:', data);
-    return;
-  }
-  frame = document.querySelector('.canvas'); // document.getElementById('output');
-
-  // Remove any existing 'frameCanvas' before creating a new one
-  const existingFrameCanvas = frame.querySelector('.frameCanvas');
-  if (existingFrameCanvas) {
-    frame.removeChild(existingFrameCanvas);
-  }
-
-  const frameCanvas = document.createElement('div');
-  frameCanvas.classList.add('frameCanvas');
-  frameCanvas.innerHTML = '';
-  frame.style.position = 'relative';  // Optional styling to fit the frameCanvas in the frame
-  frame.appendChild(frameCanvas);
-  
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = data;
-
-  try {
-    switch (renderMethod) {
-
-    case 'shadow':
-       const shadowFrame = document.createElement('div');
-       shadowFrame.classList.add('shadowFrame');
-       //shadowFrame.innerHTML = ''; // Clear any existing content
-       shadowFrame.style.position = 'relative';  // Optional styling
-       frameCanvas.appendChild(shadowFrame);
-
-       const shadowRoot = shadowFrame.attachShadow({ mode: 'open' });
-       shadowRoot.appendChild(tempDiv);
-       // await executeScripts(shadowRoot);     
-      break;
-
-      case 'iframe':
-        const iframe = document.createElement('iframe');
-
-        // iframe.setAttribute('referrerpolicy', 'no-referrer');
-        // iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
-        // iframe.setAttribute('referrerpolicy', 'origin');
-        // iframe.setAttribute('referrerpolicy', 'origin-when-cross-origin');
-        iframe.setAttribute('referrerpolicy', 'same-origin');
-        // iframe.setAttribute('referrerpolicy', 'strict-origin');
-        // iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
-        // iframe.setAttribute('referrerpolicy', 'unsafe-url');
-
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
-        iframe.style.position = 'absolute';
-        iframe.srcdoc = data;
-        frameCanvas.appendChild(iframe);
-
-        // Write HTML content into the iframe
-        const iframeDocument = iframe.contentWindow.document;
-        iframeDocument.open();
-        iframeDocument.write(data);
-        iframeDocument.close();
-
-        // If window.outWin exists, write the data there as well
-        if (window.outWin) {
-          const outFrame = window.outWin.document;
-          outFrame.open();
-          outFrame.write(data);
-          outFrame.close();
-        }
-        break;
-
-    case 'frame':
-        const frameset = document.createElement('frameset');
-        frameset.setAttribute('style', 'width: 100%; height: auto');
-        frameCanvas.appendChild(frameset);
-
-        const frame = document.createElement('frame');
-        frame.setAttribute('name', 'mainFrame');
-        frameset.appendChild(frame);
-
-        const frameDocument = frame.contentWindow.document;
-        frameDocument.open();
-        frameDocument.write(data);
-        frameDocument.close();
-
-        if (window.outWin) {
-          const outFrame = window.outWin.document;
-          outFrame.open();
-          outFrame.write(data);
-          outFrame.close();
-        }
-        break;
-
-      case 'light':
-        frameCanvas.innerHTML = data;
-        break;
-
-      case 'virtual':
-        // Clear existing content
-        frameCanvas.innerHTML = '';
-        // Render the virtual DOM with the provided data
-        frameCanvas.innerHTML = data; // renderVirtualDOM(frameCanvas, data);
-        executeScripts(frameCanvas);
-        break;
-
-    case 'fragment':
-      const fragment = document.createDocumentFragment();
-      const fragmentContent = document.createElement('div');
-      fragmentContent.innerHTML = data; // 'data' contains the HTML content to insert
-      fragment.appendChild(fragmentContent);
-
-      frameCanvas.appendChild(fragment);
-      break;
-
-    case 'template':
-      const template = document.createElement('template');
-      template.innerHTML = data;
-      const clone = document.importNode(template.content, true);
-      frameCanvas.appendChild(clone);
-      break;
-
-    case 'embed':
-      const embed = document.createElement('embed');
-      embed.style.width = '100%';
-      embed.style.height = '100%';
-      embed.innerHTML = data;
-      //embed.src = data.url; // 'data' should contain the URL to embed
-      embed.type = data.type || 'text/html'; // Specify the MIME type if available
-      frameCanvas.appendChild(embed);
-      break;
-
-    case 'object':
-      const obj = document.createElement('object');
-      obj.style.width = '100%';
-      obj.style.height = '100%';
-      // obj.setAttribute('data', data.url); // 'data' should contain the URL to embed
-      obj.setAttribute('innerHTML', data);
-      obj.type = data.type || 'text/html'; // Specify the MIME type if available
-      frameCanvas.appendChild(obj);
-      break;
-
-      default:
-        console.warn(`Unknown render method: ${renderMethod}`); // Handle unexpected renderMethod values
-        break;
-    }
-
-    const titleElement = tempDiv.querySelector('title') || frameCanvas.shadowRoot?.querySelector('title');
-    const noScript = tempDiv.querySelector('noscript') || frameCanvas.shadowRoot?.querySelector('noscript');
-    const script = tempDiv.querySelector('script') || frameCanvas.shadowRoot?.querySelector('script');
-
-    const pageTitle = (titleElement && titleElement.textContent.trim().length > 0)
-      ? `${titleElement.textContent} - ${DEFAULT_TITLE}`
-      : `Untitled - ${DEFAULT_TITLE}`;
-    document.title = pageTitle;
-    footer.innerText = noScript ? noScript.innerText : '';
-
-  } catch (error) {
-    handleErrors(error);
-  } finally {
-    editorRender = renderMethod;
-    executeScriptsSequentially(frameCanvas); // executeScripts(frameCanvas);
-  }
-}
-
 async function executeScriptsSequentially(context) {
   const scripts = Array.from(context.querySelectorAll('script'));
   
@@ -1878,6 +1780,22 @@ function executeScripts(context) {
     context.appendChild(newScript);
     script.remove();
   });
+};
+
+function CaptureForm() {
+  const form = shadowRoot.querySelector('form');
+  if (form) {
+    form.addEventListener("submit", function(event) {
+      event.preventDefault(); // Prevent form submission
+      const formData = new FormData(form);
+
+      let tempFormData = '';
+      for (const [key, value] of formData.entries()) {
+        tempFormData += `${key}: ${value}\n`;
+      }
+      alert(tempFormData);
+    });
+  }
 };
 
 /*
@@ -1939,12 +1857,12 @@ document.addEventListener('keydown', e => {
 });
 
 
-/*
-  if (e.ctrlKey && e.key === 'c') {
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'k') {
     e.preventDefault();
-    ShowCookies();
-  }
-*/
+    showCookies();
+    }
+});
 
 // CODEMIRROR
 editor.on("create", editor.setCursor({line: LinePosition , ch: ColumnPosition}) );
@@ -1970,7 +1888,6 @@ editor.on("keydown", function (instance, event) {
   }
 });
 
-editor.on("change", change);
 editor.on("cursorActivity", function() {
   //cursorRefresh();
   let cursor = editor.getCursor();
@@ -1982,32 +1899,11 @@ editor.on("cursorActivity", function() {
   //setCookies();
 });
 
-document.addEventListener('click', function(event) {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
-  const hamburgerButton = document.getElementById('hamburger-button');
-
-  if (!sidebar.contains(event.target) && !hamburgerButton.contains(event.target) && sidebar.classList.contains('show')) {
-	toggleSidebar();
-  }
-});
+// Add event listeners for both desktop and mobile interactions
+hamburgerButton.addEventListener('mousedown', handleHamburger);
+hamburgerButton.addEventListener('contextMenu', handleHamburger);
 
 editor.on("change", change);
-
-shadowRoot = document.querySelector('.shadowFrame').shadowRoot;
-const form = shadowRoot.querySelector('form');
-if (form) {
-  form.addEventListener("submit", function(event) {
-    event.preventDefault(); // Prevent form submission
-    const formData = new FormData(form);
-
-    let tempFormData = '';
-    for (const [key, value] of formData.entries()) {
-      tempFormData += `${key}: ${value}\n`;
-    }
-    alert(tempFormData);
-  });
-}
 
 /*
 fab.addEventListener('click', switchRender);
@@ -2121,6 +2017,7 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
 //<![CDATA[
   // initializeMouseHold(gutter, handleUp, handleDown, 1000);     
   initializeMouseHold(fab, switchRender, saveShortcut, 750);
+  //initializeMouseHold(hamburgerButton, toggleSidebar, showCookies, 750);
 //]]>
 </script>
 <!-- OPTIONS -->
