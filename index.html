@@ -186,7 +186,7 @@ const languagesMatched = (navigator.languages || [navigator.language]).find(lang
 const DEFAULT_TITLE = 'Recursive HTML';
 const DEFAULT_THEME = 'dark-mode'; // light-mode
 const DEFAULT_PAGE = (window.location.protocol + '//' + window.location.hostname + window.location.pathname);
-const BLANK_PAGE = DEFAULT_PAGE + '?' + 'm=0' + '&' + 'HTML=';
+const BLANK_PAGE = DEFAULT_PAGE + '?' /* + 'm=0+ '&' */ + 'HTML=';
 const HELP_URL = `https://developer.mozilla.org/${languagesMatched}/docs/Web/HTML/Element/`;
       
 const isMobile = ('maxTouchPoints' in navigator) && navigator.maxTouchPoints > 0;
