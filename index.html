@@ -3194,17 +3194,29 @@ elementsList.forEach(({ category, elements }, index) => {
 		const detailElement = document.createElement('details');
 		detailElement.classList.add('tag-type');
 		detailElement.innerHTML = `<summary title="Type: ${elementType}">Example of ${displayType.toLowerCase()}:</summary>`;
-
-        // Create the rendered element but skip if the tag is 'a'
-        if (tag.toLowerCase() !== 'a') {  // Skip <a> tags
-            const renderedElement = document.createElement(tag);
-            renderedElement.innerText = `${tag}`;
-
-            const renderedContainer = document.createElement('div');
-            renderedContainer.classList.add('example-render');
-            renderedContainer.appendChild(renderedElement);
-            detailElement.appendChild(renderedContainer);
-        }
+	
+	        // Create the rendered element but skip if the tag is 'a'
+	        if (tag.toLowerCase() !== 'a') {  
+	            const renderedElement = document.createElement(tag);
+	            renderedElement.innerText = `${tag}`;
+	
+	            // Check if the tag is a form field element that needs an id or name
+	            if (['input', 'select', 'textarea'].includes(tag.toLowerCase())) {
+	                renderedElement.name = `${tag}_name`;  // Assign a name
+	                renderedElement.id = `${tag}_id`;      // Assign an id
+	            };
+	
+	            // Ensure <button> has an explicit type attribute
+	            if (tag.toLowerCase() === 'button') {
+	                renderedElement.type = 'button';  // Set button type explicitly
+	            };
+	
+	            const renderedContainer = document.createElement('div');
+	            renderedContainer.classList.add('example-render');
+	            renderedContainer.dataset.tag = tag;  // Use dataset instead of name
+	            renderedContainer.appendChild(renderedElement);
+	            detailElement.appendChild(renderedContainer);
+	        };
 
 		detailsContainer.appendChild(detailElement);
 		// detailsContainer.appendChild(readMoreLink);
