@@ -1,0 +1,35 @@
+name: Generate Service Worker
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      # Step to install npm dependencies if your script has any
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate Service Worker
+        run: node ./extra/generate-sw.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Commit and push changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add service-worker.js
+          git commit -m "Generated service-worker.js with latest commit hash" || echo "No changes to commit"
+          git push
