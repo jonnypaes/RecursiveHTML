@@ -1,5 +1,5 @@
 // service-worker.js
-const CACHE_VERSION = '79644c91ba8b3ef5ec87c79696e0748979c5a076';
+const CACHE_VERSION = '2e38036e1510f4a169ac1a1ef5567113efb0bc2d';
 const CACHE_NAME = `${CACHE_VERSION}`;
 const CACHED_URLS = ['/'];
 
