@@ -6,7 +6,6 @@ const path = require('path');
 const commitSHA = execSync('git rev-parse HEAD').toString().trim();
 
 const serviceWorkerContent = `
-// service-worker.js
 const CACHE_VERSION = '${commitSHA}';
 const CACHE_NAME = \`\${CACHE_VERSION}\`;
 const CACHED_URLS = ['/'];
@@ -50,5 +49,6 @@ self.addEventListener('activate', (event) => {
 
 // Write the new service worker file
 fs.writeFileSync(path.join(__dirname, '../service-worker.js'), serviceWorkerContent.trim());
+
 
 console.log(`Generated service-worker.js with CACHE_VERSION: ${commitSHA}`);
