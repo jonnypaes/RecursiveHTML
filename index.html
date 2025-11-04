@@ -22,7 +22,7 @@
 <meta content='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMtSZKs9A9E-uUTS5dVS2rhN5K_6ZqQYT05i9nkcHdsHAcma5G9yqVFdEvGGqK2O8VZAWeIZR81UuX_jromfgj6RdyZoST4332mLmMgLHQJDPZntR82ZrOkwBfoYWiSWD72DqhMazqwZhn5NMbf2BkbeB9TPxnaN6x1RJ8NVxbAEcN5pYHodsn9gFfRbE/s512-rw/Recursive_HTML_ICON.png' property='og:image'/>
 <link href='https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMtSZKs9A9E-uUTS5dVS2rhN5K_6ZqQYT05i9nkcHdsHAcma5G9yqVFdEvGGqK2O8VZAWeIZR81UuX_jromfgj6RdyZoST4332mLmMgLHQJDPZntR82ZrOkwBfoYWiSWD72DqhMazqwZhn5NMbf2BkbeB9TPxnaN6x1RJ8NVxbAEcN5pYHodsn9gFfRbE/s192-rw/Recursive_HTML_ICON.png' rel='icon' sizes='192x192'/>
 <link href='data:application/json;base64,ewogICJuYW1lIjogIlJlY3Vyc2l2ZSBIVE1MIiwKICAic2hvcnRfbmFtZSI6ICJSZWN1cnNpdmUgSFRNTCIsCiAgImlkIjogIlJlY3Vyc2l2ZUhUTUwvIiwKICAic3RhcnRfdXJsIjogIlJlY3Vyc2l2ZUhUTUwvP0hUTUw9IiwKICAic2NvcGUiOiAiUmVjdXJzaXZlSFRNTC8iLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLAogICJ0aGVtZV9jb2xvciI6ICIjMDAwMDAwIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiL1JlY3Vyc2l2ZUhUTUwvZmF2aWNvbi5pY28iLAogICAgICAidHlwZSI6ICJpbWFnZS94LWljb24iLAogICAgICAic2l6ZXMiOiAiYW55IgogICAgfQogIF0sCiAgImZpbGVfaGFuZGxlcnMiOiBbCiAgICB7CiAgICAgICJhY3Rpb24iOiAiUmVjdXJzaXZlSFRNTC9vcGVuLWZpbGUiLAogICAgICAiYWNjZXB0IjogewogICAgICAgICJ0ZXh0L2h0bWwiOiBbIi5odG1sIiwgIi5odG0iXQogICAgICB9CiAgICB9CiAgXQp9Cgo=' rel='manifest'/>
-<script src='https://jonnypaes.github.io/console.js/console.js'></script>
+<script src='https://jonnypaes.github.io/console.js/console-min.js'></script>
 
 <!-- Schema tags -->
 <script type='application/ld+json'>
@@ -237,7 +237,7 @@ const languagesMatched = (navigator.languages || [navigator.language]).find(lang
 const DEFAULT_TITLE = 'Recursive HTML';
 const DEFAULT_THEME = 'dark-mode'; // light-mode
 const DEFAULT_PAGE = (window.location.protocol + '//' + window.location.hostname + window.location.pathname);
-const BLANK_PAGE = DEFAULT_PAGE + '?' + 'm=0' + '&' + 'HTML=';
+const BLANK_PAGE = DEFAULT_PAGE + '?' + 'HTML=';
 const HELP_URL = `https://developer.mozilla.org/${languagesMatched}/docs/Web/HTML/Element/`;
       
 const isMobile = ('maxTouchPoints' in navigator) && navigator.maxTouchPoints > 0;
@@ -3924,4 +3924,5 @@ function encodeBase64(string) {
 </style>
 
 </body>
+
 </html>
