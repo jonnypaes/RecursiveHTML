@@ -1936,6 +1936,10 @@ function editorInsert(tagName) {
 }
 
 function cursorRefresh(){
+  if (typeof editor === 'undefined' || editor === null) {
+    return; 
+  }
+  
   let cursor = editor.getCursor();
   var LinePosition = cursor.line;
   var ColumnPosition = cursor.ch;
@@ -3936,4 +3940,5 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
