@@ -19,7 +19,7 @@
 <meta content='https://www.recursivehtml.com/images/Recursive_HTML_ICON.png' property='og:image'/>
 <meta content='Recursive HTML is a client-side tool to test and debug little abstractions of code. You write the HTML code, and receive the output recursively' property='og:description'/>
 
-<link href='data:application/json;base64,ewogICJuYW1lIjogIlJlY3Vyc2l2ZSBIVE1MIiwKICAic2hvcnRfbmFtZSI6ICJSZWN1cnNpdmUgSFRNTCIsCiAgImlkIjogIlJlY3Vyc2l2ZUhUTUwvIiwKICAic3RhcnRfdXJsIjogIlJlY3Vyc2l2ZUhUTUwvP0hUTUw9IiwKICAic2NvcGUiOiAiUmVjdXJzaXZlSFRNTC8iLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmZmZmZmYiLAogICJ0aGVtZV9jb2xvciI6ICIjMDAwMDAwIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiL1JlY3Vyc2l2ZUhUTUwvZmF2aWNvbi5pY28iLAogICAgICAidHlwZSI6ICJpbWFnZS94LWljb24iLAogICAgICAic2l6ZXMiOiAiYW55IgogICAgfQogIF0sCiAgImZpbGVfaGFuZGxlcnMiOiBbCiAgICB7CiAgICAgICJhY3Rpb24iOiAiUmVjdXJzaXZlSFRNTC9vcGVuLWZpbGUiLAogICAgICAiYWNjZXB0IjogewogICAgICAgICJ0ZXh0L2h0bWwiOiBbIi5odG1sIiwgIi5odG0iXQogICAgICB9CiAgICB9CiAgXQp9Cgo=' rel='manifest'/>
+<link href='data:application/json;base64,ewogICAibmFtZSI6IlJlY3Vyc2l2ZSBIVE1MIiwKICAgInNob3J0X25hbWUiOiJSZWN1cnNpdmUgSFRNTCIsCiAgICJpZCI6Ii8iLAogICAic3RhcnRfdXJsIjoiLyIsCiAgICJzY29wZSI6Ii8iLAogICAiYmFja2dyb3VuZF9jb2xvciI6IiNmZmZmZmYiLAogICAidGhlbWVfY29sb3IiOiIjMDAwMDAwIiwKICAgImRpc3BsYXkiOiJzdGFuZGFsb25lIiwKICAgImljb25zIjpbCiAgICAgIHsKICAgICAgICAgInNyYyI6Ii9mYXZpY29uLmljbyIsCiAgICAgICAgICJ0eXBlIjoiaW1hZ2UveC1pY29uIiwKICAgICAgICAgInNpemVzIjoiYW55IgogICAgICB9CiAgIF0sCiAgICJmaWxlX2hhbmRsZXJzIjpbCiAgICAgIHsKICAgICAgICAgImFjdGlvbiI6Ii9vcGVuLWZpbGUiLAogICAgICAgICAiYWNjZXB0Ijp7CiAgICAgICAgICAgICJ0ZXh0L2h0bWwiOlsKICAgICAgICAgICAgICAgIi5odG1sIiwKICAgICAgICAgICAgICAgIi5odG0iCiAgICAgICAgICAgIF0KICAgICAgICAgfQogICAgICB9CiAgIF0KfQ==' rel='manifest'/>
 <link href='https://www.recursivehtml.com/favicon.ico' rel='icon' type='image/x-icon'/>
 <link href='https://www.recursivehtml.com/' rel='canonical'/>
 <link href='https://www.recursivehtml.com/favicon.ico' rel='icon' sizes='192x192'/>	
@@ -2490,6 +2490,10 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
    */
 
   function updateShadowContent() {
+	if (typeof editor === 'undefined' || editor === null) {
+        console.log("Editor variable is not yet initialized. Skipping content update.");
+        return;
+    }
     if (isUpdating) return; // Prevent recursive updates
     isUpdating = true;
     const htmlContent = editor.getValue();
@@ -3940,5 +3944,6 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
 
