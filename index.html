@@ -2957,6 +2957,7 @@ function initializeMouseHold(element, shortPress, longPress, holdDuration = 1000
     const tagSpan = document.getElementById('element-tag');
     if (element instanceof HTMLElement) {
         tagSpan.textContent = element.tagName.toLowerCase();
+	    tagSpan.title = element.constructor.name;    
 
         // Display the element's index path
         const elementPath = getElementIndexPath(element);
@@ -3944,6 +3945,7 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
 
 
