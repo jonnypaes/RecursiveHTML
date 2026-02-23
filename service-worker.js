@@ -1,4 +1,4 @@
-const CACHE_VERSION = '225f10f55c5ede652d489e7cf49f8f83f612feb0';
+const CACHE_VERSION = '9e808bbb440e529318ca7858cd77a2a5624ccd3e';
 const CACHE_NAME = `${CACHE_VERSION}`;
 const CACHED_URLS = ['/'];
 
