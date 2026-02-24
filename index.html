@@ -185,6 +185,7 @@ const MAXIMIZED = getUrlParameters('m', '', true);
 const RENDERER = getUrlParameters('RENDER', '', true);
 const DEBUG = getUrlParameters('DEBUG', '', true);
 const PARAM_HTML = getUrlParameters('HTML', '', true); // limit: 8.192 bytes
+const PARAM_HASH = window.location.hash;	
 const lightDOM = document.createElement('div');
 //MAXIMIZED === '1' && PARAM_HTML !== null && alert('Maximized.');
 
@@ -1365,9 +1366,22 @@ const theme = systemPrefersDark ? "dark-mode" : "light-mode";
 (function() {
   var onpageLoad = localStorage.getItem("theme") || theme;
   var element = document.body;
+  const link = document.querySelector(`${PARAM_HASH}.root-element a`)?.href;
+  
   element.classList.add(onpageLoad);
 
   document.addEventListener("DOMContentLoaded", function() {
+	  
+	// Open as param of sidebar 
+    if (PARAM_HASH) {
+      alert(`Loading: '${PARAM_HASH}'`)?.href;
+      const link = document.querySelector(`${PARAM_HASH}.root-element a`)?.href;
+
+      if (link) {
+        window.location.href = link; 
+      }
+    }
+	  
     // Check for theme in localStorage
     var storedTheme = localStorage.getItem("theme");
     
@@ -3945,6 +3959,7 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
 
 
