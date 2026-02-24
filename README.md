@@ -15,20 +15,21 @@ Recursive HTML is a client-side tool to test and debug small code snippets. You 
 * Shareable links without a backend (using Base64)
 * Saves content to a local file
 * Saves scroll position on editor change
-* Capturing: `Console.log`, `console.error`, `throw new Error('!')`, Form submit and Noscript | [Example](https://www.recursivehtml.com/?m=0&HTML=PHNjcmlwdD5jb25zb2xlLmxvZygnaGknKTwvc2NyaXB0Pgo8bm9zY3JpcHQ+SmF2YXNjcmlwdCBvZmY8L25vc2NyaXB0Pgk=)
+* Sidebar examples now can be called by link: Example: `https://www.recursivehtml.com#`[sectioning](https://www.recursivehtml.com#sectioning)
+* Capturing: [Script](https://www.recursivehtml.com#scripting): `Console.log`, `console.error`, `throw new Error('!')`, [Form Submit](https://www.recursivehtml.com#forms) and Noscript
 * Sublime shortcuts
 * Hold fab button (mobile) & `Ctrl + S` (Computer) to save it
 * Sniper-like screen to show sizes and scroll offset in canvas | [Example](https://www.recursivehtml.com/?m=0&HTML=PGRpdiBzdHlsZT0id2lkdGg6MjAwMHB4O2hlaWdodDoyMDAwcHgiLz4=)
 * Result on a div projecting a shadow-dom
 * Pressing the fab button shows the content sandbox (as an iframe)
-* Full page (MAXIMIXED) rendering (`@param m=1 + HTML=...`) | [Example](https://www.recursivehtml.com/?m=0&HTML=PHA+V2VsY29tZSB0byA8Yj5SZWN1cnNpdmUgSFRNTDwvYj48L3A+)
+* Full page (MAXIMIXED) rendering (`@param m=1 + HTML=...`) | [Example](https://www.recursivehtml.com/?m=1&HTML=PHA+V2VsY29tZSB0byA8Yj5SZWN1cnNpdmUgSFRNTDwvYj48L3A+)
 
 #### Partially done
 * Recursive sidebar with HTML elements
 * Context menu with "reverse rendering"
 
 #### Not Done
-* Working offline (Because it doesn't allow it without a service worker)
+* Working offline (full cache)
 
 #### Uses
 * [Codemirror 5](https://codemirror.net/5/)
