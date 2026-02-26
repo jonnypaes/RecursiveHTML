@@ -181,11 +181,11 @@ function getUrlParameters(parameter, staticURL, decode) {
   return null;
 }
 
-const MAXIMIZED = getUrlParameters('m', '', true);
+const MAXIMIZED = getUrlParameters('FULL', '', true);
 const RENDERER = getUrlParameters('RENDER', '', true);
 const DEBUG = getUrlParameters('DEBUG', '', true);
 const PARAM_HTML = getUrlParameters('HTML', '', true); // limit: 8.192 bytes
-const PARAM_HASH = window.location.hash;	
+const PARAM_HASH = window.location.hash.toLowerCase();
 const lightDOM = document.createElement('div');
 //MAXIMIZED === '1' && PARAM_HTML !== null && alert('Maximized.');
 
@@ -3959,6 +3959,7 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
 
 
