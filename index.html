@@ -1230,7 +1230,19 @@ a.example-link:hover, a.example-link:focus {
              display: inline;
         }
     }
-    
+ 
+@media (max-width: 225px) {
+  #logo label {
+    font-size: 0 !important;
+  }
+
+  #logo label::after {
+    content: "R. MINI";
+    font-size: 18px; 
+    font-weight: bold;
+  }
+}
+	 
 </style>
 
 </head>
@@ -1239,7 +1251,7 @@ a.example-link:hover, a.example-link:focus {
 	<main id='main'>
 		<!-- <'Header'> -->
 		<header class='menu' id='menu'>
-			<a href='/' id='logo' style='text-decoration: none;'><label alt='Recursive HTML' style='font-weight:bold;font-size:18px;' tabindex='0' title='Blank Page'>Recursive HTML</label></a>
+			<a href='/' id='logo' style='text-decoration: none;'><label aria-label='Blank Page' style='font-weight:bold;font-size:18px;' tabindex='0' title='Blank Page'><span class='first'>Recursive</span> <span class='second'>HTML</span></label></a>
 			<label class='control' data-first-word='Save' id='btnSave' onClick='saveDiag();return false;' title='Save File'><span class='emoji'>💾</span><span class='short'>Save</span><span class='full'> file</span></label>
 			<label class='control' data-first-word='Dark' id='btnTheme' onClick='themeAlternate();return false;' title='Theme alternator'><span class='emoji'>🌓</span><span class='short'>Dark</span><span class='full'> mode</span></label>
 			<label class='control' data-first-word='Open' id='btnOpen' onClick='return false;' style='display:none' title='Open File'><span class='emoji'>📁</span><span class='short'>Open</span><span class='full'> file</span></label>
@@ -1744,6 +1756,20 @@ function fullScreen() {
   window.open(blobUrl);
 };
 
+const updateLogo = (index, newWord) => {
+  const label = document.querySelector('#logo label');
+  
+  if (label) {
+    let words = label.textContent.trim().split(/\s+/); 
+    
+    words[index] = newWord;
+    
+    label.textContent = words.join(" ");
+  } else {
+    console.warn("Logo label not found!");
+  }
+};
+	
 /*
 function toggleSidebar(element = null) {
   alert("Sudebar Toggled");
@@ -2053,9 +2079,37 @@ async function renderContent(data, renderMethod = 'shadow') {
     return;
   }
 
-  lightDOM.innerHTML = data;
+
+  const isJSON = data.trim().startsWith('{') || data.trim().startsWith('[');
+  let blobUrl = null;
+
+  if (isJSON) {
+    try {
+      const parsed = JSON.parse(data);
+      updateLogo(1, "JSON");
+      const blob = new Blob([JSON.stringify(parsed, null, 2)], { type: 'application/json' });
+      blobUrl = URL.createObjectURL(blob);
+    } catch (e) { 
+      /* Not valid JSON, treat as HTML */ 
+    }
+  }
 
   try {
+    if (blobUrl) {
+        // 2. JSON RENDER (The Fix: Remove srcdoc so src works)
+        iframe.style.display = 'block';
+        shadowFrame.style.display = 'none';
+      
+        iframe.removeAttribute('srcdoc'); // Critical: Clear HTML mode
+        iframe.src = blobUrl;            // Load JSON viewer
+      
+        return; // Exit early
+      }
+
+      // 3. HTML RENDER
+      lightDOM.innerHTML = data;
+      updateLogo(1, "HTML");
+	
     switch (renderMethod) {
       case 'shadow':
         // Show Shadow DOM and hide iframe
@@ -2068,15 +2122,12 @@ async function renderContent(data, renderMethod = 'shadow') {
         // Append new content to Shadow Root
         shadowRoot.appendChild(lightDOM);
 
-        // Execute any scripts within the Shadow DOM
-        executeScripts(shadowRoot);
-
-        //Assign form capture, if there is one
-        CaptureForm();
+        if (window.executeScripts) executeScripts(shadowRoot);
+        if (window.CaptureForm) CaptureForm();
         
         // Restore scroll positioning after switch
-        frame.scrollTop = localStorage.getItem("position-y-scroll")
-        frame.scrollLeft = localStorage.getItem("position-x-scroll");
+        frame.scrollTop = localStorage.getItem("position-y-scroll") || 0;
+        frame.scrollLeft = localStorage.getItem("position-x-scroll") || 0;
         break;
 
       case 'iframe':
@@ -2084,10 +2135,9 @@ async function renderContent(data, renderMethod = 'shadow') {
         iframe.style.display = 'block';
         shadowFrame.style.display = 'none';
 
-        // Update iframe content using srcdoc
+		iframe.removeAttribute('src'); 
         iframe.srcdoc = data;
 
-        // Alternatively, directly write to the iframe's document
         const iframeDocument = iframe.contentWindow.document;
         iframeDocument.open();
         iframeDocument.write(data);
@@ -3959,6 +4009,7 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
 
 
