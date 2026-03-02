@@ -22,9 +22,9 @@
 <link href='data:application/json;base64,ewogICAibmFtZSI6IlJlY3Vyc2l2ZSBIVE1MIiwKICAgInNob3J0X25hbWUiOiJSZWN1cnNpdmUgSFRNTCIsCiAgICJpZCI6Ii8iLAogICAic3RhcnRfdXJsIjoiLyIsCiAgICJzY29wZSI6Ii8iLAogICAiYmFja2dyb3VuZF9jb2xvciI6IiNmZmZmZmYiLAogICAidGhlbWVfY29sb3IiOiIjMDAwMDAwIiwKICAgImRpc3BsYXkiOiJzdGFuZGFsb25lIiwKICAgImljb25zIjpbCiAgICAgIHsKICAgICAgICAgInNyYyI6Ii9mYXZpY29uLmljbyIsCiAgICAgICAgICJ0eXBlIjoiaW1hZ2UveC1pY29uIiwKICAgICAgICAgInNpemVzIjoiYW55IgogICAgICB9CiAgIF0sCiAgICJmaWxlX2hhbmRsZXJzIjpbCiAgICAgIHsKICAgICAgICAgImFjdGlvbiI6Ii9vcGVuLWZpbGUiLAogICAgICAgICAiYWNjZXB0Ijp7CiAgICAgICAgICAgICJ0ZXh0L2h0bWwiOlsKICAgICAgICAgICAgICAgIi5odG1sIiwKICAgICAgICAgICAgICAgIi5odG0iCiAgICAgICAgICAgIF0KICAgICAgICAgfQogICAgICB9CiAgIF0KfQ==' rel='manifest'/>
 <link href='https://www.recursivehtml.com/favicon.ico' rel='icon' type='image/x-icon'/>
 <link href='https://www.recursivehtml.com/' rel='canonical'/>
-<link href='https://www.recursivehtml.com/favicon.ico' rel='icon' sizes='192x192'/>	
+<link href='https://www.recursivehtml.com/extra/images/Recursive_HTML_ICON.png' rel='icon' sizes='512x512'/>	
 	
-<script src='https://jonnypaes.github.io/console.js/console-min.js'></script>
+<script src="https://cdn.jsdelivr.net/gh/jonnypaes/console.js/console-min.js"></script>
 
 <!-- Schema tags -->
 <script type='application/ld+json'>
@@ -129,10 +129,6 @@
 // https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.20/addon/bidi/bidi.min.js
 !!function(a){"object"==typeof exports&&"object"==typeof module?a(require("../../lib/codemirror")):"function"==typeof define&&define.amd?define(["../../lib/codemirror"],a):a(CodeMirror)}(function(b){function a(b,a){return function(d,c,e,f,g,h){for(var j,k=c+(f?1:0),l=a&&a(c);b<0?k>l:k<l;k+=b)if(j=h.getTokenTypeAt(d,k),null==j||"string"!=j&&"comment"!=j)return e(k),!1;return!0}}var c={":":["mso-bidi-font-family"],"bidi-override":["direction","unicode-bidi"]};b.defineMode("bidi",function(){return{token:function(b,a){return c.hasOwnProperty(b.currentToken().type)&&b.match(b.currentToken().text,!0)?b.currentToken().type:"bidi"}}}),b.defineExtension("bidiCharByMode",function(b){var a=c[b];return a||(a=c[b.toLowerCase()]),a}),b.defineExtension("findMatchingBidiChar",function(b,c,e,f,g){return a(-1,b)(c,e,f,g)}),b.defineExtension("scanForBidiChar",function(b,c,e,f,g){return a(1,b)(c,e,f,g)})});
 
-// Panel.js
-// https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.20/addon/display/panel.js
-!function(e){"object"==typeof exports&&"object"==typeof module?e(require("../../lib/codemirror")):"function"==typeof define&&define.amd?define(["../../lib/codemirror"],e):e(CodeMirror)}(function(e){function t(e,t,i,n){this.cm=e,this.node=t,this.options=i,this.height=n,this.cleared=!1}function i(e,t){for(var i=t.nextSibling;i;i=i.nextSibling)if(i==e.getWrapperElement())return!0;return!1}e.defineExtension("addPanel",function(e,n){n=n||{},this.state.panels||(r=this,o=r.getWrapperElement(),s=parseInt((window.getComputedStyle?window.getComputedStyle(o):o.currentStyle).height),l=r.state.panels={setHeight:o.style.height,panels:[],wrapper:document.createElement("div")},p=r.hasFocus(),a=r.getScrollInfo(),o.parentNode.insertBefore(l.wrapper,o),l.wrapper.appendChild(o),r.scrollTo(a.left,a.top),p&&r.focus(),r._setSize=r.setSize,null!=s&&(r.setSize=function(e,t){if(t||(t=l.wrapper.offsetHeight),l.setHeight=t,"number"!=typeof t){var i=/^(\d+\.?\d*)px$/.exec(t);i?t=Number(i[1]):(l.wrapper.style.height=t,t=l.wrapper.offsetHeight)}var n=t-l.panels.map(function(e){return e.node.getBoundingClientRect().height}).reduce(function(e,t){return e+t},0);r._setSize(e,n),s=t}));var r,o,s,l,p,a,h=this.state.panels,c=h.wrapper,f=this.getWrapperElement(),d=n.replace instanceof t&&!n.replace.cleared;n.after instanceof t&&!n.after.cleared?c.insertBefore(e,n.before.node.nextSibling):n.before instanceof t&&!n.before.cleared?c.insertBefore(e,n.before.node):d?(c.insertBefore(e,n.replace.node),n.replace.clear(!0)):"bottom"==n.position?c.appendChild(e):"before-bottom"==n.position?c.insertBefore(e,f.nextSibling):"after-top"==n.position?c.insertBefore(e,f):c.insertBefore(e,c.firstChild);var g=n&&n.height||e.offsetHeight,u=new t(this,e,n,g);return h.panels.push(u),this.setSize(),n.stable&&i(this,e)&&this.scrollTo(null,this.getScrollInfo().top+g),u}),t.prototype.clear=function(e){if(!this.cleared){this.cleared=!0;var t,n,r,o,s,l=this.cm.state.panels;l.panels.splice(l.panels.indexOf(this),1),this.cm.setSize(),this.options.stable&&i(this.cm,this.node)&&this.cm.scrollTo(null,this.cm.getScrollInfo().top-this.height),l.wrapper.removeChild(this.node),0!=l.panels.length||e||(t=this.cm,n=t.state.panels,t.state.panels=null,r=t.getWrapperElement(),o=t.hasFocus(),s=t.getScrollInfo(),n.wrapper.parentNode.replaceChild(r,n.wrapper),t.scrollTo(s.left,s.top),o&&t.focus(),r.style.height=n.setHeight,t.setSize=t._setSize,t.setSize())}},t.prototype.changed=function(){this.height=this.node.getBoundingClientRect().height,this.cm.setSize()}});
-	
 //]]>
 </script>
 
@@ -185,6 +181,7 @@ const MAXIMIZED = getUrlParameters('FULL', '', true);
 const RENDERER = getUrlParameters('RENDER', '', true);
 const DEBUG = getUrlParameters('DEBUG', '', true);
 const PARAM_HTML = getUrlParameters('HTML', '', true); // limit: 8.192 bytes
+const PARAM_BODY = getUrlParameters('BODY', '', true); 	
 const PARAM_HASH = window.location.hash.toLowerCase();
 const lightDOM = document.createElement('div');
 //MAXIMIZED === '1' && PARAM_HTML !== null && alert('Maximized.');
@@ -241,6 +238,7 @@ handleFileLaunch(PARAM_HTML);
 const languagesAvailable = ["pt-BR", "en-US", "es", "fr", "ja", "ko", "ru", "zh-CN", "zh-TW"];
 const languagesMatched = (navigator.languages || [navigator.language]).find(lang => languagesAvailable.includes(lang));
 
+const AUTHOR = 'Jonny Paes';	
 const DEFAULT_TITLE = 'Recursive HTML';
 const DEFAULT_THEME = 'dark-mode'; // light-mode
 const DEFAULT_PAGE = (window.location.protocol + '//' + window.location.hostname + window.location.pathname);
@@ -1554,13 +1552,14 @@ function toggleElement() {
 <!-- UI INIT -->
 <script defer='defer' type='text/javascript'>
 //<![CDATA[  
+const bodyCall = (PARAM_HTML !== null) ? PARAM_HTML : PARAM_BODY;
 
-if (PARAM_HTML === null) {
-  dataArea.value = exampleHTML;
-} else if (PARAM_HTML === '') {
-  dataArea.value = '';
-} else {
-  dataArea.value = window.atob(PARAM_HTML);
+if (bodyCall === null) { 
+  dataArea.value = exampleHTML; 
+} else if (bodyCall === '') { 
+  dataArea.value = ''; 
+} else { 
+  dataArea.value = window.atob(bodyCall); 
 }
 
 if (!navigator.onLine) {
@@ -4009,6 +4008,7 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
 
 
