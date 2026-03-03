@@ -2077,7 +2077,6 @@ async function renderContent(data, renderMethod = 'shadow') {
     return;
   }
 
-
   const isJSON = data.trim().startsWith('{') || data.trim().startsWith('[');
   let blobUrl = null;
 
@@ -2129,6 +2128,7 @@ async function renderContent(data, renderMethod = 'shadow') {
         break;
 
       case 'iframe':
+		iframe.setAttribute('sandbox', 'allow-scripts allow-forms');
         // Show iframe and hide Shadow DOM
         iframe.style.display = 'block';
         shadowFrame.style.display = 'none';
@@ -2142,7 +2142,7 @@ async function renderContent(data, renderMethod = 'shadow') {
         iframeDocument.close();
 
         // If window.outWin exists, write the data there as well
-        if (window.outWin) {
+        if (window.outWin && window.outWin.document) {
           const outFrame = window.outWin.document;
           outFrame.open();
           outFrame.write(data);
@@ -4007,6 +4007,7 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
 
 
