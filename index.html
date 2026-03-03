@@ -2088,7 +2088,7 @@ async function renderContent(data, renderMethod = 'shadow') {
       const blob = new Blob([JSON.stringify(parsed, null, 2)], { type: 'application/json' });
       blobUrl = URL.createObjectURL(blob);
     } catch (e) { 
-      /* Not valid JSON, treat as HTML */ 
+      console.error("Error:", e.message);
     }
   }
 
@@ -4007,6 +4007,7 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
 
 
