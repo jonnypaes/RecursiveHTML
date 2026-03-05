@@ -2083,6 +2083,7 @@ async function renderContent(data, renderMethod = 'shadow') {
     try {
       const parsed = JSON.parse(data);
       updateLogo(1, "JSON");
+	  editor.setOption("mode", "application/json");
       const blob = new Blob([JSON.stringify(parsed, null, 2)], { type: 'application/json' });
       blobUrl = URL.createObjectURL(blob);
     } catch (e) { 
@@ -2105,6 +2106,7 @@ async function renderContent(data, renderMethod = 'shadow') {
       // 3. HTML RENDER
       lightDOM.innerHTML = data;
       updateLogo(1, "HTML");
+	  editor.setOption("mode", "htmlmixed");
 	
     switch (renderMethod) {
       case 'shadow':
@@ -4006,6 +4008,7 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
 
 
