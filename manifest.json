@@ -1,0 +1,28 @@
+{
+   "name":"Recursive HTML",
+   "short_name":"Recursive HTML",
+   "id":"/",
+   "start_url":"/",
+   "scope":"/",
+   "background_color":"#ffffff",
+   "theme_color":"#000000",
+   "display":"standalone",
+   "icons":[
+      {
+         "src":"/favicon.ico",
+         "type":"image/x-icon",
+         "sizes":"any"
+      }
+   ],
+   "file_handlers":[
+      {
+         "action":"/open-file",
+         "accept":{
+            "text/html":[
+               ".html",
+               ".htm"
+            ]
+         }
+      }
+   ]
+}
