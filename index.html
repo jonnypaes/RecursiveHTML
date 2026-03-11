@@ -247,6 +247,17 @@ handleFileLaunch(PARAM_HTML);
 //]]>
 </script>
 
+<!-- HTML Core -->
+<script async='async' type='text/javascript'>
+function openPrompt() {
+  const value = prompt("Enter a value:");
+
+  if (value !== null) {
+    alert(value);
+  }
+}
+</script>
+	
 <!-- BASE SETTINGS -->
 <script async='async' type='text/javascript'>
 //<![CDATA[  
@@ -2069,7 +2080,7 @@ function handleHamburger(event) {
 
   if (isRightClick) { // Right-click on desktop
     event.preventDefault(); // Prevent the default context menu
-    showCookies();
+    openPrompt();
   } else if (!sidebar.contains(event.target) && !hamburgerButton.contains(event.target) && sidebar.classList.contains('show')) {
     toggleSidebar();
   }
@@ -2413,6 +2424,7 @@ editor.on("cursorActivity", function() {
 
 // Add event listeners for both desktop and mobile interactions
 hamburgerButton.addEventListener('mousedown', handleHamburger);
+hamburgerButton.addEventListener('touchend', handleHamburger);
 hamburgerButton.addEventListener('contextMenu', handleHamburger);
 
 editor.on("change", change);
@@ -4062,6 +4074,7 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
 
 
