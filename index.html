@@ -1188,6 +1188,10 @@ hr {
 /* Remove margin from root element */
 }
 
+.json-error {
+  background-color: rgba(255, 0, 0, 0.3);
+}
+	
 .example-container {
   display: flex;
   justify-content: space-between;
@@ -2107,20 +2111,39 @@ async function renderContent(data, renderMethod = 'shadow') {
     return;
   }
 
-  const isJSON = data.trim().startsWith('{') || data.trim().startsWith('[');
-  let blobUrl = null;
+const isJSON = data.trim().startsWith('{') || data.trim().startsWith('[');
+let blobUrl = null;
 
-  if (isJSON) {
-    try {
-      const parsed = JSON.parse(data);
-      updateLogo(1, "JSON");
-	  editor.setOption("mode", "application/json");
-      const blob = new Blob([JSON.stringify(parsed, null, 2)], { type: 'application/json' });
-      blobUrl = URL.createObjectURL(blob);
-    } catch (e) { 
-      console.error("Error:", e.message);
+// Clear previous error marks
+editor.getAllMarks().forEach(mark => mark.clear());
+
+if (isJSON) {
+  try {
+    const parsed = JSON.parse(data);
+
+    // Valid JSON → update editor
+    updateLogo(1, "JSON");
+    editor.setOption("mode", "application/json");
+
+    const blob = new Blob([JSON.stringify(parsed, null, 2)], { type: 'application/json' });
+    blobUrl = URL.createObjectURL(blob);
+
+  } catch (e) {
+    console.error("Error:", e.message);
+
+    // Highlight JSON error
+    const msg = e.message;
+    const posMatch = msg.match(/at position (\d+)/);
+    if (posMatch) {
+      const pos = Number(posMatch[1]);
+      const coords = editor.posFromIndex(pos);
+      editor.markText(coords, { line: coords.line, ch: coords.ch + 1 }, {
+        className: "json-error",
+        title: e.message
+      });
     }
   }
+}
 
   try {
     if (blobUrl) {
@@ -4039,6 +4062,7 @@ function encodeBase64(string) {
 </body>
 
 </html>
+
 
 
 
