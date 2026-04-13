@@ -1728,7 +1728,22 @@ const hamburgerButton = document.getElementById('hamburger-button');
 
 <!-- UI FUNCTION CALLS -->
 <script async='async' type='text/javascript'>
-//<![CDATA[  
+//<![CDATA[
+
+window.launchToast = function launchToast(type, message) {
+  const x = document.getElementById('toast')
+  let descElement = document.getElementById('desc');
+  let iconElement = document.getElementById('icon');
+
+  if (!x || !desc) return;
+  descElement.innerHTML = message;
+   
+   x.className = 'show';
+   setTimeout(function() {
+      x.className = x.className.replace('show', '');
+   }, 5000);
+};
+	
 function themeAlternate() {
   var element = document.body;
   element.classList.toggle("dark-mode");
@@ -1813,42 +1828,6 @@ const updateLogo = (index, newWord) => {
   }
 };
 	
-/*
-function toggleSidebar(element = null) {
-  alert("Sudebar Toggled");
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
-
-  sidebar.classList.toggle('show');
-  overlay.classList.toggle('show');
-
-  if (sidebar.classList.contains('show')) {
-    hamburgerButton.textContent = 'X';
-  } else {
-    hamburgerButton.textContent = '☰';
-  }
-
-  if (element instanceof HTMLElement) {
-    const tagName = element.tagName.toLowerCase();
-
-    // Change the element's ID to be just the tag name.
-    // Ensure you are not overwriting an existing ID if one is already present.
-    if (!element.id) {
-      element.id = tagName; // Sets the ID to 'h3', 'h4', etc.
-    }
-
-    setTimeout(() => {
-      // The hash now correctly matches the element's new ID.
-      window.location.hash = element.id;
-      document.getElementById("title").classList.add("hovered");
-
-      // Scroll into view using the element itself.
-      element.scrollIntoView({ behavior: 'smooth' });
-    }, 300);
-  }
-}
-*/
-
 let isToggling = false;
 
 function toggleSidebar(element = null) {
@@ -1892,28 +1871,6 @@ function toggleSidebar(element = null) {
     isToggling = false; // Reset the flag if no element is provided.
   }
 }
-
-function launchToast(type, message) {
-  const x = document.getElementById('toast')
-  let descElement = document.getElementById('desc');
-  let iconElement = document.getElementById('icon');
-
-  descElement.innerHTML = message;
-   /*
-   if (type === 'info') {
-       iconElement.innerHTML = 'I:';
-   } else if (type === 'error') {
-       iconElement.innerHTML = 'E:';
-   } else if (type === 'console') {
-       iconElement.innerHTML = 'C:';
-   }
-   */
-    
-   x.className = 'show';
-   setTimeout(function() {
-      x.className = x.className.replace('show', '');
-   }, 5000);
-};
 
 function messageBox(title, body) {
   const mbox = document.querySelector('.messageBox');
@@ -2094,6 +2051,11 @@ function handleHamburger(event) {
 //<![CDATA[
 async function change(e) {
   try { 
+    if (!editor) {
+      console.warn("Editor not ready yet");
+      return;
+    }
+
     dataArea.value = editor.getValue()
 	await renderContent(dataArea.value, editorRender);
   } catch (error) {
@@ -2105,12 +2067,18 @@ async function change(e) {
 change();
 
 async function afterSwitch(e) {
-  try {  
-   shadowFrame.scrollLeft = storedXPosition;
-   shadowFrame.scrollTop = storedYPosition;
+  try {
+
+    if (!shadowFrame) {
+      console.warn("shadowFrame not ready");
+      return;
+    }
+
+    shadowFrame.scrollLeft = storedXPosition || 0;
+    shadowFrame.scrollTop = storedYPosition || 0;
+
   } catch (error) {
-    console.error("Error during change event: ", error);
-    // handleErrors(error);
+    console.error("Error during afterSwitch: ", error);
   }
 }
 
@@ -2388,7 +2356,9 @@ document.addEventListener('keydown', e => {
 });
 
 // CODEMIRROR
-editor.on("create", editor.setCursor({line: LinePosition , ch: ColumnPosition}) );
+if (editor) {
+  editor.setCursor({ line: LinePosition, ch: ColumnPosition });
+}
 
 editor.on("keydown", function (instance, event) {
   let selectedText = editor.getSelection();
