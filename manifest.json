@@ -1,28 +1,69 @@
 {
-   "name":"Recursive HTML",
-   "short_name":"Recursive HTML",
-   "id":"/",
-   "start_url":"/",
-   "scope":"/",
-   "background_color":"#ffffff",
-   "theme_color":"#000000",
-   "display":"standalone",
-   "icons":[
-      {
-         "src":"/favicon.ico",
-         "type":"image/x-icon",
-         "sizes":"any"
+  "name": "Recursive HTML",
+  "short_name": "Recursive HTML",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+
+  "display": "standalone",
+
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
+
+  "icons": [
+    {
+      "src": "extra/images/Recursive_HTML_ICON.png",
+      "type": "image/x-icon",
+      "sizes": "any"
+    },     
+    {
+      "src": "extra/images/Recursive_HTML_ICON.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "extra/images/Recursive_HTML_ICON.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+
+  "screenshots": [
+    {
+      "src": "extra/images/Recursive_HTML_ICON.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "extra/images/Recursive_HTML_ICON.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+
+  "file_handlers": [
+    {
+      "action": "/open-file",
+      "accept": {
+        "text/html": [".html", ".htm"],
+         "text/plain": [".txt"],
+         "application/json": [".json"]
       }
-   ],
-   "file_handlers":[
-      {
-         "action":"/open-file",
-         "accept":{
-            "text/html":[
-               ".html",
-               ".htm"
-            ]
-         }
-      }
-   ]
+    }
+  ],
+
+  "protocol_handlers": [
+    {
+      "protocol": "recursive",
+      "url": "/open-protocol?url=%s"
+    }
+  ]
 }
