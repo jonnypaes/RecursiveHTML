@@ -22,7 +22,7 @@
       "sizes": "any"
     },     
     {
-      "src": "extra/images/Recursive_HTML_ICON.png",
+      "src": "extra/images/icon(192).png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any"
@@ -62,7 +62,7 @@
 
   "protocol_handlers": [
     {
-      "protocol": "recursive",
+      "protocol": "web+recursive",
       "url": "/open-protocol?url=%s"
     }
   ]
